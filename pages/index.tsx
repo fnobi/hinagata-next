@@ -1,5 +1,3 @@
-function Home() {
+export default () => {
   return <div>Welcome to Next.js!</div>;
-}
-
-export default Home;
+};

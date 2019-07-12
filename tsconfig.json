@@ -1,0 +1,41 @@
+{
+  "compilerOptions": {
+    "module": "esnext",
+    "target": "es2015",
+    "lib": [
+      "esnext",
+      "dom"
+    ],
+    "jsx": "preserve",
+    "moduleResolution": "node",
+    "rootDir": ".",
+    "forceConsistentCasingInFileNames": false,
+    "noImplicitReturns": true,
+    "strict": true,
+    "suppressImplicitAnyIndexErrors": true,
+    "noUnusedLocals": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": [
+        "src/js/*"
+      ],
+      "axios": [
+        "node_modules/axios/index.d.ts"
+      ]
+    },
+    "allowJs": true,
+    "skipLibCheck": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true
+  },
+  "exclude": [
+    "node_modules"
+  ],
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx"
+  ]
+}
