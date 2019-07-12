@@ -1,0 +1,19 @@
+{
+  "name": "hinagata-next",
+  "version": "1.0.0",
+  "description": "Awsome next.js project.",
+  "main": "index.js",
+  "scripts": {
+    "dev": "next",
+    "build": "next build",
+    "start": "next start"
+  },
+  "keywords": [],
+  "author": "Fujisawa Shin",
+  "license": "ISC",
+  "devDependencies": {
+    "next": "^9.0.1",
+    "react": "^16.8.6",
+    "react-dom": "^16.8.6"
+  }
+}
