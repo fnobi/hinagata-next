@@ -41,6 +41,9 @@
     "no-shadow": 1,
     "no-param-reassign" : 1
   },
+  "globals": {
+    "window": true
+  },
   "env": {
     "jest": true
   }
