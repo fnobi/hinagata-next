@@ -7,7 +7,6 @@
     "dev": "next",
     "build": "next build",
     "export": "npm run build && next export",
-    "start": "next start",
     "lint": "eslint --ext .ts,.tsx,.js --fix ."
   },
   "keywords": [],
