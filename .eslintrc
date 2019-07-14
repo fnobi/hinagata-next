@@ -12,9 +12,11 @@
   "rules": {
     "arrow-parens": [2, "as-needed"],
     "curly": [1, "all"],
+    "no-unused-vars": 0,
     "@typescript-eslint/explicit-member-accessibility": 2,
     "@typescript-eslint/no-unnecessary-type-assertion": 2,
     "@typescript-eslint/no-explicit-any": 2,
+    "@typescript-eslint/no-unused-vars": 2,
     "prefer-arrow/prefer-arrow-functions": 0,
     "react/jsx-filename-extension": [
       1,
