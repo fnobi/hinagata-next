@@ -42,7 +42,8 @@
     "no-param-reassign" : 1
   },
   "globals": {
-    "window": true
+    "window": true,
+    "document": true
   },
   "env": {
     "jest": true
