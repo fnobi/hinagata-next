@@ -1,4 +1,4 @@
-import SRedux from "~/lib/SRedux";
+import TypeRegi from "~/lib/TypeRegi";
 
 export type SampleState = {
   mouse: [number, number];
@@ -28,7 +28,7 @@ const sampleActions = {
   }
 };
 
-export default new SRedux<SampleState, SampleActions>(
+export default new TypeRegi<SampleState, SampleActions>(
   initialSampleState,
   sampleActions
 );

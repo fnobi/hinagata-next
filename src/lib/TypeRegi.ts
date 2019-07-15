@@ -2,7 +2,7 @@ type ActionCollection<S, A> = {
   [type in keyof A]: (state: S, e: A[type]) => S;
 };
 
-export default class SRedux<S, A> {
+export default class TypeRegi<S, A> {
   private state: S;
 
   private actionCollection: ActionCollection<S, A>;

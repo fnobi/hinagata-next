@@ -1,10 +1,9 @@
 import React from "react";
 import { useState } from "react";
 import styled from "styled-components";
-import Link from "next/link";
 import DefaultLayout from "~/layouts/DefaultLayout";
 import sampleStore from "~/store/sample";
-import { connectToHooks } from "~/lib/sReduxHelper";
+import { connectToHooks } from "~/lib/typeRegiHelper";
 
 export default () => {
   const [count, setCount] = useState<number>(0);
