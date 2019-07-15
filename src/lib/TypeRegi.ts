@@ -9,6 +9,8 @@ export default class TypeRegi<S, A> {
 
   private subscriptions: ((state: S) => void)[] = [];
 
+  private timer: number = 0;
+
   public constructor(state: S, actionCollection: ActionCollection<S, A>) {
     this.state = state;
     this.actionCollection = actionCollection;
@@ -22,8 +24,7 @@ export default class TypeRegi<S, A> {
     const newState = reducer(this.state, payload);
     this.state = newState;
 
-    // TODO: timerは賢く実行(同期的に複数回呼ばれてもこいつは一度しか掛けない)
-    setTimeout(() => {
+    this.fireTimer(() => {
       this.subscriptions.forEach(handler => handler(this.state));
     });
   }
@@ -34,9 +35,14 @@ export default class TypeRegi<S, A> {
 
   public subscribe(handler: (state: S) => void): () => void {
     this.subscriptions.push(handler);
-    setTimeout(() => {
-      handler(this.state);
-    });
+
+    // すでにsubscriptions実行のtimerがいるときはそれに任せる
+    if (!this.timer) {
+      this.fireTimer(() => {
+        handler(this.state);
+      });
+    }
+
     return () => {
       const index = this.subscriptions.findIndex(h => h === handler);
       this.subscriptions = [
@@ -44,5 +50,20 @@ export default class TypeRegi<S, A> {
         ...this.subscriptions.slice(index + 1)
       ];
     };
+  }
+
+  private fireTimer(fn: () => void) {
+    if (this.timer) {
+      this.clearTimer();
+    }
+    this.timer = setTimeout(() => {
+      fn();
+      this.clearTimer();
+    });
+  }
+
+  private clearTimer() {
+    clearTimeout(this.timer);
+    this.timer = 0;
   }
 }
