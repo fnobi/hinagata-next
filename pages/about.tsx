@@ -1,5 +1,4 @@
 import React from "react";
-import { useState } from "react";
 import styled from "styled-components";
 import Link from "next/link";
 import DefaultLayout from "~/layouts/DefaultLayout";
@@ -7,18 +6,13 @@ import sampleStore from "~/store/sample";
 import { connectToHooks } from "~/lib/typeRegiHelper";
 
 export default () => {
-  const [mouse, setMouse] = useState<[number, number]>([0, 0]);
   const sampleState = connectToHooks(sampleStore);
   const { count } = sampleState;
 
-  const updateMouse = (e: React.MouseEvent) => {
-    setMouse([e.pageX, e.pageY]);
-  };
-
   return (
     <DefaultLayout>
-      <Wrapper onMouseMove={updateMouse}>
-        <Title>Welcome to Next.js!</Title>
+      <Wrapper>
+        <Title>About</Title>
         <button
           type="button"
           onClick={() => sampleStore.dispatch("incrementCounter", { value: 1 })}
@@ -26,9 +20,8 @@ export default () => {
           count up:{count}
         </button>
         <p>
-          <Link href="/about">about</Link>
+          <Link href="/">top</Link>
         </p>
-        <p>{mouse.join(",")}</p>
       </Wrapper>
     </DefaultLayout>
   );
