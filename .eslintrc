@@ -26,7 +26,7 @@
     "import/no-duplicates": 0,
     "import/no-unresolved": 0,
     "no-undef": 1,
-    "react/no-array-index-key": 1,
+    "react/no-array-index-key": 0,
     "prettier/prettier": 1,
     "jsx-a11y/label-has-associated-control": 1,
     "jsx-a11y/label-has-for": 1,
