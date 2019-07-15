@@ -6,19 +6,22 @@ import sampleStore from "~/store/sample";
 import { connectToHooks } from "~/lib/typeRegiHelper";
 
 export default () => {
-  const [count, setCount] = useState<number>(0);
+  const [mouse, setMouse] = useState<[number, number]>([0, 0]);
   const sampleState = connectToHooks(sampleStore);
-  const { mouse } = sampleState;
+  const { count } = sampleState;
 
   const updateMouse = (e: React.MouseEvent) => {
-    sampleStore.dispatch("setMouse", { x: e.pageX, y: e.pageY });
+    setMouse([e.pageX, e.pageY]);
   };
 
   return (
     <DefaultLayout>
       <Wrapper onMouseMove={updateMouse}>
         <Title>Welcome to Next.js!</Title>
-        <button type="button" onClick={() => setCount(count + 1)}>
+        <button
+          type="button"
+          onClick={() => sampleStore.dispatch("incrementCounter", { value: 1 })}
+        >
           count up:{count}
         </button>
         <p>{mouse.join(",")}</p>

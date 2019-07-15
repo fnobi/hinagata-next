@@ -1,29 +1,28 @@
 import TypeRegi from "~/lib/TypeRegi";
 
 export type SampleState = {
-  mouse: [number, number];
+  count: number;
 };
 
 interface SampleActions {
-  setMouse: {
-    x: number;
-    y: number;
+  incrementCounter: {
+    value: number;
   };
 }
 
-export const initialSampleState = {
-  mouse: [0, 0] as [number, number]
+export const initialSampleState: SampleState = {
+  count: 0
 };
 
 const sampleActions = {
-  setMouse: (
+  incrementCounter: (
     state: SampleState,
-    payload: { x: number; y: number }
+    payload: { value: number }
   ): SampleState => {
-    const { x, y } = payload;
+    const { value } = payload;
     return {
       ...state,
-      mouse: [x, y]
+      count: state.count + value
     };
   }
 };
