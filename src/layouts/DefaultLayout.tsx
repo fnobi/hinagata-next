@@ -1,6 +1,7 @@
 import React from "react";
 import Head from "next/head";
-import { Reset } from "styled-reset";
+import emotionReset from "emotion-reset";
+import { Global, css } from "@emotion/core";
 import META from "~/meta";
 
 export default (({ children }) => (
@@ -21,7 +22,7 @@ export default (({ children }) => (
       <link rel="canonical" href={META.URL} />
       <link rel="icon" type="image/x-icon" href={META.FAVICON_PATH} />
     </Head>
-    <Reset />
+    <Global styles={css(emotionReset)} />
     {children}
   </div>
 )) as React.FunctionComponent;

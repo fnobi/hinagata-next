@@ -1,10 +1,27 @@
 import React from "react";
 import { useState } from "react";
-import styled from "styled-components";
 import Link from "next/link";
+import { css } from "@emotion/core";
 import DefaultLayout from "~/layouts/DefaultLayout";
 import sampleStore from "~/store/sample";
 import { connectToHooks } from "~/lib/typeRegiHelper";
+
+const wrapperStyle = css({
+  position: "fixed",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  flexDirection: "column",
+  top: 20,
+  left: 0,
+  width: "100%",
+  height: "100%"
+});
+
+const titleStyle = css({
+  fontWeight: "bold",
+  marginBottom: "0.5em"
+});
 
 export default () => {
   const [mouse, setMouse] = useState<[number, number]>([0, 0]);
@@ -17,8 +34,8 @@ export default () => {
 
   return (
     <DefaultLayout>
-      <Wrapper onMouseMove={updateMouse}>
-        <Title>Welcome to Next.js!</Title>
+      <div css={wrapperStyle} onMouseMove={updateMouse}>
+        <div css={titleStyle}>Welcome to Next.js!</div>
         <button
           type="button"
           onClick={() => sampleStore.dispatch("incrementCounter", { value: 1 })}
@@ -29,24 +46,7 @@ export default () => {
           <Link href="/about">about</Link>
         </p>
         <p>{mouse.join(",")}</p>
-      </Wrapper>
+      </div>
     </DefaultLayout>
   );
 };
-
-const Wrapper = styled.div`
-  position: fixed;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-`;
-
-const Title = styled.div`
-  font-weight: bold;
-  margin-bottom: 0.5em;
-`;

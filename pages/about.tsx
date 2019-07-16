@@ -1,9 +1,26 @@
 import React from "react";
-import styled from "styled-components";
 import Link from "next/link";
+import { css } from "@emotion/core";
 import DefaultLayout from "~/layouts/DefaultLayout";
 import sampleStore from "~/store/sample";
 import { connectToHooks } from "~/lib/typeRegiHelper";
+
+const wrapperStyle = css({
+  position: "fixed",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  flexDirection: "column",
+  top: 0,
+  left: 0,
+  width: "100%",
+  height: "100%"
+});
+
+const titleStyle = css({
+  fontWeight: "bold",
+  marginBottom: "0.5em"
+});
 
 export default () => {
   const sampleState = connectToHooks(sampleStore);
@@ -11,8 +28,8 @@ export default () => {
 
   return (
     <DefaultLayout>
-      <Wrapper>
-        <Title>About</Title>
+      <div css={wrapperStyle}>
+        <div css={titleStyle}>About</div>
         <button
           type="button"
           onClick={() => sampleStore.dispatch("incrementCounter", { value: 1 })}
@@ -22,24 +39,7 @@ export default () => {
         <p>
           <Link href="/">top</Link>
         </p>
-      </Wrapper>
+      </div>
     </DefaultLayout>
   );
 };
-
-const Wrapper = styled.div`
-  position: fixed;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-`;
-
-const Title = styled.div`
-  font-weight: bold;
-  margin-bottom: 0.5em;
-`;
