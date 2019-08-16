@@ -1,9 +1,15 @@
 import React from "react";
 import Link from "next/link";
+import { connect } from "react-redux";
 import { css } from "@emotion/core";
 import DefaultLayout from "~/layouts/DefaultLayout";
-import sampleStore from "~/store/sample";
-import { connectToHooks } from "~/lib/typeRegiHelper";
+import { State } from "~/reducers";
+import { incrementCounter } from "~/reducers/sampleReducer";
+
+type Props = {
+  count: number;
+  setCount(count: number): void;
+};
 
 const wrapperStyle = css({
   position: "fixed",
@@ -22,18 +28,14 @@ const titleStyle = css({
   marginBottom: "0.5em"
 });
 
-export default () => {
-  const sampleState = connectToHooks(sampleStore);
-  const { count } = sampleState;
+const About = (props: Props) => {
+  const { count, setCount } = props;
 
   return (
     <DefaultLayout>
       <div css={wrapperStyle}>
         <div css={titleStyle}>About</div>
-        <button
-          type="button"
-          onClick={() => sampleStore.dispatch("incrementCounter", { value: 1 })}
-        >
+        <button type="button" onClick={() => setCount(count + 1)}>
           count up:{count}
         </button>
         <p>
@@ -43,3 +45,16 @@ export default () => {
     </DefaultLayout>
   );
 };
+
+const mapState = (state: State) => {
+  return {
+    count: state.sampleReducer.count
+  };
+};
+
+export default connect(
+  mapState,
+  {
+    setCount: incrementCounter
+  }
+)(About);
