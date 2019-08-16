@@ -1,10 +1,10 @@
-import { combineReducers } from 'redux'
-import sampleReducer, { SampleState } from './sampleReducer'
+import { combineReducers } from "redux";
+import sampleReducer, { SampleState } from "./sampleReducer";
 
 export interface State {
-  sampleReducer: SampleState
+  sampleReducer: SampleState;
 }
 
 export default combineReducers({
   sampleReducer
-})
+});
