@@ -1,15 +1,20 @@
 import React from "react";
 import Link from "next/link";
-import { connect } from "react-redux";
+import { connect, MapDispatchToPropsParam } from "react-redux";
 import { css } from "@emotion/core";
 import DefaultLayout from "~/layouts/DefaultLayout";
 import { State } from "~/reducers";
-import { incrementCounter } from "~/reducers/sampleReducer";
+import { setCounter } from "~/reducers/sampleReducer";
 
-type Props = {
+type StateToProps = {
   count: number;
-  setCount(count: number): void;
 };
+
+type ActionToProps = {
+  setCounter(count: number): void;
+};
+
+type Props = StateToProps & ActionToProps;
 
 const wrapperStyle = css({
   position: "fixed",
@@ -29,13 +34,13 @@ const titleStyle = css({
 });
 
 const About = (props: Props) => {
-  const { count, setCount } = props;
+  const { count, setCounter } = props;
 
   return (
     <DefaultLayout>
       <div css={wrapperStyle}>
         <div css={titleStyle}>About</div>
-        <button type="button" onClick={() => setCount(count + 1)}>
+        <button type="button" onClick={() => setCounter(count + 1)}>
           count up:{count}
         </button>
         <p>
@@ -52,9 +57,11 @@ const mapState = (state: State) => {
   };
 };
 
+const mapActions: MapDispatchToPropsParam<ActionToProps, {}> = {
+  setCounter
+};
+
 export default connect(
   mapState,
-  {
-    setCount: incrementCounter
-  }
+  mapActions
 )(About);

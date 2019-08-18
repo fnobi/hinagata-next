@@ -1,4 +1,6 @@
-const INCREMENT_COUNTER = "INCREMENT_COUNTER";
+enum ActionType {
+  SET_COUNTER
+}
 
 type Action<T> = {
   type: T;
@@ -10,20 +12,17 @@ type ActionWithPayload<P, T> = Action<T> & {
   };
 };
 
-type IncrementCounter = ActionWithPayload<
-  { count: number },
-  typeof INCREMENT_COUNTER
->;
+type SetCounter = ActionWithPayload<{ count: number }, ActionType.SET_COUNTER>;
 
-type SampleAction = IncrementCounter;
+type SampleAction = SetCounter;
 
 export type SampleState = {
   count: number;
 };
 
-export const incrementCounter = (count: number): IncrementCounter => {
+export const setCounter = (count: number): SetCounter => {
   return {
-    type: INCREMENT_COUNTER,
+    type: ActionType.SET_COUNTER,
     payload: {
       count
     }
@@ -36,7 +35,7 @@ const defaultState: SampleState = {
 
 export default (state: SampleState = defaultState, action: SampleAction) => {
   switch (action.type) {
-    case INCREMENT_COUNTER: {
+    case ActionType.SET_COUNTER: {
       return {
         ...state,
         count: action.payload.count

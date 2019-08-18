@@ -1,16 +1,20 @@
-import React from "react";
-import { useState } from "react";
-import { connect } from "react-redux";
+import React, { useState } from "react";
 import Link from "next/link";
+import { connect, MapDispatchToPropsParam } from "react-redux";
 import { css } from "@emotion/core";
 import DefaultLayout from "~/layouts/DefaultLayout";
 import { State } from "~/reducers";
-import { incrementCounter } from "~/reducers/sampleReducer";
+import { setCounter } from "~/reducers/sampleReducer";
 
-type Props = {
+type StateToProps = {
   count: number;
-  setCount(count: number): void;
 };
+
+type ActionToProps = {
+  setCounter(count: number): void;
+};
+
+type Props = StateToProps & ActionToProps;
 
 const wrapperStyle = css({
   position: "fixed",
@@ -31,7 +35,7 @@ const titleStyle = css({
 
 const Index = (props: Props) => {
   const [mouse, setMouse] = useState<[number, number]>([0, 0]);
-  const { count, setCount } = props;
+  const { count, setCounter } = props;
 
   const updateMouse = (e: React.MouseEvent) => {
     setMouse([e.pageX, e.pageY]);
@@ -41,7 +45,7 @@ const Index = (props: Props) => {
     <DefaultLayout>
       <div css={wrapperStyle} onMouseMove={updateMouse}>
         <div css={titleStyle}>Welcome to Next.js!</div>
-        <button type="button" onClick={() => setCount(count + 1)}>
+        <button type="button" onClick={() => setCounter(count + 1)}>
           count up:{count}
         </button>
         <p>
@@ -59,9 +63,11 @@ const mapState = (state: State) => {
   };
 };
 
+const mapActions: MapDispatchToPropsParam<ActionToProps, {}> = {
+  setCounter
+};
+
 export default connect(
   mapState,
-  {
-    setCount: incrementCounter
-  }
+  mapActions
 )(Index);
