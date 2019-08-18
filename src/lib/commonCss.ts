@@ -8,3 +8,5 @@ export const globalStyle = css({
     textSizeAdjust: "100%"
   }
 });
+
+export const dummy = null;
