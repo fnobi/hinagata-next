@@ -2,8 +2,10 @@ import React from "react";
 import Link from "next/link";
 import { css } from "@emotion/core";
 import DefaultLayout from "~/layouts/DefaultLayout";
-import sampleStore from "~/store/sample";
-import { connectToHooks } from "~/lib/typeRegiHelper";
+import sampleStore, { SampleState } from "~/store/sample";
+import { connectStore } from "~/lib/typeRegiHelper";
+
+type Props = SampleState;
 
 const wrapperStyle = css({
   position: "fixed",
@@ -22,9 +24,8 @@ const titleStyle = css({
   marginBottom: "0.5em"
 });
 
-export default () => {
-  const sampleState = connectToHooks(sampleStore);
-  const { count } = sampleState;
+export default connectStore(sampleStore, (props: Props) => {
+  const { count } = props;
 
   return (
     <DefaultLayout>
@@ -42,4 +43,4 @@ export default () => {
       </div>
     </DefaultLayout>
   );
-};
+});
