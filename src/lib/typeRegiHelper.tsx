@@ -4,9 +4,9 @@ import TypeRegi from "./TypeRegi";
 export function connectStore<State, PropsFromStore, Props>(
   store: TypeRegi<State, unknown>,
   reduce: (state: State) => PropsFromStore,
-  Cmp: (props: Props & PropsFromStore) => JSX.Element
+  Cmp: React.FunctionComponent<Props & PropsFromStore>
 ) {
-  return (props: Props) => {
+  return (props => {
     const [state, setState] = useState(store.getState());
     useEffect(() => store.subscribe(setState), [state]);
     const merged = {
@@ -14,12 +14,12 @@ export function connectStore<State, PropsFromStore, Props>(
       ...props
     };
     return <Cmp {...merged} />;
-  };
+  }) as React.FunctionComponent<Props>;
 }
 
 export function connectStoreAll<State, Props>(
   store: TypeRegi<State, unknown>,
-  Cmp: (props: Props & State) => JSX.Element
+  Cmp: React.FunctionComponent<Props & State>
 ) {
   return connectStore<State, State, Props>(store, (state: State) => state, Cmp);
 }
