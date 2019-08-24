@@ -3,9 +3,9 @@ import Link from "next/link";
 import { css } from "@emotion/core";
 import DefaultLayout from "~/layouts/DefaultLayout";
 import sampleStore, { SampleState } from "~/store/sample";
-import { connectStore } from "~/lib/typeRegiHelper";
+import { connectStoreAll } from "~/lib/typeRegiHelper";
 
-type Props = SampleState;
+type Props = {};
 
 const wrapperStyle = css({
   position: "fixed",
@@ -24,7 +24,7 @@ const titleStyle = css({
   marginBottom: "0.5em"
 });
 
-export default connectStore(sampleStore, (props: Props) => {
+export default connectStoreAll(sampleStore, (props: Props & SampleState) => {
   const { count } = props;
 
   return (
