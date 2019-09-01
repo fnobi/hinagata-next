@@ -9,4 +9,16 @@ export const globalStyle = css({
   }
 });
 
-export const dummy = null;
+export const linkReset = css({
+  display: "inline-block",
+  textDecoration: "none",
+  color: "inherit"
+});
+
+export const buttonReset = css({
+  padding: 0,
+  margin: 0,
+  appearance: "none",
+  border: "none",
+  background: "none"
+});
