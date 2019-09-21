@@ -1,11 +1,15 @@
+const appendPostfix = (nums: number[], postfix: string) => {
+  return nums.map<string>(n => `${n}${postfix}`).join(" ");
+}
+
 export const px = (...nums: number[]) => {
-  return nums.map<string>(n => `${n}px`).join(" ");
+  return appendPostfix(nums, 'px');
 };
 
 export const percent = (...nums: number[]) => {
-  return nums.map<string>(n => `${n}%`).join(" ");
+  return appendPostfix(nums, '%');
 };
 
 export const em = (...nums: number[]) => {
-  return nums.map<string>(n => `${n}em`).join(" ");
+  return appendPostfix(nums, 'em');
 };
