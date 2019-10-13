@@ -13,7 +13,7 @@ export function connectStore<State, PropsFromStore, Props>(
       ...reduce(state),
       ...props
     };
-    return <Cmp {...merged} />;
+    return React.createElement(Cmp, { ...merged });
   }) as React.FunctionComponent<Props>;
 }
 
