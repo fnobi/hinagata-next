@@ -37,7 +37,6 @@ export class TransformBuilder {
 
   // matrix(数値, 数値, 数値, 数値, 数値, 数値)
   // matrix3d(数値, 数値, 数値, 数値, 数値, 数値, 数値, 数値, 数値, 数値, 数値, 数値, 数値, 数値, 数値, 数値)
-  // translate3d(X方向の移動距離, Y方向の移動距離, Z方向の移動距離)
 
   public scale(x: number, y: number) {
     return this.addOperationNumbers("scale", [x, y]);
@@ -73,6 +72,10 @@ export class TransformBuilder {
 
   public translateZ(num: number) {
     return this.addOperationNumbers("translateZ", [num], "px");
+  }
+
+  public translate3d(x: number, y: number, z: number) {
+    return this.addOperationNumbers("translate3d", [x, y, z], "px");
   }
 
   public rotate(num: number) {
