@@ -24,11 +24,14 @@ export const buttonReset = css({
 });
 
 export class TransformBuilder {
-  private queue: string[] = [];
+  private readonly queue: string[];
+
+  public constructor(queue: string[] = []) {
+    this.queue = queue;
+  }
 
   private addOperation(fn: string, val: string) {
-    this.queue.push(`${fn}(${val})`);
-    return this;
+    return new TransformBuilder([...this.queue, `${fn}(${val})`]);
   }
 
   private addOperationNumbers(fn: string, nums: number[], unit: string = "") {
