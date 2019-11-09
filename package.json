@@ -37,6 +37,7 @@
     "@emotion/core": "^10.0.14",
     "emotion-reset": "^2.0.1",
     "next": "^9.0.5",
-    "react": "^16.8.6"
+    "react": "^16.8.6",
+    "type-regi": "^1.0.1"
   }
 }

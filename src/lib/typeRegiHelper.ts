@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import TypeRegi from "./TypeRegi";
+import TypeRegi from "type-regi";
 
 export function connectStore<State, PropsFromStore, Props>(
   store: TypeRegi<State, unknown>,
