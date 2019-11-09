@@ -44,7 +44,9 @@ export default connectStoreAll(sampleStore, (props: Props & SampleState) => {
           count up:{count}
         </button>
         <p>
-          <Link href="/about">about</Link>
+          <Link href="/about">
+            <a href="/about">about</a>
+          </Link>
         </p>
         <p>{mouse.join(",")}</p>
       </div>

@@ -38,7 +38,9 @@ export default connectStoreAll(sampleStore, (props: Props & SampleState) => {
           count up:{count}
         </button>
         <p>
-          <Link href="/">top</Link>
+          <Link href="/">
+            <a href="/">top</a>
+          </Link>
         </p>
       </div>
     </DefaultLayout>
