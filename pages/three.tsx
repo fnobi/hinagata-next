@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from "react";
 import { css } from "@emotion/core";
 import DefaultLayout from "~/layouts/DefaultLayout";
 import { px, percent } from "~/lib/cssUtil";
-import ThreeCube from "~/lib/TheeCube";
+import ThreeFullScreen from "~/lib/TheeFullScreen";
 
 const canvasStyle = css({
   position: "fixed",
@@ -22,12 +22,12 @@ export default () => {
       return () => {};
     }
 
-    const threeCube = new ThreeCube(el);
+    const threeCube = new ThreeFullScreen(el);
 
     let timer: number;
     function animate() {
       timer = window.requestAnimationFrame(animate);
-      threeCube.update();
+      // threeCube.update();
       threeCube.render();
     }
     animate();
