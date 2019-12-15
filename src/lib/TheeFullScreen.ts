@@ -7,24 +7,8 @@ import {
   Vector2,
   PlaneGeometry
 } from "three";
-
-const vertexShader = `
-precision highp float;
-
-attribute vec3 position;
-
-void main() {
-  gl_Position = vec4(position, 1.0);
-}`;
-
-const fragmentShader = `
-precision highp float;
-
-uniform vec2 resolution;
-
-void main() {
-  gl_FragColor = vec4(gl_FragCoord.xy / resolution, 0.0, 1.0);
-}`;
+import fullScreenVertex from "~/glsl/fullScreenVertex.glsl";
+import sampleFragment from "~/glsl/sampleFragment.glsl";
 
 export default class ThreeFullScreen {
   private scene: Scene;
@@ -52,8 +36,8 @@ export default class ThreeFullScreen {
         resolution: { value: new Vector2(w, h) },
         time: { value: 0.0 } // TODO: どうやって更新する?
       },
-      vertexShader,
-      fragmentShader
+      vertexShader: fullScreenVertex,
+      fragmentShader: sampleFragment
     });
     this.plane = new Mesh(new PlaneGeometry(2.0, 2.0), material);
     this.scene.add(this.plane);
