@@ -50,7 +50,7 @@ export default () => {
     let timer: number;
     const animate = () => {
       timer = window.requestAnimationFrame(animate);
-      // threeCube.update();
+      threeFullScreen.update();
       threeFullScreen.render();
     };
     animate();

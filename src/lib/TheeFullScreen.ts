@@ -11,6 +11,7 @@ import fullScreenVertex from "~/glsl/fullScreenVertex.glsl";
 import sampleFragment from "~/glsl/sampleFragment.glsl";
 
 type UniformObject = {
+  // TODO: typing
   resolution: {
     value: Vector2;
   };
@@ -35,12 +36,16 @@ export default class ThreeFullScreen {
 
   private uniformObject: UniformObject;
 
+  private startTime: number;
+
   private renderer?: WebGLRenderer;
 
   public constructor(defaultSize: [number, number] = [1, 1]) {
     this.scene = new Scene();
 
     this.camera = new OrthographicCamera(...calcCameraArea(...defaultSize));
+
+    this.startTime = Date.now();
 
     this.uniformObject = {
       resolution: { value: new Vector2(...defaultSize) },
@@ -71,6 +76,12 @@ export default class ThreeFullScreen {
       this.camera.bottom
     ] = calcCameraArea(w, h);
     this.uniformObject.resolution.value = new Vector2(w, h);
+  }
+
+  public update() {
+    const elapsedMilliseconds = Date.now() - this.startTime;
+    const elapsedSeconds = elapsedMilliseconds / 1000;
+    this.uniformObject.time.value = 60 * elapsedSeconds;
   }
 
   public render() {
