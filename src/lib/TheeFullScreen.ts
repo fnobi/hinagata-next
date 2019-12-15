@@ -1,41 +1,54 @@
 import {
   Scene,
-  PerspectiveCamera,
   WebGLRenderer,
   Mesh,
   RawShaderMaterial,
   Vector2,
-  PlaneGeometry
+  PlaneGeometry,
+  OrthographicCamera
 } from "three";
 import fullScreenVertex from "~/glsl/fullScreenVertex.glsl";
 import sampleFragment from "~/glsl/sampleFragment.glsl";
 
+type UniformObject = {
+  resolution: {
+    value: Vector2;
+  };
+  time: {
+    value: number;
+  };
+};
+
+function calcCameraArea(
+  width: number,
+  height: number
+): [number, number, number, number] {
+  return [-width / 2, width / 2, -height / 2, height / 2];
+}
+
 export default class ThreeFullScreen {
   private scene: Scene;
 
-  private camera: PerspectiveCamera;
-
-  private renderer: WebGLRenderer;
+  private camera: OrthographicCamera;
 
   private plane: Mesh;
 
-  public constructor(el: HTMLCanvasElement) {
-    const w = window.innerWidth;
-    const h = window.innerHeight;
+  private uniformObject: UniformObject;
 
+  private renderer?: WebGLRenderer;
+
+  public constructor(defaultSize: [number, number] = [1, 1]) {
     this.scene = new Scene();
 
-    this.camera = new PerspectiveCamera(75, w / h, 0.1, 1000);
-    this.camera.position.z = 5;
+    this.camera = new OrthographicCamera(...calcCameraArea(...defaultSize));
 
-    this.renderer = new WebGLRenderer({ canvas: el });
-    this.renderer.setSize(w, h);
+    this.uniformObject = {
+      resolution: { value: new Vector2(...defaultSize) },
+      time: { value: 0.0 }
+    };
 
     const material = new RawShaderMaterial({
-      uniforms: {
-        resolution: { value: new Vector2(w, h) },
-        time: { value: 0.0 } // TODO: どうやって更新する?
-      },
+      uniforms: this.uniformObject,
       vertexShader: fullScreenVertex,
       fragmentShader: sampleFragment
     });
@@ -43,7 +56,27 @@ export default class ThreeFullScreen {
     this.scene.add(this.plane);
   }
 
+  public setRenderer(el: HTMLCanvasElement) {
+    this.renderer = new WebGLRenderer({ canvas: el });
+  }
+
+  public setSize(w: number, h: number) {
+    if (this.renderer) {
+      this.renderer.setSize(w, h);
+    }
+    [
+      this.camera.left,
+      this.camera.right,
+      this.camera.top,
+      this.camera.bottom
+    ] = calcCameraArea(w, h);
+    this.uniformObject.resolution.value = new Vector2(w, h);
+  }
+
   public render() {
+    if (!this.renderer) {
+      return;
+    }
     this.renderer.render(this.scene, this.camera);
   }
 }

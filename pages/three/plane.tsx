@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useMemo } from "react";
 import { css } from "@emotion/core";
 import Link from "next/link";
 import DefaultLayout from "~/layouts/DefaultLayout";
@@ -27,26 +27,38 @@ const uiStyle = css({
 export default () => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
+  const threeFullScreen = useMemo(() => new ThreeFullScreen(), []);
+
   useEffect(() => {
     const el = canvasRef.current;
     if (!el) {
-      return () => {};
+      return;
     }
+    threeFullScreen.setRenderer(el);
+  }, [canvasRef]);
 
-    const threePlane = new ThreeFullScreen(el);
+  useEffect(() => {
+    threeFullScreen.setSize(window.innerWidth, window.innerHeight);
+    const handler = () => {
+      threeFullScreen.setSize(window.innerWidth, window.innerHeight);
+    };
+    window.addEventListener("resize", handler);
+    return () => window.removeEventListener("resize", handler);
+  }, []);
 
+  useEffect(() => {
     let timer: number;
-    function animate() {
+    const animate = () => {
       timer = window.requestAnimationFrame(animate);
       // threeCube.update();
-      threePlane.render();
-    }
+      threeFullScreen.render();
+    };
     animate();
     return () => {
       window.cancelAnimationFrame(timer);
       // TODO: dispose three
     };
-  }, [canvasRef]);
+  }, []);
 
   return (
     <DefaultLayout>
