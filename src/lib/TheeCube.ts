@@ -1,46 +1,89 @@
 import {
   Scene,
-  PerspectiveCamera,
   WebGLRenderer,
+  Mesh,
+  PerspectiveCamera,
   BoxGeometry,
-  MeshBasicMaterial,
-  Mesh
+  MeshBasicMaterial
 } from "three";
+
+type UniformObject = {
+  // TODO: typing
+  time: {
+    value: number;
+  };
+};
 
 export default class ThreeCube {
   private scene: Scene;
 
   private camera: PerspectiveCamera;
 
-  private renderer: WebGLRenderer;
-
   private cube: Mesh;
 
-  public constructor(el: HTMLCanvasElement) {
-    const w = window.innerWidth;
-    const h = window.innerHeight;
+  private uniformObject: UniformObject;
 
+  private startTime: number;
+
+  private renderer?: WebGLRenderer;
+
+  public constructor(defaultSize: [number, number] = [1, 1]) {
     this.scene = new Scene();
 
-    this.camera = new PerspectiveCamera(75, w / h, 0.1, 1000);
+    this.camera = new PerspectiveCamera(
+      75,
+      defaultSize[1] / defaultSize[0],
+      0.1,
+      1000
+    );
     this.camera.position.z = 5;
 
-    this.renderer = new WebGLRenderer({ canvas: el });
-    this.renderer.setSize(w, h);
+    this.startTime = Date.now();
 
-    const geometry = new BoxGeometry(1, 1, 1);
-    const material = new MeshBasicMaterial({ color: 0x00ff00 });
-    this.cube = new Mesh(geometry, material);
+    this.uniformObject = {
+      time: { value: 0.0 }
+    };
+
+    /*
+    const material = new RawShaderMaterial({
+      uniforms: this.uniformObject,
+      vertexShader: nejiVertex,
+      fragmentShader: flatFragment
+    });
+    */
+    const material = new MeshBasicMaterial({
+      color: 0x00ff00
+    });
+
+    this.cube = new Mesh(new BoxGeometry(1, 1, 1), material);
     this.scene.add(this.cube);
   }
 
+  public setRenderer(el: HTMLCanvasElement) {
+    this.renderer = new WebGLRenderer({ canvas: el });
+  }
+
+  public setSize(w: number, h: number) {
+    if (this.renderer) {
+      this.renderer.setSize(w, h);
+    }
+    this.camera.aspect = h / w;
+  }
+
   public update() {
+    const elapsedMilliseconds = Date.now() - this.startTime;
+    const elapsedSeconds = elapsedMilliseconds / 1000;
+    this.uniformObject.time.value = 60 * elapsedSeconds;
+
     this.cube.rotation.x += 0.01;
     this.cube.rotation.y += 0.01;
     this.cube.rotation.z += 0.01;
   }
 
   public render() {
+    if (!this.renderer) {
+      return;
+    }
     this.renderer.render(this.scene, this.camera);
   }
 }
