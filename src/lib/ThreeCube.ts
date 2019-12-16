@@ -69,7 +69,8 @@ export default class ThreeCube {
     if (this.renderer) {
       this.renderer.setSize(w, h);
     }
-    this.camera.aspect = h / w;
+    this.camera.aspect = w / h;
+    this.camera.updateProjectionMatrix();
     this.uniformObject.resolution.value = new Vector2(w, h);
   }
 
