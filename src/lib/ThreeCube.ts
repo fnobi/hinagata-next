@@ -38,7 +38,7 @@ export default class ThreeCube {
 
     this.camera = new PerspectiveCamera(
       75,
-      defaultSize[1] / defaultSize[0],
+      defaultSize[0] / defaultSize[1],
       0.1,
       1000
     );
