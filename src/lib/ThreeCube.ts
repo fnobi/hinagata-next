@@ -9,15 +9,11 @@ import {
 } from "three";
 import nejiVertex from "~/glsl/nejiVertex.glsl";
 import flatFragment from "~/glsl/flatFragment.glsl";
+import { FloatUniform, Vec2Uniform } from "~/lib/GLSLUniformType";
 
 type UniformObject = {
-  // TODO: typing
-  resolution: {
-    value: Vector2;
-  };
-  time: {
-    value: number;
-  };
+  resolution: Vec2Uniform;
+  time: FloatUniform;
 };
 
 export default class ThreeCube {
@@ -47,8 +43,8 @@ export default class ThreeCube {
     this.startTime = Date.now();
 
     this.uniformObject = {
-      resolution: { value: new Vector2(...defaultSize) },
-      time: { value: 0.0 }
+      resolution: { type: "vec2", value: new Vector2(...defaultSize) },
+      time: { type: "float", value: 0.0 }
     };
 
     const material = new ShaderMaterial({

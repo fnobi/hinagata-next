@@ -9,15 +9,11 @@ import {
 } from "three";
 import fullScreenVertex from "~/glsl/fullScreenVertex.glsl";
 import sampleFragment from "~/glsl/sampleFragment.glsl";
+import { FloatUniform, Vec2Uniform } from "~/lib/GLSLUniformType";
 
 type UniformObject = {
-  // TODO: typing
-  resolution: {
-    value: Vector2;
-  };
-  time: {
-    value: number;
-  };
+  resolution: Vec2Uniform;
+  time: FloatUniform;
 };
 
 function calcCameraArea(
@@ -48,8 +44,8 @@ export default class ThreeFullScreen {
     this.startTime = Date.now();
 
     this.uniformObject = {
-      resolution: { value: new Vector2(...defaultSize) },
-      time: { value: 0.0 }
+      resolution: { type: "vec2", value: new Vector2(...defaultSize) },
+      time: { type: "float", value: 0.0 }
     };
 
     const material = new RawShaderMaterial({
