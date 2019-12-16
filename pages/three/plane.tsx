@@ -3,7 +3,7 @@ import { css } from "@emotion/core";
 import Link from "next/link";
 import DefaultLayout from "~/layouts/DefaultLayout";
 import { px, percent } from "~/lib/cssUtil";
-import ThreeFullScreen from "~/lib/TheeFullScreen";
+import ThreeFullScreen from "~/lib/ThreeFullScreen";
 
 const SWITCH_LINK = "/three/cube/";
 
