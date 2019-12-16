@@ -4,13 +4,17 @@ import {
   Mesh,
   PerspectiveCamera,
   BoxGeometry,
-  ShaderMaterial
+  ShaderMaterial,
+  Vector2
 } from "three";
 import nejiVertex from "~/glsl/nejiVertex.glsl";
 import flatFragment from "~/glsl/flatFragment.glsl";
 
 type UniformObject = {
   // TODO: typing
+  resolution: {
+    value: Vector2;
+  };
   time: {
     value: number;
   };
@@ -43,6 +47,7 @@ export default class ThreeCube {
     this.startTime = Date.now();
 
     this.uniformObject = {
+      resolution: { value: new Vector2(...defaultSize) },
       time: { value: 0.0 }
     };
 
@@ -65,6 +70,7 @@ export default class ThreeCube {
       this.renderer.setSize(w, h);
     }
     this.camera.aspect = h / w;
+    this.uniformObject.resolution.value = new Vector2(w, h);
   }
 
   public update() {

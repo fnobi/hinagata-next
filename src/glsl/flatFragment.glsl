@@ -1,12 +1,14 @@
 precision highp float;
 
+uniform vec2 resolution;
 uniform float time;
 
 void main() {
+  float val = (gl_FragCoord.x + gl_FragCoord.y) / (resolution.x + resolution.y);
   gl_FragColor = vec4(
-    sin(time * 0.05)  * 0.5 + 0.5,
-    sin(time * 0.08)  * 0.5 + 0.5,
-    sin(time * 0.1)  * 0.5 + 0.5,
+    val,
+    0,
+    1.0 - val,
     1
   );
 }
