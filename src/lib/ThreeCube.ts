@@ -90,4 +90,11 @@ export default class ThreeCube {
     }
     this.renderer.render(this.scene, this.camera);
   }
+
+  public dispose() {
+    this.scene.dispose();
+    if (this.renderer) {
+      this.renderer.dispose();
+    }
+  }
 }

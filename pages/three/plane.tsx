@@ -56,7 +56,7 @@ export default () => {
     animate();
     return () => {
       window.cancelAnimationFrame(timer);
-      // TODO: dispose three
+      threeFullScreen.dispose();
     };
   }, []);
 

@@ -90,4 +90,11 @@ export default class ThreeFullScreen {
     }
     this.renderer.render(this.scene, this.camera);
   }
+
+  public dispose() {
+    this.scene.dispose();
+    if (this.renderer) {
+      this.renderer.dispose();
+    }
+  }
 }
