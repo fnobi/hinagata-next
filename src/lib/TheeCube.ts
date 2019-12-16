@@ -4,8 +4,10 @@ import {
   Mesh,
   PerspectiveCamera,
   BoxGeometry,
-  MeshBasicMaterial
+  ShaderMaterial
 } from "three";
+import nejiVertex from "~/glsl/nejiVertex.glsl";
+import flatFragment from "~/glsl/flatFragment.glsl";
 
 type UniformObject = {
   // TODO: typing
@@ -44,15 +46,10 @@ export default class ThreeCube {
       time: { value: 0.0 }
     };
 
-    /*
-    const material = new RawShaderMaterial({
+    const material = new ShaderMaterial({
       uniforms: this.uniformObject,
       vertexShader: nejiVertex,
       fragmentShader: flatFragment
-    });
-    */
-    const material = new MeshBasicMaterial({
-      color: 0x00ff00
     });
 
     this.cube = new Mesh(new BoxGeometry(1, 1, 1), material);
