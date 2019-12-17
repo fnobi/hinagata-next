@@ -25,10 +25,7 @@ export default (props: { agent: ThreeAgent }) => {
   const [renderer, setRenderer] = useState<WebGLRenderer | null>(null);
 
   const canvasRef = useCallback(el => {
-    if (!el) {
-      return;
-    }
-    setRenderer(new WebGLRenderer({ canvas: el }));
+    setRenderer(el ? new WebGLRenderer({ canvas: el }) : null);
   }, []);
 
   const startTime = useMemo(() => Date.now(), []);
