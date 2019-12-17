@@ -6,7 +6,7 @@ import {
   ShaderMaterial,
   Vector2
 } from "three";
-import betaBoxVertex from "~/glsl/betaBoxVertex.glsl";
+import beatBoxVertex from "~/glsl/beatBoxVertex.glsl";
 import cubeGradFragment from "~/glsl/cubeGradFragment.glsl";
 import { FloatUniform, Vec2Uniform } from "~/lib/GLSLUniformType";
 import { ThreeAgent } from "~/components/FullScreenThree";
@@ -43,7 +43,7 @@ export default class SampleCubeAgent implements ThreeAgent {
 
     const material = new ShaderMaterial({
       uniforms: this.uniformObject,
-      vertexShader: betaBoxVertex,
+      vertexShader: beatBoxVertex,
       fragmentShader: cubeGradFragment
     });
 
