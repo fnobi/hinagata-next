@@ -32,16 +32,12 @@ export default class SamplePlaneAgent implements ThreeAgent {
 
   private uniformObject: UniformObject;
 
-  private startTime: number;
-
   public constructor(defaultSize: [number, number] = [1, 1]) {
     this.activeScene = new Scene();
 
     this.activeCamera = new OrthographicCamera(
       ...calcCameraArea(...defaultSize)
     );
-
-    this.startTime = Date.now();
 
     this.uniformObject = {
       resolution: { type: "vec2", value: new Vector2(...defaultSize) },
@@ -67,10 +63,8 @@ export default class SamplePlaneAgent implements ThreeAgent {
     this.uniformObject.resolution.value = new Vector2(w, h);
   }
 
-  public update() {
-    const elapsedMilliseconds = Date.now() - this.startTime;
-    const elapsedSeconds = elapsedMilliseconds / 1000;
-    this.uniformObject.time.value = 60 * elapsedSeconds;
+  public update(time: number) {
+    this.uniformObject.time.value = time;
   }
 
   public dispose() {

@@ -25,8 +25,6 @@ export default class SampleCubeAgent implements ThreeAgent {
 
   private uniformObject: UniformObject;
 
-  private startTime: number;
-
   public constructor(defaultSize: [number, number] = [1, 1]) {
     this.activeScene = new Scene();
 
@@ -37,8 +35,6 @@ export default class SampleCubeAgent implements ThreeAgent {
       1000
     );
     this.activeCamera.position.z = 5;
-
-    this.startTime = Date.now();
 
     this.uniformObject = {
       resolution: { type: "vec2", value: new Vector2(...defaultSize) },
@@ -61,10 +57,8 @@ export default class SampleCubeAgent implements ThreeAgent {
     this.uniformObject.resolution.value = new Vector2(w, h);
   }
 
-  public update() {
-    const elapsedMilliseconds = Date.now() - this.startTime;
-    const elapsedSeconds = elapsedMilliseconds / 1000;
-    this.uniformObject.time.value = 60 * elapsedSeconds;
+  public update(time: number) {
+    this.uniformObject.time.value = time;
 
     this.cube.rotation.x += 0.01;
     this.cube.rotation.y += 0.01;
