@@ -2,13 +2,13 @@ import {
   Scene,
   WebGLRenderer,
   Mesh,
-  PerspectiveCamera,
-  BoxGeometry,
-  ShaderMaterial,
-  Vector2
+  RawShaderMaterial,
+  Vector2,
+  PlaneGeometry,
+  OrthographicCamera
 } from "three";
-import nejiVertex from "~/glsl/nejiVertex.glsl";
-import flatFragment from "~/glsl/flatFragment.glsl";
+import flatVertex from "~/glsl/flatVertex.glsl";
+import monotoneNoiseFragment from "~/glsl/monotoneNoiseFragment.glsl";
 import { FloatUniform, Vec2Uniform } from "~/lib/GLSLUniformType";
 
 type UniformObject = {
@@ -16,12 +16,19 @@ type UniformObject = {
   time: FloatUniform;
 };
 
-export default class ThreeCube {
+function calcCameraArea(
+  width: number,
+  height: number
+): [number, number, number, number] {
+  return [-width / 2, width / 2, -height / 2, height / 2];
+}
+
+export default class SamplePlaneAgent {
   private scene: Scene;
 
-  private camera: PerspectiveCamera;
+  private camera: OrthographicCamera;
 
-  private cube: Mesh;
+  private plane: Mesh;
 
   private uniformObject: UniformObject;
 
@@ -32,13 +39,7 @@ export default class ThreeCube {
   public constructor(defaultSize: [number, number] = [1, 1]) {
     this.scene = new Scene();
 
-    this.camera = new PerspectiveCamera(
-      75,
-      defaultSize[0] / defaultSize[1],
-      0.1,
-      1000
-    );
-    this.camera.position.z = 5;
+    this.camera = new OrthographicCamera(...calcCameraArea(...defaultSize));
 
     this.startTime = Date.now();
 
@@ -47,14 +48,13 @@ export default class ThreeCube {
       time: { type: "float", value: 0.0 }
     };
 
-    const material = new ShaderMaterial({
+    const material = new RawShaderMaterial({
       uniforms: this.uniformObject,
-      vertexShader: nejiVertex,
-      fragmentShader: flatFragment
+      vertexShader: flatVertex,
+      fragmentShader: monotoneNoiseFragment
     });
-
-    this.cube = new Mesh(new BoxGeometry(1, 1, 1), material);
-    this.scene.add(this.cube);
+    this.plane = new Mesh(new PlaneGeometry(2.0, 2.0), material);
+    this.scene.add(this.plane);
   }
 
   public setRenderer(el: HTMLCanvasElement) {
@@ -65,8 +65,12 @@ export default class ThreeCube {
     if (this.renderer) {
       this.renderer.setSize(w, h);
     }
-    this.camera.aspect = w / h;
-    this.camera.updateProjectionMatrix();
+    [
+      this.camera.left,
+      this.camera.right,
+      this.camera.top,
+      this.camera.bottom
+    ] = calcCameraArea(w, h);
     this.uniformObject.resolution.value = new Vector2(w, h);
   }
 
@@ -74,10 +78,6 @@ export default class ThreeCube {
     const elapsedMilliseconds = Date.now() - this.startTime;
     const elapsedSeconds = elapsedMilliseconds / 1000;
     this.uniformObject.time.value = 60 * elapsedSeconds;
-
-    this.cube.rotation.x += 0.01;
-    this.cube.rotation.y += 0.01;
-    this.cube.rotation.z += 0.01;
   }
 
   public render() {

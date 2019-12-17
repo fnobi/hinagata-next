@@ -2,13 +2,13 @@ import {
   Scene,
   WebGLRenderer,
   Mesh,
-  RawShaderMaterial,
-  Vector2,
-  PlaneGeometry,
-  OrthographicCamera
+  PerspectiveCamera,
+  BoxGeometry,
+  ShaderMaterial,
+  Vector2
 } from "three";
-import fullScreenVertex from "~/glsl/fullScreenVertex.glsl";
-import sampleFragment from "~/glsl/sampleFragment.glsl";
+import betaBoxVertex from "~/glsl/betaBoxVertex.glsl";
+import cubeGradFragment from "~/glsl/cubeGradFragment.glsl";
 import { FloatUniform, Vec2Uniform } from "~/lib/GLSLUniformType";
 
 type UniformObject = {
@@ -16,19 +16,12 @@ type UniformObject = {
   time: FloatUniform;
 };
 
-function calcCameraArea(
-  width: number,
-  height: number
-): [number, number, number, number] {
-  return [-width / 2, width / 2, -height / 2, height / 2];
-}
-
-export default class ThreeFullScreen {
+export default class SampleCubeAgent {
   private scene: Scene;
 
-  private camera: OrthographicCamera;
+  private camera: PerspectiveCamera;
 
-  private plane: Mesh;
+  private cube: Mesh;
 
   private uniformObject: UniformObject;
 
@@ -39,7 +32,13 @@ export default class ThreeFullScreen {
   public constructor(defaultSize: [number, number] = [1, 1]) {
     this.scene = new Scene();
 
-    this.camera = new OrthographicCamera(...calcCameraArea(...defaultSize));
+    this.camera = new PerspectiveCamera(
+      75,
+      defaultSize[0] / defaultSize[1],
+      0.1,
+      1000
+    );
+    this.camera.position.z = 5;
 
     this.startTime = Date.now();
 
@@ -48,13 +47,14 @@ export default class ThreeFullScreen {
       time: { type: "float", value: 0.0 }
     };
 
-    const material = new RawShaderMaterial({
+    const material = new ShaderMaterial({
       uniforms: this.uniformObject,
-      vertexShader: fullScreenVertex,
-      fragmentShader: sampleFragment
+      vertexShader: betaBoxVertex,
+      fragmentShader: cubeGradFragment
     });
-    this.plane = new Mesh(new PlaneGeometry(2.0, 2.0), material);
-    this.scene.add(this.plane);
+
+    this.cube = new Mesh(new BoxGeometry(1, 1, 1), material);
+    this.scene.add(this.cube);
   }
 
   public setRenderer(el: HTMLCanvasElement) {
@@ -65,12 +65,8 @@ export default class ThreeFullScreen {
     if (this.renderer) {
       this.renderer.setSize(w, h);
     }
-    [
-      this.camera.left,
-      this.camera.right,
-      this.camera.top,
-      this.camera.bottom
-    ] = calcCameraArea(w, h);
+    this.camera.aspect = w / h;
+    this.camera.updateProjectionMatrix();
     this.uniformObject.resolution.value = new Vector2(w, h);
   }
 
@@ -78,6 +74,10 @@ export default class ThreeFullScreen {
     const elapsedMilliseconds = Date.now() - this.startTime;
     const elapsedSeconds = elapsedMilliseconds / 1000;
     this.uniformObject.time.value = 60 * elapsedSeconds;
+
+    this.cube.rotation.x += 0.01;
+    this.cube.rotation.y += 0.01;
+    this.cube.rotation.z += 0.01;
   }
 
   public render() {

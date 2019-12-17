@@ -3,7 +3,7 @@ import { css } from "@emotion/core";
 import Link from "next/link";
 import DefaultLayout from "~/layouts/DefaultLayout";
 import { px } from "~/lib/cssUtil";
-import ThreeFullScreen from "~/lib/ThreeFullScreen";
+import SamplePlaneAgent from "~/lib/SamplePlaneAgent";
 import FullScreenThree from "~/components/FullScreenThree";
 
 const SWITCH_LINK = "/three/cube/";
@@ -17,10 +17,10 @@ const uiStyle = css({
 });
 
 export default () => {
-  const threeFullScreen = useMemo(() => new ThreeFullScreen(), []);
+  const samplePlaneAgent = useMemo(() => new SamplePlaneAgent(), []);
   return (
     <DefaultLayout>
-      <FullScreenThree agent={threeFullScreen} />
+      <FullScreenThree agent={samplePlaneAgent} />
       <div css={uiStyle}>
         <Link href={SWITCH_LINK}>
           <a href={SWITCH_LINK}>cube</a>

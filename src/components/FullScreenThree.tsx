@@ -20,7 +20,7 @@ const canvasStyle = css({
 });
 
 export default (props: { agent: ThreeAgent }) => {
-  const { agent: threeFullScreen } = props;
+  const { agent } = props;
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   useEffect(() => {
@@ -28,13 +28,13 @@ export default (props: { agent: ThreeAgent }) => {
     if (!el) {
       return;
     }
-    threeFullScreen.setRenderer(el);
+    agent.setRenderer(el);
   }, [canvasRef]);
 
   useEffect(() => {
-    threeFullScreen.setSize(window.innerWidth, window.innerHeight);
+    agent.setSize(window.innerWidth, window.innerHeight);
     const handler = () => {
-      threeFullScreen.setSize(window.innerWidth, window.innerHeight);
+      agent.setSize(window.innerWidth, window.innerHeight);
     };
     window.addEventListener("resize", handler);
     return () => window.removeEventListener("resize", handler);
@@ -44,13 +44,13 @@ export default (props: { agent: ThreeAgent }) => {
     let timer: number;
     const animate = () => {
       timer = window.requestAnimationFrame(animate);
-      threeFullScreen.update();
-      threeFullScreen.render();
+      agent.update();
+      agent.render();
     };
     animate();
     return () => {
       window.cancelAnimationFrame(timer);
-      threeFullScreen.dispose();
+      agent.dispose();
     };
   }, []);
 
