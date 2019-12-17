@@ -1,6 +1,5 @@
 import {
   Scene,
-  WebGLRenderer,
   Mesh,
   RawShaderMaterial,
   Vector2,
@@ -10,6 +9,7 @@ import {
 import flatVertex from "~/glsl/flatVertex.glsl";
 import monotoneNoiseFragment from "~/glsl/monotoneNoiseFragment.glsl";
 import { FloatUniform, Vec2Uniform } from "~/lib/GLSLUniformType";
+import { ThreeAgent } from "~/components/FullScreenThree";
 
 type UniformObject = {
   resolution: Vec2Uniform;
@@ -23,10 +23,10 @@ function calcCameraArea(
   return [-width / 2, width / 2, -height / 2, height / 2];
 }
 
-export default class SamplePlaneAgent {
-  private scene: Scene;
+export default class SamplePlaneAgent implements ThreeAgent {
+  public activeScene: Scene;
 
-  private camera: OrthographicCamera;
+  public activeCamera: OrthographicCamera;
 
   private plane: Mesh;
 
@@ -34,12 +34,12 @@ export default class SamplePlaneAgent {
 
   private startTime: number;
 
-  private renderer?: WebGLRenderer;
-
   public constructor(defaultSize: [number, number] = [1, 1]) {
-    this.scene = new Scene();
+    this.activeScene = new Scene();
 
-    this.camera = new OrthographicCamera(...calcCameraArea(...defaultSize));
+    this.activeCamera = new OrthographicCamera(
+      ...calcCameraArea(...defaultSize)
+    );
 
     this.startTime = Date.now();
 
@@ -54,22 +54,15 @@ export default class SamplePlaneAgent {
       fragmentShader: monotoneNoiseFragment
     });
     this.plane = new Mesh(new PlaneGeometry(2.0, 2.0), material);
-    this.scene.add(this.plane);
-  }
-
-  public setRenderer(el: HTMLCanvasElement) {
-    this.renderer = new WebGLRenderer({ canvas: el });
+    this.activeScene.add(this.plane);
   }
 
   public setSize(w: number, h: number) {
-    if (this.renderer) {
-      this.renderer.setSize(w, h);
-    }
     [
-      this.camera.left,
-      this.camera.right,
-      this.camera.top,
-      this.camera.bottom
+      this.activeCamera.left,
+      this.activeCamera.right,
+      this.activeCamera.top,
+      this.activeCamera.bottom
     ] = calcCameraArea(w, h);
     this.uniformObject.resolution.value = new Vector2(w, h);
   }
@@ -80,17 +73,7 @@ export default class SamplePlaneAgent {
     this.uniformObject.time.value = 60 * elapsedSeconds;
   }
 
-  public render() {
-    if (!this.renderer) {
-      return;
-    }
-    this.renderer.render(this.scene, this.camera);
-  }
-
   public dispose() {
-    this.scene.dispose();
-    if (this.renderer) {
-      this.renderer.dispose();
-    }
+    this.activeScene.dispose();
   }
 }

@@ -1,12 +1,13 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useCallback, useState } from "react";
 import { css } from "@emotion/core";
+import { WebGLRenderer, Camera, Scene } from "three";
 import { px, percent } from "~/lib/cssUtil";
 
-interface ThreeAgent {
-  setRenderer: (el: HTMLCanvasElement) => void;
+export interface ThreeAgent {
+  activeCamera: Camera;
+  activeScene: Scene;
   setSize: (w: number, h: number) => void;
   update: () => void;
-  render: () => void;
   dispose: () => void;
 }
 
@@ -21,38 +22,43 @@ const canvasStyle = css({
 
 export default (props: { agent: ThreeAgent }) => {
   const { agent } = props;
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const [renderer, setRenderer] = useState<WebGLRenderer | null>(null);
 
-  useEffect(() => {
-    const el = canvasRef.current;
+  const canvasRef = useCallback(el => {
     if (!el) {
       return;
     }
-    agent.setRenderer(el);
-  }, [canvasRef]);
+    setRenderer(new WebGLRenderer({ canvas: el }));
+  }, []);
 
   useEffect(() => {
-    agent.setSize(window.innerWidth, window.innerHeight);
     const handler = () => {
-      agent.setSize(window.innerWidth, window.innerHeight);
+      const size: [number, number] = [window.innerWidth, window.innerHeight];
+      agent.setSize(...size);
+      if (renderer) {
+        renderer.setSize(...size);
+      }
     };
     window.addEventListener("resize", handler);
+    handler();
     return () => window.removeEventListener("resize", handler);
-  }, []);
+  }, [renderer]);
 
   useEffect(() => {
     let timer: number;
     const animate = () => {
       timer = window.requestAnimationFrame(animate);
       agent.update();
-      agent.render();
+      if (renderer) {
+        renderer.render(agent.activeScene, agent.activeCamera);
+      }
     };
     animate();
     return () => {
       window.cancelAnimationFrame(timer);
       agent.dispose();
     };
-  }, []);
+  }, [renderer]);
 
   return <canvas css={canvasStyle} ref={canvasRef} />;
 };

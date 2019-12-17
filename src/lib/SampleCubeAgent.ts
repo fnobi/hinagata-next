@@ -1,6 +1,5 @@
 import {
   Scene,
-  WebGLRenderer,
   Mesh,
   PerspectiveCamera,
   BoxGeometry,
@@ -10,16 +9,17 @@ import {
 import betaBoxVertex from "~/glsl/betaBoxVertex.glsl";
 import cubeGradFragment from "~/glsl/cubeGradFragment.glsl";
 import { FloatUniform, Vec2Uniform } from "~/lib/GLSLUniformType";
+import { ThreeAgent } from "~/components/FullScreenThree";
 
 type UniformObject = {
   resolution: Vec2Uniform;
   time: FloatUniform;
 };
 
-export default class SampleCubeAgent {
-  private scene: Scene;
+export default class SampleCubeAgent implements ThreeAgent {
+  public activeScene: Scene;
 
-  private camera: PerspectiveCamera;
+  public activeCamera: PerspectiveCamera;
 
   private cube: Mesh;
 
@@ -27,18 +27,16 @@ export default class SampleCubeAgent {
 
   private startTime: number;
 
-  private renderer?: WebGLRenderer;
-
   public constructor(defaultSize: [number, number] = [1, 1]) {
-    this.scene = new Scene();
+    this.activeScene = new Scene();
 
-    this.camera = new PerspectiveCamera(
+    this.activeCamera = new PerspectiveCamera(
       75,
       defaultSize[0] / defaultSize[1],
       0.1,
       1000
     );
-    this.camera.position.z = 5;
+    this.activeCamera.position.z = 5;
 
     this.startTime = Date.now();
 
@@ -54,19 +52,12 @@ export default class SampleCubeAgent {
     });
 
     this.cube = new Mesh(new BoxGeometry(1, 1, 1), material);
-    this.scene.add(this.cube);
-  }
-
-  public setRenderer(el: HTMLCanvasElement) {
-    this.renderer = new WebGLRenderer({ canvas: el });
+    this.activeScene.add(this.cube);
   }
 
   public setSize(w: number, h: number) {
-    if (this.renderer) {
-      this.renderer.setSize(w, h);
-    }
-    this.camera.aspect = w / h;
-    this.camera.updateProjectionMatrix();
+    this.activeCamera.aspect = w / h;
+    this.activeCamera.updateProjectionMatrix();
     this.uniformObject.resolution.value = new Vector2(w, h);
   }
 
@@ -80,17 +71,7 @@ export default class SampleCubeAgent {
     this.cube.rotation.z += 0.01;
   }
 
-  public render() {
-    if (!this.renderer) {
-      return;
-    }
-    this.renderer.render(this.scene, this.camera);
-  }
-
   public dispose() {
-    this.scene.dispose();
-    if (this.renderer) {
-      this.renderer.dispose();
-    }
+    this.activeScene.dispose();
   }
 }
