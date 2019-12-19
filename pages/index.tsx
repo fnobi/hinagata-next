@@ -5,6 +5,7 @@ import { css } from "@emotion/core";
 import DefaultLayout from "~/layouts/DefaultLayout";
 import sampleStore, { SampleState } from "~/store/sample";
 import { connectStoreAll } from "~/lib/typeRegiHelper";
+import { px, percent, em } from "~/lib/cssUtil";
 
 type Props = {};
 
@@ -14,15 +15,15 @@ const wrapperStyle = css({
   alignItems: "center",
   justifyContent: "center",
   flexDirection: "column",
-  top: 20,
-  left: 0,
-  width: "100%",
-  height: "100%"
+  top: px(20),
+  left: px(0),
+  width: percent(100),
+  height: percent(100)
 });
 
 const titleStyle = css({
   fontWeight: "bold",
-  marginBottom: "0.5em"
+  marginBottom: em(0.5)
 });
 
 export default connectStoreAll(sampleStore, (props: Props & SampleState) => {
