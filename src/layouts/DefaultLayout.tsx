@@ -5,10 +5,17 @@ import { Global, css } from "@emotion/core";
 import META from "~/meta";
 import { globalStyle } from "~/lib/commonCss";
 
-export default (({ children }) => (
+type Props = {
+  title?: string;
+};
+
+export default (({ children, title }) => (
   <div>
     <Head>
-      <title>{META.TITLE}</title>
+      <title>
+        {title ? `${title} | ` : ""}
+        {META.TITLE}
+      </title>
       <meta name="viewport" content="width=device-width initial-scale=1" />
       <meta name="description" content={META.DESCRIPTION} />
       <meta name="keywords" content={META.KEYWORDS.join(",")} />
@@ -26,4 +33,4 @@ export default (({ children }) => (
     <Global styles={css(emotionReset, globalStyle)} />
     {children}
   </div>
-)) as React.FunctionComponent;
+)) as React.FunctionComponent<Props>;

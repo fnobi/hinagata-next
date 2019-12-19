@@ -29,7 +29,7 @@ export default connectStoreAll(sampleStore, (props: Props & SampleState) => {
   const { count } = props;
 
   return (
-    <DefaultLayout>
+    <DefaultLayout title="about">
       <div css={wrapperStyle}>
         <div css={titleStyle}>About</div>
         <button
