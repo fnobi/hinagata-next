@@ -3,11 +3,19 @@ import Head from "next/head";
 import emotionReset from "emotion-reset";
 import { Global, css } from "@emotion/core";
 import META from "~/meta";
+import { globalStyle } from "~/lib/commonCss";
 
-export default (({ children }) => (
+type Props = {
+  title?: string;
+};
+
+export default (({ children, title }) => (
   <div>
     <Head>
-      <title>{META.TITLE}</title>
+      <title>
+        {title ? `${title} | ` : ""}
+        {META.TITLE}
+      </title>
       <meta name="viewport" content="width=device-width initial-scale=1" />
       <meta name="description" content={META.DESCRIPTION} />
       <meta name="keywords" content={META.KEYWORDS.join(",")} />
@@ -22,7 +30,8 @@ export default (({ children }) => (
       <link rel="canonical" href={META.URL} />
       <link rel="icon" type="image/x-icon" href={META.FAVICON_PATH} />
     </Head>
-    <Global styles={css(emotionReset)} />
+    <Global styles={css(emotionReset, globalStyle)} />
     {children}
+    {/* <GTagSnippet trackingId="XX-XXXXXXXXX-XX" /> */}
   </div>
-)) as React.FunctionComponent;
+)) as React.FunctionComponent<Props>;

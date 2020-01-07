@@ -3,8 +3,11 @@ import { useState } from "react";
 import Link from "next/link";
 import { css } from "@emotion/core";
 import DefaultLayout from "~/layouts/DefaultLayout";
-import sampleStore from "~/store/sample";
-import { connectToHooks } from "~/lib/typeRegiHelper";
+import sampleStore, { SampleState } from "~/store/sample";
+import { connectStoreAll } from "~/lib/typeRegiHelper";
+import { px, percent, em } from "~/lib/cssUtil";
+
+type Props = {};
 
 const wrapperStyle = css({
   position: "fixed",
@@ -12,21 +15,20 @@ const wrapperStyle = css({
   alignItems: "center",
   justifyContent: "center",
   flexDirection: "column",
-  top: 20,
-  left: 0,
-  width: "100%",
-  height: "100%"
+  top: px(20),
+  left: px(0),
+  width: percent(100),
+  height: percent(100)
 });
 
 const titleStyle = css({
   fontWeight: "bold",
-  marginBottom: "0.5em"
+  marginBottom: em(0.5)
 });
 
-export default () => {
+export default connectStoreAll(sampleStore, (props: Props & SampleState) => {
+  const { count } = props;
   const [mouse, setMouse] = useState<[number, number]>([0, 0]);
-  const sampleState = connectToHooks(sampleStore);
-  const { count } = sampleState;
 
   const updateMouse = (e: React.MouseEvent) => {
     setMouse([e.pageX, e.pageY]);
@@ -43,10 +45,12 @@ export default () => {
           count up:{count}
         </button>
         <p>
-          <Link href="/about">about</Link>
+          <Link href="/about">
+            <a href="/about">about</a>
+          </Link>
         </p>
         <p>{mouse.join(",")}</p>
       </div>
     </DefaultLayout>
   );
-};
+});

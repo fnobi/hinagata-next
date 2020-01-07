@@ -1,4 +1,4 @@
-import TypeRegi from "~/lib/TypeRegi";
+import TypeRegi from "type-regi";
 
 export type SampleState = {
   count: number;

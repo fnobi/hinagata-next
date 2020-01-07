@@ -2,8 +2,11 @@ import React from "react";
 import Link from "next/link";
 import { css } from "@emotion/core";
 import DefaultLayout from "~/layouts/DefaultLayout";
-import sampleStore from "~/store/sample";
-import { connectToHooks } from "~/lib/typeRegiHelper";
+import sampleStore, { SampleState } from "~/store/sample";
+import { connectStoreAll } from "~/lib/typeRegiHelper";
+import { percent, px, em } from "~/lib/cssUtil";
+
+type Props = {};
 
 const wrapperStyle = css({
   position: "fixed",
@@ -11,23 +14,22 @@ const wrapperStyle = css({
   alignItems: "center",
   justifyContent: "center",
   flexDirection: "column",
-  top: 0,
-  left: 0,
-  width: "100%",
-  height: "100%"
+  top: px(0),
+  left: px(0),
+  width: percent(100),
+  height: percent(100)
 });
 
 const titleStyle = css({
   fontWeight: "bold",
-  marginBottom: "0.5em"
+  marginBottom: em(0.5)
 });
 
-export default () => {
-  const sampleState = connectToHooks(sampleStore);
-  const { count } = sampleState;
+export default connectStoreAll(sampleStore, (props: Props & SampleState) => {
+  const { count } = props;
 
   return (
-    <DefaultLayout>
+    <DefaultLayout title="about">
       <div css={wrapperStyle}>
         <div css={titleStyle}>About</div>
         <button
@@ -37,9 +39,11 @@ export default () => {
           count up:{count}
         </button>
         <p>
-          <Link href="/">top</Link>
+          <Link href="/">
+            <a href="/">top</a>
+          </Link>
         </p>
       </div>
     </DefaultLayout>
   );
-};
+});
