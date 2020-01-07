@@ -32,5 +32,6 @@ export default (({ children, title }) => (
     </Head>
     <Global styles={css(emotionReset, globalStyle)} />
     {children}
+    {/* <GTagSnippet trackingId="XX-XXXXXXXXX-XX" /> */}
   </div>
 )) as React.FunctionComponent<Props>;
