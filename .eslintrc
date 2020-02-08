@@ -25,6 +25,39 @@
     "react-hooks/rules-of-hooks": 2,
     "import/no-duplicates": 0,
     "import/no-unresolved": 0,
+    "import/extensions": 0,
+    "import/order": ["error", {
+      "groups": [
+        "builtin",
+        "external",
+        "internal",
+        "parent",
+        "sibling",
+        "index"
+      ],
+      "pathGroups": [
+        {
+          "pattern": "~/lib/**",
+          "group": "external"
+        },
+        {
+          "pattern": "~/local/**",
+          "group": "internal"
+        },
+        {
+          "pattern": "~/scheme/**",
+          "group": "parent"
+        },
+        {
+          "pattern": "~/store/**",
+          "group": "sibling"
+        },
+        {
+          "pattern": "~/(layouts|components)/**",
+          "group": "index"
+        }
+      ]
+    }],    
     "no-undef": 1,
     "react/no-array-index-key": 0,
     "prettier/prettier": 1,
@@ -43,7 +76,8 @@
   },
   "globals": {
     "window": true,
-    "document": true
+    "document": true,
+    "location": true
   },
   "env": {
     "jest": true
