@@ -2,8 +2,8 @@ import React from "react";
 import Head from "next/head";
 import emotionReset from "emotion-reset";
 import { Global, css } from "@emotion/core";
-import META from "~/meta";
-import { globalStyle } from "~/lib/commonCss";
+import { globalStyle } from "~/local/commonCss";
+import META from "~/local/meta";
 
 type Props = {
   title?: string;
