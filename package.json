@@ -15,6 +15,7 @@
     "@emotion/babel-preset-css-prop": "^10.0.14",
     "@types/node": "^12.6.2",
     "@types/react": "^16.8.23",
+    "@types/three": "^0.103.2",
     "@typescript-eslint/eslint-plugin": "^1.12.0",
     "@typescript-eslint/parser": "^1.12.0",
     "@zeit/next-typescript": "^1.1.1",
@@ -29,6 +30,7 @@
     "eslint-plugin-react": "^7.14.2",
     "eslint-plugin-react-hooks": "^1.6.1",
     "prettier": "^1.18.2",
+    "raw-loader": "^4.0.0",
     "react-dom": "^16.8.6",
     "typescript": "^3.5.3"
   },
@@ -38,6 +40,7 @@
     "emotion-reset": "^2.0.1",
     "next": "^9.1.5",
     "react": "^16.8.6",
+    "three": "^0.111.0",
     "type-regi": "^1.0.2"
   }
 }
