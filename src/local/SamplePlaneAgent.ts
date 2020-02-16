@@ -6,9 +6,9 @@ import {
   PlaneGeometry,
   OrthographicCamera
 } from "three";
+import { FloatUniform, Vec2Uniform } from "~/lib/GLSLUniformType";
 import flatVertex from "~/glsl/flatVertex.glsl";
 import monotoneNoiseFragment from "~/glsl/monotoneNoiseFragment.glsl";
-import { FloatUniform, Vec2Uniform } from "~/lib/GLSLUniformType";
 import { ThreeAgent } from "~/components/FullScreenThree";
 
 type UniformObject = {

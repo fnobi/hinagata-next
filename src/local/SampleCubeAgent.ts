@@ -6,9 +6,9 @@ import {
   ShaderMaterial,
   Vector2
 } from "three";
+import { FloatUniform, Vec2Uniform } from "~/lib/GLSLUniformType";
 import beatBoxVertex from "~/glsl/beatBoxVertex.glsl";
 import cubeGradFragment from "~/glsl/cubeGradFragment.glsl";
-import { FloatUniform, Vec2Uniform } from "~/lib/GLSLUniformType";
 import { ThreeAgent } from "~/components/FullScreenThree";
 
 type UniformObject = {

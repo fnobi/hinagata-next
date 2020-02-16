@@ -1,9 +1,9 @@
 import React, { useMemo } from "react";
 import { css } from "@emotion/core";
 import Link from "next/link";
-import DefaultLayout from "~/layouts/DefaultLayout";
 import { px } from "~/lib/cssUtil";
-import SampleCubeAgent from "~/lib/SampleCubeAgent";
+import SampleCubeAgent from "~/local/SampleCubeAgent";
+import DefaultLayout from "~/layouts/DefaultLayout";
 import FullScreenThree from "~/components/FullScreenThree";
 
 const SWITCH_LINK = "/three/plane/";
