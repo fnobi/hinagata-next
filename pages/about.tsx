@@ -1,10 +1,10 @@
 import React from "react";
 import Link from "next/link";
 import { css } from "@emotion/core";
-import DefaultLayout from "~/layouts/DefaultLayout";
-import sampleStore, { SampleState } from "~/store/sample";
 import { connectStoreAll } from "~/lib/typeRegiHelper";
 import { percent, px, em } from "~/lib/cssUtil";
+import sampleStore, { SampleState } from "~/store/sample";
+import DefaultLayout from "~/layouts/DefaultLayout";
 
 type Props = {};
 

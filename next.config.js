@@ -17,6 +17,17 @@ module.exports = {
         fix: true
       }
     });
+
+    // file loader
+    config.module.rules.push({
+      test: /\.(png|jpg|gif)$/i,
+      options: {
+        publicPath: "/_next/static/assets",
+        outputPath: "static/assets"
+      },
+      loader: "file-loader"
+    });
+
     return config;
   }
 };
