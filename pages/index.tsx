@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { css } from "@emotion/core";
 import { px, percent, em } from "~/lib/cssUtil";
-import useTypeRegi from "~/lib/useTypeRegi";
-import sampleStore from "~/store/sample";
+import { useTypeRegiReducer } from "~/lib/useTypeRegi";
+import sampleStore, { SampleState } from "~/store/sample";
 import DefaultLayout from "~/layouts/DefaultLayout";
 
 const wrapperStyle = css({
@@ -25,8 +25,7 @@ const titleStyle = css({
 
 export default () => {
   const [mouse, setMouse] = useState<[number, number]>([0, 0]);
-  const sample = useTypeRegi(sampleStore);
-  const { count } = sample;
+  const count = useTypeRegiReducer(sampleStore, (s: SampleState) => s.count);
 
   const updateMouse = (e: React.MouseEvent) => {
     setMouse([e.pageX, e.pageY]);
