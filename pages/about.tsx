@@ -1,12 +1,10 @@
 import React from "react";
 import Link from "next/link";
 import { css } from "@emotion/core";
-import { connectStoreAll } from "~/lib/typeRegiHelper";
 import { percent, px, em } from "~/lib/cssUtil";
+import { useTypeRegiReducer } from "~/lib/useTypeRegi";
 import sampleStore, { SampleState } from "~/store/sample";
 import DefaultLayout from "~/layouts/DefaultLayout";
-
-type Props = {};
 
 const wrapperStyle = css({
   position: "fixed",
@@ -25,8 +23,8 @@ const titleStyle = css({
   marginBottom: em(0.5)
 });
 
-export default connectStoreAll(sampleStore, (props: Props & SampleState) => {
-  const { count } = props;
+export default () => {
+  const count = useTypeRegiReducer(sampleStore, (s: SampleState) => s.count);
 
   return (
     <DefaultLayout title="about">
@@ -46,4 +44,4 @@ export default connectStoreAll(sampleStore, (props: Props & SampleState) => {
       </div>
     </DefaultLayout>
   );
-});
+};
