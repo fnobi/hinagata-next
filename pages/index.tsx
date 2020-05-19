@@ -1,13 +1,10 @@
-import React from "react";
-import { useState } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { css } from "@emotion/core";
-import { connectStoreAll } from "~/lib/typeRegiHelper";
 import { px, percent, em } from "~/lib/cssUtil";
-import sampleStore, { SampleState } from "~/store/sample";
+import useTypeRegi from "~/lib/useTypeRegi";
+import sampleStore from "~/store/sample";
 import DefaultLayout from "~/layouts/DefaultLayout";
-
-type Props = {};
 
 const wrapperStyle = css({
   position: "fixed",
@@ -26,9 +23,10 @@ const titleStyle = css({
   marginBottom: em(0.5)
 });
 
-export default connectStoreAll(sampleStore, (props: Props & SampleState) => {
-  const { count } = props;
+export default () => {
   const [mouse, setMouse] = useState<[number, number]>([0, 0]);
+  const sample = useTypeRegi(sampleStore);
+  const { count } = sample;
 
   const updateMouse = (e: React.MouseEvent) => {
     setMouse([e.pageX, e.pageY]);
@@ -53,4 +51,4 @@ export default connectStoreAll(sampleStore, (props: Props & SampleState) => {
       </div>
     </DefaultLayout>
   );
-});
+};
