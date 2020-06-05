@@ -39,7 +39,6 @@
     "emotion-reset": "^2.0.1",
     "next": "^9.4.0",
     "react": "^16.8.6",
-    "recoil": "0.0.7",
-    "type-regi": "^1.1.1"
+    "recoil": "0.0.7"
   }
 }
