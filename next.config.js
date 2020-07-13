@@ -1,5 +1,8 @@
 module.exports = {
   basePath: "/hoge",
+  env: {
+    SITE_ORIGIN: process.env.SITE_ORIGIN || "https://example.com"
+  },
   exportTrailingSlash: true,
   webpack: config => {
     // lint on save
