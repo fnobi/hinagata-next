@@ -16,7 +16,7 @@ const TITLE = "hinagata-next";
 const DESCRIPTION = "Awsome next.js project.";
 const KEYWORDS = ["next", "javascript"];
 const URL = `${process.env.SITE_ORIGIN}${basePath}`;
-const SHARE_IMAGE_URL = `${URL.replace(/\/$/, "")}${ASSETS_OGP}`;
+const SHARE_IMAGE_URL = `${URL}${ASSETS_OGP}`;
 const FAVICON_PATH = ASSETS_FAVICON;
 
 export default {

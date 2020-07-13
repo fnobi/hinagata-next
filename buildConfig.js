@@ -1,3 +1,3 @@
 module.exports = {
-  basePath: "/hoge/moge"
+  basePath: ""
 };
