@@ -1,8 +1,10 @@
+const { basePath } = require("./buildConfig");
+
 module.exports = {
-  basePath: "/hoge",
   env: {
     SITE_ORIGIN: process.env.SITE_ORIGIN || "https://example.com"
   },
+  basePath,
   exportTrailingSlash: true,
   webpack: config => {
     // lint on save
@@ -17,7 +19,7 @@ module.exports = {
 
     // file loader
     config.module.rules.push({
-      test: /\.(png|jpg|gif)$/i,
+      test: /\.(png|jpg|gif|ico)$/i,
       options: {
         publicPath: "/_next/static/assets",
         outputPath: "static/assets"
