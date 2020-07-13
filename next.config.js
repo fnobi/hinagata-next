@@ -1,4 +1,5 @@
 module.exports = {
+  basePath: "/hoge",
   exportTrailingSlash: true,
   webpack: config => {
     // lint on save
