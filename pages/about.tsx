@@ -2,8 +2,7 @@ import React from "react";
 import Link from "next/link";
 import { css } from "@emotion/core";
 import { percent, px, em } from "~/lib/cssUtil";
-import { useTypeRegiReducer } from "~/lib/useTypeRegi";
-import sampleStore, { SampleState } from "~/store/sample";
+import { useSampleCounter } from "~/store/sample";
 import DefaultLayout from "~/layouts/DefaultLayout";
 
 const wrapperStyle = css({
@@ -24,16 +23,13 @@ const titleStyle = css({
 });
 
 export default () => {
-  const count = useTypeRegiReducer(sampleStore, (s: SampleState) => s.count);
+  const [count, increment] = useSampleCounter();
 
   return (
     <DefaultLayout title="about">
       <div css={wrapperStyle}>
         <div css={titleStyle}>About</div>
-        <button
-          type="button"
-          onClick={() => sampleStore.dispatch("incrementCounter", { value: 1 })}
-        >
+        <button type="button" onClick={increment}>
           count up:{count}
         </button>
         <p>
