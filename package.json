@@ -37,7 +37,6 @@
     "@emotion/core": "^10.0.14",
     "css-transform-builder": "^1.0.0",
     "emotion-reset": "^2.0.1",
-    "mkdirp": "^1.0.4",
     "next": "^9.4.5-canary.31",
     "react": "^16.8.6",
     "type-regi": "^1.1.1"
