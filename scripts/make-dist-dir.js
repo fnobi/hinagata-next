@@ -1,6 +1,6 @@
 const path = require("path");
 const fs = require("fs");
-const { basePath } = require("../buildConfig");
+const { basePath } = require("../next.config");
 
 const EXPORT_DIR = "out";
 const DIST_DIR = "dist";

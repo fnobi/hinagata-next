@@ -1,10 +1,8 @@
-const { basePath } = require("./buildConfig");
-
 module.exports = {
+  basePath: "",
   env: {
     SITE_ORIGIN: process.env.SITE_ORIGIN || "https://example.com"
   },
-  basePath,
   exportTrailingSlash: true,
   webpack: config => {
     // lint on save

@@ -1,7 +1,7 @@
 import ASSETS_OGP from "~/assets/meta/ogp.png";
 import ASSETS_FAVICON from "~/assets/meta/favicon.ico";
 
-const { basePath } = require("../../buildConfig");
+const { basePath } = require("../../next.config");
 
 type Meta = {
   TITLE: string;
