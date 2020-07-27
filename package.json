@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "next",
-    "build": "next build && next export",
+    "build": "next build && next export && node scripts/make-dist-dir",
     "lint": "eslint --ext .ts,.tsx,.js --fix ."
   },
   "keywords": [],
@@ -29,6 +29,7 @@
     "eslint-plugin-prettier": "^3.1.0",
     "eslint-plugin-react": "^7.14.2",
     "eslint-plugin-react-hooks": "^1.6.1",
+    "file-loader": "^6.0.0",
     "prettier": "^1.18.2",
     "react-dom": "^16.8.6",
     "typescript": "^3.5.3"
@@ -37,7 +38,7 @@
     "@emotion/core": "^10.0.14",
     "css-transform-builder": "^1.0.0",
     "emotion-reset": "^2.0.1",
-    "next": "^9.4.4",
+    "next": "^9.5.0",
     "react": "^16.8.6",
     "recoil": "0.0.10"
   }
