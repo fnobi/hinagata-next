@@ -1,0 +1,155 @@
+# @title Build and Commit
+# @since 2020/07/14
+# @author fujisawa-shin
+#
+
+version: 2.1
+
+# 各ブランチでのworkflow内容設定
+workflows:
+  version: 2
+  build_deploy:
+    jobs:
+      - build_and_commit:
+          site_origin: https://hinagata-next.example.com
+          filters:
+            branches:
+              only:
+                - develop
+
+# このプロジェクトでのparameter default
+project_default:
+  - install_command: &install_command "npm install"
+  - build_command: &build_command "npm run build"
+  - lockfile: &lockfile "package-lock.json"
+  - doc_root: &doc_root "dist"
+  - git_key_fingerprints: &git_key_fingerprints
+    - "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+
+# 実行環境の設定（必要があればnodeのバージョンなど調整）
+executors:
+  frontend_executor:
+    working_directory: ~/app
+    docker:
+      - image: circleci/node:12.14.0
+
+# commands/jobs定義（以下、原則プロジェクトごとに編集する必要はなし）
+commands:
+  install_npm_dependencies:
+    parameters:
+      install_command:
+        type: string
+        default: *install_command
+      lockfile:
+        type: string
+        default: *lockfile
+    steps:
+      - restore_cache:
+          key: dependency-cache-{{ checksum "<< parameters.lockfile >>" }}
+      - run:
+          name: "npm install"
+          command: "<< parameters.install_command >>"
+      - save_cache:
+          key: dependency-cache-{{ checksum "<< parameters.lockfile >>" }}
+          paths:
+            - node_modules
+  setup_git_key:
+    steps:
+      - add_ssh_keys:
+          fingerprints: *git_key_fingerprints
+      - run:
+          name: "git config"
+          command: |
+            git config --global user.email "circleci@example.com"
+            git config --global user.name "circleci"
+            git config --global push.default simple
+
+orbs:
+  aws-s3: circleci/aws-s3@1.0.11
+
+jobs:
+  build_and_commit:
+    executor: frontend_executor
+    parameters:
+      site_origin:
+        type: string
+      doc_root:
+        type: string
+        default: *doc_root
+      build_command:
+        type: string
+        default: *build_command
+      build_branch_postfix:
+        type: string
+        default: "build"
+    steps:
+      - checkout
+      - setup_git_key
+      - run:
+          name: "setup branch"
+          command: |
+            git fetch origin
+            git checkout $CIRCLE_BRANCH-<< parameters.build_branch_postfix >>
+            git merge $CIRCLE_BRANCH --no-ff -m "merge $CIRCLE_BRANCH"
+      - install_npm_dependencies
+      - run:
+          name: "build"
+          command: << parameters.build_command >>
+          environment:
+            SITE_ORIGIN: << parameters.site_origin >>
+      - run:
+          name: "git add"
+          command: "git add << parameters.doc_root >>"
+      - run:
+          name: "git commit"
+          command: |
+            set +o pipefail
+            git commit -m 'build' | true
+      - run:
+          name: "git push"
+          command: "git push origin $CIRCLE_BRANCH-<< parameters.build_branch_postfix >>"
+
+  deploy_firebase:
+    executor: frontend_executor
+    steps:
+      - checkout
+      - install_npm_dependencies
+      - run:
+          name: "deploy"
+          command: ./node_modules/.bin/firebase deploy --only hosting --token $FIREBASE_TOKEN
+
+  deploy_s3:
+    executor: frontend_executor
+    parameters:
+      bucket_name:
+        type: string
+      doc_root:
+        type: string
+        default: *doc_root
+    steps:
+      - checkout
+      - aws-s3/sync:
+          from: "<< parameters.doc_root >>"
+          to: "s3://<< parameters.bucket_name >>"
+          overwrite: true
+          arguments: --exact-timestamps --cache-control "no-cache" --delete
+
+  zip:
+    executor: frontend_executor
+    parameters:
+      doc_root:
+        type: string
+        default: *doc_root
+    steps:
+      - checkout
+      - setup_git_key
+      - run:
+          name: "git archive"
+          command: "git archive -o release.zip HEAD << parameters.doc_root >>"
+      - store_artifacts:
+          path: release.zip
+      - run:
+          name: "git tag"
+          command: |
+            git tag release-`date +'%Y-%m-%d_%H_%M'`
+            git push --tags
