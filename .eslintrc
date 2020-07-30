@@ -61,8 +61,9 @@
     "no-undef": 1,
     "react/no-array-index-key": 0,
     "prettier/prettier": 1,
-    "jsx-a11y/label-has-associated-control": 1,
-    "jsx-a11y/label-has-for": 1,
+    "jsx-a11y/label-has-associated-control": [2,{
+      "assert": "either"
+    }],
     "import/prefer-default-export": 1,
     "import/no-extraneous-dependencies": 1,
     "react/jsx-one-expression-per-line": 0,
