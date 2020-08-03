@@ -22,7 +22,7 @@ const titleStyle = css({
   marginBottom: em(0.5)
 });
 
-export default () => {
+const About = () => {
   const [count, increment] = useSampleCounter();
 
   return (
@@ -41,3 +41,5 @@ export default () => {
     </DefaultLayout>
   );
 };
+
+export default About;

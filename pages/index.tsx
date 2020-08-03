@@ -22,7 +22,7 @@ const titleStyle = css({
   marginBottom: em(0.5)
 });
 
-export default () => {
+const Index = () => {
   const [mouse, setMouse] = useState<[number, number]>([0, 0]);
   const [count, increment] = useSampleCounter();
 
@@ -47,3 +47,5 @@ export default () => {
     </DefaultLayout>
   );
 };
+
+export default Index;
