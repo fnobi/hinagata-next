@@ -20,7 +20,7 @@ module.exports = {
 
     // file loader
     config.module.rules.push({
-      test: /\.(png|jpg|gif|ico)$/i,
+      test: /\.(png|jpg|gif|ico|mp4|mp3)$/i,
       options: {
         publicPath: `${BASE_PATH}/_next/static/assets`,
         outputPath: "static/assets"
