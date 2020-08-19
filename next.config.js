@@ -1,5 +1,7 @@
+const BASE_PATH = "";
+
 module.exports = {
-  basePath: "",
+  basePath: BASE_PATH,
   env: {
     SITE_ORIGIN: process.env.SITE_ORIGIN || "https://example.com"
   },
@@ -20,7 +22,7 @@ module.exports = {
     config.module.rules.push({
       test: /\.(png|jpg|gif|ico)$/i,
       options: {
-        publicPath: "/_next/static/assets",
+        publicPath: `${BASE_PATH}/_next/static/assets`,
         outputPath: "static/assets"
       },
       loader: "file-loader"
