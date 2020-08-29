@@ -12,7 +12,8 @@ const DefaultLayout = (props: {
 }) => {
   const { children, title: pageTitle, shareImage: pageShareImage } = props;
   const title = pageTitle ? `${pageTitle} | ${META.TITLE}` : META.TITLE;
-  const shareImageUrl = `${META.URL}${pageShareImage || META.SHARE_IMAGE_PATH}`;
+  const shareImageUrl = `${process.env.SITE_ORIGIN}${pageShareImage ||
+    META.SHARE_IMAGE_PATH}`;
   return (
     <>
       <Head>
