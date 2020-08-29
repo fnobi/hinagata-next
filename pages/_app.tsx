@@ -1,10 +1,19 @@
 import React from "react";
 import { AppProps } from "next/app";
 import { RecoilRoot } from "recoil";
+import MetaSettings from "~/components/MetaSettings";
+import DefaultLayout from "~/layouts/DefaultLayout";
 
 const MyApp = ({ Component, pageProps }: AppProps) => (
   <RecoilRoot>
-    <Component {...pageProps} />
+    <MetaSettings
+      pageTitle={pageProps.pageTitle}
+      pageShareImage={pageProps.pageShareImage}
+      pagePath={pageProps.pagePath}
+    />
+    <DefaultLayout>
+      <Component {...pageProps} />
+    </DefaultLayout>
   </RecoilRoot>
 );
 

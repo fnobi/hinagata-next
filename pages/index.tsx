@@ -3,7 +3,6 @@ import Link from "next/link";
 import { css } from "@emotion/core";
 import { px, percent, em } from "~/lib/cssUtil";
 import { useSampleCounter } from "~/store/sample";
-import DefaultLayout from "~/layouts/DefaultLayout";
 
 const wrapperStyle = css({
   position: "fixed",
@@ -31,20 +30,18 @@ const Index = () => {
   };
 
   return (
-    <DefaultLayout>
-      <div css={wrapperStyle} onMouseMove={updateMouse}>
-        <div css={titleStyle}>Welcome to Next.js!</div>
-        <button type="button" onClick={increment}>
-          count up:{count}
-        </button>
-        <p>
-          <Link href="/about">
-            <a href="/about">about</a>
-          </Link>
-        </p>
-        <p>{mouse.join(",")}</p>
-      </div>
-    </DefaultLayout>
+    <div css={wrapperStyle} onMouseMove={updateMouse}>
+      <div css={titleStyle}>Welcome to Next.js!</div>
+      <button type="button" onClick={increment}>
+        count up:{count}
+      </button>
+      <p>
+        <Link href="/about">
+          <a href="/about">about</a>
+        </Link>
+      </p>
+      <p>{mouse.join(",")}</p>
+    </div>
   );
 };
 
