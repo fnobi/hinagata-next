@@ -21,7 +21,7 @@ const titleStyle = css({
   marginBottom: em(0.5)
 });
 
-const About = () => {
+const PageAbout = () => {
   const [count, increment] = useSampleCounter();
 
   return (
@@ -39,10 +39,10 @@ const About = () => {
   );
 };
 
-About.getInitialProps = async () => ({
+PageAbout.getInitialProps = async () => ({
   pageTitle: "About",
   pagePath: "/about/",
   pageShareImage: await import("~/assets/meta/ogp-about.png")
 });
 
-export default About;
+export default PageAbout;

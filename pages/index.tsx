@@ -21,7 +21,7 @@ const titleStyle = css({
   marginBottom: em(0.5)
 });
 
-const Index = () => {
+const PageIndex = () => {
   const [mouse, setMouse] = useState<[number, number]>([0, 0]);
   const [count, increment] = useSampleCounter();
 
@@ -45,4 +45,4 @@ const Index = () => {
   );
 };
 
-export default Index;
+export default PageIndex;
