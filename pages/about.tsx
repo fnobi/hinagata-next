@@ -41,7 +41,8 @@ const About = () => {
 
 About.getInitialProps = async () => ({
   pageTitle: "About",
-  pagePath: "/about/"
+  pagePath: "/about/",
+  pageShareImage: await import("~/assets/meta/ogp-about.png")
 });
 
 export default About;
