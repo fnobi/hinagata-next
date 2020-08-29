@@ -10,7 +10,7 @@ const wrapperStyle = css({
   alignItems: "center",
   justifyContent: "center",
   flexDirection: "column",
-  top: px(20),
+  top: px(0),
   left: px(0),
   width: percent(100),
   height: percent(100)
