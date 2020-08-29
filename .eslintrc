@@ -53,7 +53,7 @@
           "group": "sibling"
         },
         {
-          "pattern": "~/(layouts|components)/**",
+          "pattern": "~/components/**",
           "group": "index"
         }
       ]
