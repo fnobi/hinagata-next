@@ -110,8 +110,10 @@ jobs:
           name: "git push"
           command: "git push origin $CIRCLE_BRANCH-<< parameters.build_branch_postfix >>"
       - slack/status:
-          success_message: ':circleci_green: テスト成功！\n:construction: *Job*: ${CIRCLE_JOB}\n:deciduous_tree: *Branch*: ${CIRCLE_BRANCH}\n:github_octocat: *User*: ${CIRCLE_USERNAME}\n:github: *PR*: ${CIRCLE_PULL_REQUEST:-"-"}'
-          failure_message: ':circleci_red: テスト失敗！\n:construction: *Job*: ${CIRCLE_JOB}\n:deciduous_tree: *Branch*: ${CIRCLE_BRANCH}\n:github_octocat: *User*: ${CIRCLE_USERNAME}\n:github: *PR*: ${CIRCLE_PULL_REQUEST:-"-"}'
+          success_message: |
+            :yum: *ビルド成功！* / ${CIRCLE_BRANCH} / @${CIRCLE_USERNAME}
+          failure_message: |
+            :thinking_face: *ビルド失敗！* / ${CIRCLE_BRANCH} / @${CIRCLE_USERNAME}
 
   deploy_firebase:
     executor: frontend_executor
