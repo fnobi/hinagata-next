@@ -66,6 +66,7 @@ commands:
 
 orbs:
   aws-s3: circleci/aws-s3@1.0.11
+  slack: circleci/slack@3.4.2
 
 jobs:
   build_and_commit:
@@ -108,6 +109,9 @@ jobs:
       - run:
           name: "git push"
           command: "git push origin $CIRCLE_BRANCH-<< parameters.build_branch_postfix >>"
+      - slack/status:
+          success_message: ':circleci_green: テスト成功！\n:construction: *Job*: ${CIRCLE_JOB}\n:deciduous_tree: *Branch*: ${CIRCLE_BRANCH}\n:github_octocat: *User*: ${CIRCLE_USERNAME}\n:github: *PR*: ${CIRCLE_PULL_REQUEST:-"-"}'
+          failure_message: ':circleci_red: テスト失敗！\n:construction: *Job*: ${CIRCLE_JOB}\n:deciduous_tree: *Branch*: ${CIRCLE_BRANCH}\n:github_octocat: *User*: ${CIRCLE_USERNAME}\n:github: *PR*: ${CIRCLE_PULL_REQUEST:-"-"}'
 
   deploy_firebase:
     executor: frontend_executor
