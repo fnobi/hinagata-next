@@ -43,16 +43,20 @@ commands:
       lockfile:
         type: string
         default: *lockfile
+      directory:
+        type: string
+        default: "."
     steps:
       - restore_cache:
-          key: dependency-cache-{{ checksum "<< parameters.lockfile >>" }}
+          key: dependency-cache-{{ checksum "<< parameters.directory >>/<< parameters.lockfile >>" }}
       - run:
           name: "npm install"
           command: "<< parameters.install_command >>"
+          working_directory: "<< parameters.directory >>"
       - save_cache:
-          key: dependency-cache-{{ checksum "<< parameters.lockfile >>" }}
+          key: dependency-cache-{{ checksum "<< parameters.directory >>/<< parameters.lockfile >>" }}
           paths:
-            - node_modules
+            - "<< parameters.directory >>/node_modules"
   setup_git_key:
     steps:
       - add_ssh_keys:
@@ -117,12 +121,40 @@ jobs:
 
   deploy_firebase:
     executor: frontend_executor
+    parameters:
+      firebase_project:
+        type: string
+    steps:
+      - checkout
+      - install_npm_dependencies
+      - install_npm_dependencies:
+          directory: functions
+          lockfile: "package-lock.json"
+      - run:
+          name: "deploy"
+          command: ./node_modules/.bin/firebase deploy --project << parameters.firebase_project >> --token $FIREBASE_TOKEN
+      - slack/status:
+          success_message: |
+            :yum: *firebase デプロイ成功！* / ${CIRCLE_BRANCH} / @${CIRCLE_USERNAME}
+          failure_message: |
+            :thinking_face: *firebase デプロイ失敗！* / ${CIRCLE_BRANCH} / @${CIRCLE_USERNAME}
+
+  deploy_firebase_hosting:
+    executor: frontend_executor
+    parameters:
+      firebase_project:
+        type: string
     steps:
       - checkout
       - install_npm_dependencies
       - run:
           name: "deploy"
-          command: ./node_modules/.bin/firebase deploy --only hosting --token $FIREBASE_TOKEN
+          command: ./node_modules/.bin/firebase deploy --project << parameters.firebase_project >> --token $FIREBASE_TOKEN --only hosting
+      - slack/status:
+          success_message: |
+            :yum: *firebase hosting デプロイ成功！* / ${CIRCLE_BRANCH} / @${CIRCLE_USERNAME}
+          failure_message: |
+            :thinking_face: *firebase hosting デプロイ失敗！* / ${CIRCLE_BRANCH} / @${CIRCLE_USERNAME}
 
   deploy_s3:
     executor: frontend_executor
@@ -139,6 +171,11 @@ jobs:
           to: "s3://<< parameters.bucket_name >>"
           overwrite: true
           arguments: --exact-timestamps --cache-control "no-cache" --delete
+      - slack/status:
+          success_message: |
+            :yum: *s3 デプロイ成功！* / ${CIRCLE_BRANCH} / @${CIRCLE_USERNAME}
+          failure_message: |
+            :thinking_face: *s3 デプロイ失敗！* / ${CIRCLE_BRANCH} / @${CIRCLE_USERNAME}
 
   zip:
     executor: frontend_executor
@@ -159,3 +196,8 @@ jobs:
           command: |
             git tag release-`date +'%Y-%m-%d_%H_%M'`
             git push --tags
+      - slack/status:
+          success_message: |
+            :yum: *zipアーカイブ成功！* / ${CIRCLE_BRANCH} / @${CIRCLE_USERNAME}
+          failure_message: |
+            :thinking_face: *zipアーカイブ失敗！* / ${CIRCLE_BRANCH} / @${CIRCLE_USERNAME}
