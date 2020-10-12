@@ -6,7 +6,6 @@ module.exports = {
     SITE_ORIGIN: process.env.SITE_ORIGIN || "https://example.com"
   },
   trailingSlash: true,
-  exportTrailingSlash: true,
   webpack: config => {
     // lint on save
     config.module.rules.push({
