@@ -9,7 +9,7 @@ module.exports = {
   webpack: config => {
     // lint on save
     config.module.rules.push({
-      test: /\.(js|ts|tsx|$)/,
+      test: /\.(js|ts|tsx)$/,
       loader: "eslint-loader",
       enforce: "pre",
       options: {
