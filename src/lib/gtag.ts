@@ -1,4 +1,7 @@
-import React from "react";
+import { useRouter } from "next/router";
+import React, { useEffect, useRef } from "react";
+
+const { basePath } = require("../../next.config");
 
 type GTagMethod = {
   event: [
@@ -75,8 +78,35 @@ export function sendPageView({
   });
 }
 
+function usePageView(id: string) {
+  const landingPathRef = useRef("");
+  const route = useRouter();
+  useEffect(() => {
+    const { current: landingPath } = landingPathRef;
+    const pagePath = basePath + route.asPath;
+    if (landingPath) {
+      sendPageView({
+        id,
+        pagePath
+      });
+    } else {
+      landingPathRef.current = pagePath;
+    }
+  }, [route.asPath]);
+}
+
 export function GTagSnippet(props: { trackingId: string }) {
   const { trackingId } = props;
+  usePageView(trackingId);
+
+  const snippet = `
+window.dataLayer = window.dataLayer || [];
+function gtag() {
+  dataLayer.push(arguments);
+}
+gtag("js", new Date());
+gtag("config", "${trackingId}");`;
+
   return React.createElement(
     React.Fragment,
     null,
@@ -86,13 +116,7 @@ export function GTagSnippet(props: { trackingId: string }) {
     }),
     React.createElement("script", {
       dangerouslySetInnerHTML: {
-        __html: `
-window.dataLayer = window.dataLayer || [];
-function gtag() {
-  dataLayer.push(arguments);
-}
-gtag("js", new Date());
-gtag("config", "${trackingId}");`
+        __html: snippet
       }
     })
   );
