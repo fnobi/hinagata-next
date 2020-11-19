@@ -83,7 +83,8 @@ function usePageView(id: string) {
   const route = useRouter();
   useEffect(() => {
     const { current: landingPath } = landingPathRef;
-    const pagePath = basePath + route.asPath;
+    // NOTE: クエリはなしで正規化している
+    const pagePath = (basePath + route.asPath).replace(/\?.*$/, "");
     if (landingPath) {
       sendPageView({
         id,
