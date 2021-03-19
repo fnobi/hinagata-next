@@ -12,6 +12,7 @@
   "author": "Fujisawa Shin",
   "license": "ISC",
   "devDependencies": {
+    "@babel/core": "^7.13.10",
     "@emotion/babel-preset-css-prop": "^10.0.14",
     "@types/node": "^12.6.2",
     "@types/react": "^16.8.23",
