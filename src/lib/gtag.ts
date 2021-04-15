@@ -1,7 +1,6 @@
 import { useRouter } from "next/router";
 import React, { useEffect, useRef } from "react";
-
-const { basePath } = require("../../next.config");
+import { basePath } from "~/local/constants";
 
 type GTagMethod = {
   event: [

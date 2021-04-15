@@ -1,6 +1,6 @@
 import React from "react";
 import Head from "next/head";
-import META from "~/local/meta";
+import META from "~/local/META";
 
 const MetaSettings = (props: {
   pageTitle?: string;
