@@ -22,5 +22,6 @@ export const buttonReset = css({
   border: "none",
   background: "none",
   font: "inherit",
-  textAlign: "inherit"
+  textAlign: "inherit",
+  color: "inherit"
 });
