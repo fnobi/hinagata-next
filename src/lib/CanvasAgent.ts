@@ -1,21 +1,4 @@
-import React, { useEffect, useRef } from "react";
-import { css } from "@emotion/core";
-import { percent } from "~/lib/cssUtil";
-
-const wrapperStyle = css({
-  position: "absolute",
-  top: percent(0),
-  left: percent(0),
-  width: percent(100),
-  height: percent(100),
-  canvas: {
-    position: "absolute",
-    top: percent(0),
-    left: percent(0),
-    width: percent(100),
-    height: percent(100)
-  }
-});
+import { createElement, useEffect, useRef } from "react";
 
 export interface CanvasPlayer {
   dispose: () => void;
@@ -24,8 +7,8 @@ export interface CanvasPlayer {
   canvas: HTMLCanvasElement;
 }
 
-const CanvasAgent = (props: { initializer: () => CanvasPlayer }) => {
-  const { initializer } = props;
+const CanvasAgent = (opts: { initializer: () => CanvasPlayer }) => {
+  const { initializer } = opts;
   const wrapperRef = useRef<HTMLDivElement | null>(null);
   const playerRef = useRef<CanvasPlayer | null>(null);
 
@@ -71,7 +54,7 @@ const CanvasAgent = (props: { initializer: () => CanvasPlayer }) => {
     return () => window.cancelAnimationFrame(timer);
   }, []);
 
-  return <div ref={wrapperRef} css={wrapperStyle} />;
+  return createElement("div", { ref: wrapperRef });
 };
 
 export default CanvasAgent;

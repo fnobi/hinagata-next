@@ -9,10 +9,17 @@ const canvasStyle = css({
   top: percent(0),
   left: percent(0),
   width: percent(100),
-  height: percent(100)
+  height: percent(100),
+  canvas: {
+    position: "absolute",
+    top: percent(0),
+    left: percent(0),
+    width: percent(100),
+    height: percent(100)
+  }
 });
 
-const CanvasAgent = dynamic(() => import("~/components/CanvasAgent"), {
+const CanvasAgent = dynamic(() => import("~/lib/CanvasAgent"), {
   ssr: false
 });
 
