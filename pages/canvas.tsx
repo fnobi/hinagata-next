@@ -1,11 +1,25 @@
 import React from "react";
 import dynamic from "next/dynamic";
-import initSamplePlayer from "~/local/initSamplePlayer";
+import { css } from "@emotion/core";
+import { percent } from "~/lib/cssUtil";
+import SamplePlayer from "~/local/SamplePlayer";
 
-const PlayerCanvas = dynamic(() => import("~/components/PlayerCanvas"), {
+const canvasStyle = css({
+  position: "fixed",
+  top: percent(0),
+  left: percent(0),
+  width: percent(100),
+  height: percent(100)
+});
+
+const CanvasAgent = dynamic(() => import("~/components/CanvasAgent"), {
   ssr: false
 });
 
-const PageCanvas = () => <PlayerCanvas initializer={initSamplePlayer} />;
+const PageCanvas = () => (
+  <div css={canvasStyle}>
+    <CanvasAgent initializer={() => new SamplePlayer()} />
+  </div>
+);
 
 export default PageCanvas;
