@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useRef } from "react";
 import { css } from "@emotion/core";
 import { percent } from "~/lib/cssUtil";
 import useCanvasAgent from "~/lib/useCanvasAgent";
@@ -21,19 +21,7 @@ const canvasStyle = css({
 
 const SamplePixiView = () => {
   const wrapperRef = useRef<HTMLDivElement | null>(null);
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const playerRef = useRef<SamplePixiPlayer | null>(null);
-
-  useEffect(() => {
-    const player = new SamplePixiPlayer();
-    playerRef.current = player;
-    return () => {
-      player.dispose();
-    };
-  }, []);
-
-  useCanvasAgent({ wrapperRef, canvasRef, playerRef });
-
+  useCanvasAgent({ initializer: () => new SamplePixiPlayer(), wrapperRef });
   return <div css={canvasStyle} ref={wrapperRef} />;
 };
 
