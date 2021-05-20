@@ -1,8 +1,8 @@
-import { CanvasPlayer } from "~/components/CanvasAgent";
+import { CanvasPlayer } from "~/lib/useCanvasAgent";
 
 const RECT_SIZE = 100;
 
-export default class SamplePlayer implements CanvasPlayer {
+export default class SampleCanvasElementPlayer implements CanvasPlayer {
   public readonly canvas: HTMLCanvasElement;
 
   private ctx: CanvasRenderingContext2D | null;
@@ -36,8 +36,9 @@ export default class SamplePlayer implements CanvasPlayer {
 
   public resize() {
     const { canvas } = this;
-    canvas.width = canvas.offsetWidth;
-    canvas.height = canvas.offsetHeight;
+    const resolution = window.devicePixelRatio;
+    canvas.width = canvas.offsetWidth * resolution;
+    canvas.height = canvas.offsetHeight * resolution;
     this.render();
   }
 

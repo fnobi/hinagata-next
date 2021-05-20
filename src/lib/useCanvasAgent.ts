@@ -1,4 +1,4 @@
-import { createElement, MutableRefObject, useEffect, useRef } from "react";
+import { MutableRefObject, useEffect } from "react";
 
 export interface CanvasPlayer {
   dispose: () => void;
@@ -7,12 +7,12 @@ export interface CanvasPlayer {
   canvas: HTMLCanvasElement;
 }
 
-const CanvasAgent = (props: {
+const useCanvasAgent = (opts: {
   playerRef: MutableRefObject<CanvasPlayer | null>;
+  wrapperRef: MutableRefObject<HTMLDivElement | null>;
+  canvasRef: MutableRefObject<HTMLCanvasElement | null>;
 }) => {
-  const { playerRef } = props;
-  const wrapperRef = useRef<HTMLDivElement | null>(null);
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const { playerRef, wrapperRef, canvasRef } = opts;
 
   useEffect(() => {
     const { current: player } = playerRef;
@@ -53,8 +53,6 @@ const CanvasAgent = (props: {
     timer = window.requestAnimationFrame(loop);
     return () => window.cancelAnimationFrame(timer);
   }, []);
-
-  return createElement("div", { ref: wrapperRef });
 };
 
-export default CanvasAgent;
+export default useCanvasAgent;
