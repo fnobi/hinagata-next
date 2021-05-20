@@ -42,5 +42,13 @@
     "next": "^10.0.1",
     "react": "^16.14.0",
     "recoil": "0.0.10"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fnobi/hinagata-next.git"
+  },
+  "bugs": {
+    "url": "https://github.com/fnobi/hinagata-next/issues"
+  },
+  "homepage": "https://github.com/fnobi/hinagata-next#readme"
 }

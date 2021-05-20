@@ -1,4 +1,4 @@
-import { createElement, useEffect, useRef } from "react";
+import { createElement, MutableRefObject, useEffect, useRef } from "react";
 
 export interface CanvasPlayer {
   dispose: () => void;
@@ -7,23 +7,23 @@ export interface CanvasPlayer {
   canvas: HTMLCanvasElement;
 }
 
-const CanvasAgent = (opts: { initializer: () => CanvasPlayer }) => {
-  const { initializer } = opts;
+const CanvasAgent = (props: {
+  playerRef: MutableRefObject<CanvasPlayer | null>;
+}) => {
+  const { playerRef } = props;
   const wrapperRef = useRef<HTMLDivElement | null>(null);
-  const playerRef = useRef<CanvasPlayer | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   useEffect(() => {
+    const { current: player } = playerRef;
     const { current: wrapper } = wrapperRef;
-    if (!wrapper) {
+    if (!player || !wrapper) {
       return () => {};
     }
-    const player = initializer();
-    playerRef.current = player;
-    wrapper.appendChild(player.canvas);
-    return () => {
-      player.dispose();
-      wrapper.removeChild(player.canvas);
-    };
+    const { canvas } = player;
+    wrapper.appendChild(canvas);
+    canvasRef.current = canvas;
+    return () => wrapper.removeChild(canvas);
   }, []);
 
   useEffect(() => {

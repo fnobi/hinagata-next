@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import dynamic from "next/dynamic";
 import { css } from "@emotion/core";
 import { percent } from "~/lib/cssUtil";
@@ -23,10 +23,22 @@ const CanvasAgent = dynamic(() => import("~/lib/CanvasAgent"), {
   ssr: false
 });
 
-const PageCanvas = () => (
-  <div css={canvasStyle}>
-    <CanvasAgent initializer={() => new SamplePlayer()} />
-  </div>
-);
+const PageCanvas = () => {
+  const playerRef = useRef<SamplePlayer | null>(null);
+
+  useEffect(() => {
+    const player = new SamplePlayer();
+    playerRef.current = player;
+    return () => {
+      player.dispose();
+    };
+  }, []);
+
+  return (
+    <div css={canvasStyle}>
+      <CanvasAgent playerRef={playerRef} />
+    </div>
+  );
+};
 
 export default PageCanvas;
