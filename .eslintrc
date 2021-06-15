@@ -9,6 +9,7 @@
     "sourceType": "module",
     "project": "./tsconfig.json"
   },
+  "root": true,
   "rules": {
     "arrow-parens": [2, "as-needed"],
     "curly": [1, "all"],

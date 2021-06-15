@@ -7,16 +7,6 @@ module.exports = {
   },
   trailingSlash: true,
   webpack: config => {
-    // lint on save
-    config.module.rules.push({
-      test: /\.(js|ts|tsx)$/,
-      loader: "eslint-loader",
-      enforce: "pre",
-      options: {
-        fix: true
-      }
-    });
-
     // file loader
     config.module.rules.push({
       test: /\.(png|jpg|gif|ico|svg|mp4|mp3)$/i,
