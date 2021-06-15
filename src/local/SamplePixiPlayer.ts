@@ -14,7 +14,7 @@ export default class SamplePixiPlayer implements CanvasPlayer {
 
   public constructor() {
     const app = new Application({
-      backgroundAlpha: 0,
+      transparent: true,
       resolution: window.devicePixelRatio
     });
 
