@@ -2,9 +2,9 @@ import Head from "next/head";
 import META from "~/local/META";
 
 const MetaSettings = (props: {
-  pageTitle: string;
-  pageShareImage: string;
-  pagePath: string;
+  pageTitle?: string;
+  pageShareImage?: string;
+  pagePath?: string;
 }) => {
   const { pageTitle, pageShareImage, pagePath } = props;
   const title = pageTitle ? `${pageTitle} | ${META.TITLE}` : META.TITLE;

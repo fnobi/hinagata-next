@@ -75,6 +75,7 @@
     "react/no-unescaped-entities": 0,
     "react/prop-types": 0,
     "react/react-in-jsx-scope": 0,
+    "react/require-default-props": 0,
     "no-shadow": 1,
     "no-param-reassign" : 1
   },

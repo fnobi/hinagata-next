@@ -7,8 +7,8 @@ const META: {
   DESCRIPTION: string;
   URL: string;
   KEYWORDS?: string[];
-  SHARE_IMAGE_PATH: string;
-  FAVICON_PATH?: string;
+  SHARE_IMAGE_PATH: StaticImageData;
+  FAVICON_PATH?: StaticImageData;
 } = {
   TITLE: "hinagata-next",
   DESCRIPTION: "Awsome next.js project.",
