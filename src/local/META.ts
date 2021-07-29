@@ -4,18 +4,18 @@ import ASSETS_FAVICON from "~/assets/meta/favicon.ico";
 
 const META: {
   TITLE: string;
-  DESCRIPTION: string;
+  DESCRIPTION?: string;
   URL: string;
   KEYWORDS?: string[];
-  SHARE_IMAGE_PATH: StaticImageData;
-  FAVICON_PATH?: StaticImageData;
+  DEFAULT_SHARE_IMAGE?: StaticImageData;
+  FAVICON_IMAGE?: StaticImageData;
 } = {
   TITLE: "hinagata-next",
   DESCRIPTION: "Awsome next.js project.",
   KEYWORDS: ["next", "javascript"],
   URL: `${process.env.SITE_ORIGIN}${basePath}`,
-  SHARE_IMAGE_PATH: ASSETS_OGP,
-  FAVICON_PATH: ASSETS_FAVICON
+  DEFAULT_SHARE_IMAGE: ASSETS_OGP,
+  FAVICON_IMAGE: ASSETS_FAVICON
 };
 
 export default META;

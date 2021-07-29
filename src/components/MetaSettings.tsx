@@ -1,34 +1,49 @@
 import Head from "next/head";
 import META from "~/local/META";
 
-const MetaSettings = (props: {
+export type PageMetaExtend = {
   pageTitle?: string;
-  pageShareImage?: string;
+  pageShareImage?: StaticImageData;
   pagePath?: string;
-}) => {
+};
+
+const MetaSettings = (props: PageMetaExtend) => {
   const { pageTitle, pageShareImage, pagePath } = props;
   const title = pageTitle ? `${pageTitle} | ${META.TITLE}` : META.TITLE;
-  const shareImageUrl = `${process.env.SITE_ORIGIN}${pageShareImage ||
-    META.SHARE_IMAGE_PATH.src}`;
+  const description = META.DESCRIPTION;
+  const shareImagePath =
+    (pageShareImage ? pageShareImage.src : null) ||
+    (META.DEFAULT_SHARE_IMAGE ? META.DEFAULT_SHARE_IMAGE.src : null);
+  const shareImageUrl = shareImagePath
+    ? `${process.env.SITE_ORIGIN}${shareImagePath}`
+    : null;
   const canonicalUrl = `${META.URL}${pagePath || "/"}`;
   return (
     <Head>
       <title>{title}</title>
-      <meta name="description" content={META.DESCRIPTION} />
+      {description ? <meta name="description" content={description} /> : null}
       {META.KEYWORDS ? (
         <meta name="keywords" content={META.KEYWORDS.join(",")} />
       ) : null}
       <meta property="og:url" content={canonicalUrl} />
-      <meta property="og:image" content={shareImageUrl} />
+      {shareImageUrl ? (
+        <meta property="og:image" content={shareImageUrl} />
+      ) : null}
       <meta property="og:title" content={title} />
-      <meta property="og:description" content={META.DESCRIPTION} />
+      {description ? (
+        <meta property="og:description" content={description} />
+      ) : null}
       <meta property="twitter:card" content="summary_large_image" />
-      <meta property="twitter:image" content={shareImageUrl} />
+      {shareImageUrl ? (
+        <meta property="twitter:image" content={shareImageUrl} />
+      ) : null}
       <meta property="twitter:title" content={title} />
-      <meta property="twitter:description" content={META.DESCRIPTION} />
+      {description ? (
+        <meta property="twitter:description" content={description} />
+      ) : null}
       <link rel="canonical" href={canonicalUrl} />
-      {META.FAVICON_PATH ? (
-        <link rel="icon" type="image/x-icon" href={META.FAVICON_PATH.src} />
+      {META.FAVICON_IMAGE ? (
+        <link rel="icon" type="image/x-icon" href={META.FAVICON_IMAGE.src} />
       ) : null}
     </Head>
   );

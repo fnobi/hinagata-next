@@ -1,7 +1,10 @@
+import { GetStaticProps } from "next";
 import Link from "next/link";
 import { css } from "@emotion/core";
 import { percent, px, em } from "~/lib/cssUtil";
 import { useSampleCounter } from "~/store/sample";
+import { PageMetaExtend } from "~/components/MetaSettings";
+import ASSETS_OGP_ABOUT from "~/assets/meta/ogp-about.png";
 
 const wrapperStyle = css({
   position: "fixed",
@@ -38,10 +41,12 @@ const PageAbout = () => {
   );
 };
 
-PageAbout.getInitialProps = async () => ({
-  pageTitle: "About",
-  pagePath: "/about/",
-  pageShareImage: await import("~/assets/meta/ogp-about.png")
+export const getStaticProps: GetStaticProps<PageMetaExtend> = async () => ({
+  props: {
+    pageTitle: "About",
+    pagePath: "/about/",
+    pageShareImage: ASSETS_OGP_ABOUT
+  }
 });
 
 export default PageAbout;
