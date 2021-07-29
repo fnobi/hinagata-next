@@ -28,7 +28,7 @@ function useCanvasAgent<T extends CanvasPlayer>(opts: {
       wrapper.removeChild(canvas);
       player.dispose();
     };
-  }, []);
+  }, [initializer, wrapperRef]);
 
   useEffect(() => {
     const handleResize = () => {

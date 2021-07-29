@@ -1,6 +1,8 @@
-import React from "react";
 import { AppProps } from "next/app";
+import { Global, css } from "@emotion/react";
+import emotionReset from "emotion-reset";
 import { RecoilRoot } from "recoil";
+import { globalStyle } from "~/local/commonCss";
 import MetaSettings from "~/components/MetaSettings";
 import LayoutRoot from "~/components/LayoutRoot";
 
@@ -11,9 +13,11 @@ const MyApp = ({ Component, pageProps }: AppProps) => (
       pageShareImage={pageProps.pageShareImage}
       pagePath={pageProps.pagePath}
     />
+    <Global styles={css(emotionReset, globalStyle)} />
     <LayoutRoot>
       <Component {...pageProps} />
     </LayoutRoot>
+    {/* <GTagSnippet trackingId="XX-XXXXXXXXX-XX" /> */}
   </RecoilRoot>
 );
 
