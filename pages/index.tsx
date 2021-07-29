@@ -1,6 +1,6 @@
 import { useState } from "react";
 import Link from "next/link";
-import { css } from "@emotion/core";
+import { css } from "@emotion/react";
 import { px, percent, em } from "~/lib/cssUtil";
 import { useSampleCounter } from "~/store/sample";
 

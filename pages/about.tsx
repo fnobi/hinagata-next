@@ -1,6 +1,6 @@
 import { GetStaticProps } from "next";
 import Link from "next/link";
-import { css } from "@emotion/core";
+import { css } from "@emotion/react";
 import { percent, px, em } from "~/lib/cssUtil";
 import { useSampleCounter } from "~/store/sample";
 import { PageMetaExtend } from "~/components/MetaSettings";
