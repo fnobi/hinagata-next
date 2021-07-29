@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { css } from "@emotion/core";
 import { px, percent, em } from "~/lib/cssUtil";

@@ -1,6 +1,6 @@
 {
-  "extends": ["airbnb", "plugin:prettier/recommended"],
-  "plugins": ["@typescript-eslint", "react-hooks"],
+  "extends": ["airbnb", "plugin:prettier/recommended", "next"],
+  "plugins": ["@typescript-eslint"],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
     "ecmaFeatures": {
@@ -14,6 +14,7 @@
     "arrow-parens": [2, "as-needed"],
     "curly": [1, "all"],
     "no-unused-vars": 0,
+    "@next/next/no-page-custom-font": 0,
     "@typescript-eslint/explicit-member-accessibility": 2,
     "@typescript-eslint/no-unnecessary-type-assertion": 2,
     "@typescript-eslint/no-explicit-any": 2,
@@ -71,7 +72,9 @@
     "react/jsx-closing-bracket-location": 1,
     "react/jsx-closing-tag-location": 1,
     "react/jsx-indent" : 1,
+    "react/no-unescaped-entities": 0,
     "react/prop-types": 0,
+    "react/react-in-jsx-scope": 0,
     "no-shadow": 1,
     "no-param-reassign" : 1
   },

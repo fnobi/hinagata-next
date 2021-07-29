@@ -1,16 +1,15 @@
-import React from "react";
 import Head from "next/head";
 import META from "~/local/META";
 
 const MetaSettings = (props: {
-  pageTitle?: string;
-  pageShareImage?: string;
-  pagePath?: string;
+  pageTitle: string;
+  pageShareImage: string;
+  pagePath: string;
 }) => {
   const { pageTitle, pageShareImage, pagePath } = props;
   const title = pageTitle ? `${pageTitle} | ${META.TITLE}` : META.TITLE;
   const shareImageUrl = `${process.env.SITE_ORIGIN}${pageShareImage ||
-    META.SHARE_IMAGE_PATH}`;
+    META.SHARE_IMAGE_PATH.src}`;
   const canonicalUrl = `${META.URL}${pagePath || "/"}`;
   return (
     <Head>
@@ -29,7 +28,7 @@ const MetaSettings = (props: {
       <meta property="twitter:description" content={META.DESCRIPTION} />
       <link rel="canonical" href={canonicalUrl} />
       {META.FAVICON_PATH ? (
-        <link rel="icon" type="image/x-icon" href={META.FAVICON_PATH} />
+        <link rel="icon" type="image/x-icon" href={META.FAVICON_PATH.src} />
       ) : null}
     </Head>
   );

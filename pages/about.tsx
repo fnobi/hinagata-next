@@ -1,4 +1,3 @@
-import React from "react";
 import Link from "next/link";
 import { css } from "@emotion/core";
 import { percent, px, em } from "~/lib/cssUtil";
