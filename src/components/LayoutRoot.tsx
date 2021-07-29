@@ -3,7 +3,7 @@ import emotionReset from "emotion-reset";
 import { Global, css } from "@emotion/core";
 import { globalStyle } from "~/local/commonCss";
 
-const DefaultLayout = ({ children }: { children: ReactNode }) => (
+const LayoutRoot = ({ children }: { children: ReactNode }) => (
   <>
     <Global styles={css(emotionReset, globalStyle)} />
     {children}
@@ -11,4 +11,4 @@ const DefaultLayout = ({ children }: { children: ReactNode }) => (
   </>
 );
 
-export default DefaultLayout;
+export default LayoutRoot;
