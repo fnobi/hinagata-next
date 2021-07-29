@@ -23,6 +23,15 @@ const titleStyle = css({
   marginBottom: em(0.5)
 });
 
+const kvStyle = css({
+  width: px(ASSETS_OGP_ABOUT.width / 2),
+  height: px(ASSETS_OGP_ABOUT.height / 2),
+  backgroundImage: `url(${ASSETS_OGP_ABOUT.src})`,
+  backgroundRepeat: "no-repeat",
+  backgroundSize: "contain",
+  backgroundPosition: "center"
+});
+
 const PageAbout = () => {
   const [count, increment] = useSampleCounter();
 
@@ -32,6 +41,7 @@ const PageAbout = () => {
       <button type="button" onClick={increment}>
         count up:{count}
       </button>
+      <div css={kvStyle} />
       <p>
         <Link href="/">
           <a href="/">top</a>
