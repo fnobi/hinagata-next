@@ -34,7 +34,7 @@ const PageAbout = () => {
       </button>
       <p>
         <Link href="/">
-          <a>top</a>
+          <a href="/">top</a>
         </Link>
       </p>
     </div>

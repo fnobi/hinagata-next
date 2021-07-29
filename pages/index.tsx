@@ -37,7 +37,7 @@ const PageIndex = () => {
       </button>
       <p>
         <Link href="/about">
-          <a>about</a>
+          <a href="/about">about</a>
         </Link>
       </p>
       <p>{mouse.join(",")}</p>
