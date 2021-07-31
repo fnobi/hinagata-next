@@ -2,9 +2,11 @@ import { GetStaticProps } from "next";
 import Link from "next/link";
 import { css } from "@emotion/react";
 import { percent, px, em } from "~/lib/cssUtil";
+import { responsiveImageTile } from "~/local/commonCss";
 import { useSampleCounter } from "~/store/sample";
 import { PageMetaExtend } from "~/components/MetaSettings";
 import ASSETS_OGP_ABOUT from "~/assets/meta/ogp-about.png";
+import ASSETS_OGP from "~/assets/meta/ogp.png";
 
 const wrapperStyle = css({
   position: "fixed",
@@ -23,14 +25,7 @@ const titleStyle = css({
   marginBottom: em(0.5)
 });
 
-const kvStyle = css({
-  width: px(ASSETS_OGP_ABOUT.width / 2),
-  height: px(ASSETS_OGP_ABOUT.height / 2),
-  backgroundImage: `url(${ASSETS_OGP_ABOUT.src})`,
-  backgroundRepeat: "no-repeat",
-  backgroundSize: "contain",
-  backgroundPosition: "center"
-});
+const kvStyle = css(responsiveImageTile(ASSETS_OGP_ABOUT, ASSETS_OGP));
 
 const PageAbout = () => {
   const [count, increment] = useSampleCounter();
