@@ -2,6 +2,7 @@ import { useState, MouseEvent } from "react";
 import Link from "next/link";
 import { css } from "@emotion/react";
 import { px, percent, em } from "~/lib/cssUtil";
+import { PAGE_ABOUT } from "~/local/pagePath";
 import { useSampleCounter } from "~/store/sample";
 
 const wrapperStyle = css({
@@ -36,8 +37,8 @@ const PageIndex = () => {
         count up:{count}
       </button>
       <p>
-        <Link href="/about">
-          <a href="/about">about</a>
+        <Link href={PAGE_ABOUT}>
+          <a href={PAGE_ABOUT}>about</a>
         </Link>
       </p>
       <p>{mouse.join(",")}</p>

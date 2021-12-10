@@ -3,6 +3,7 @@ import Link from "next/link";
 import { css } from "@emotion/react";
 import { percent, px, em } from "~/lib/cssUtil";
 import { responsiveImageTile } from "~/local/commonCss";
+import { PAGE_ABOUT, PAGE_TOP } from "~/local/pagePath";
 import { useSampleCounter } from "~/store/sample";
 import { PageMetaExtend } from "~/components/MetaSettings";
 import ASSETS_OGP_ABOUT from "~/assets/meta/ogp-about.png";
@@ -38,8 +39,8 @@ const PageAbout = () => {
       </button>
       <div css={kvStyle} />
       <p>
-        <Link href="/">
-          <a href="/">top</a>
+        <Link href={PAGE_TOP}>
+          <a href={PAGE_TOP}>top</a>
         </Link>
       </p>
     </div>
@@ -49,7 +50,7 @@ const PageAbout = () => {
 export const getStaticProps: GetStaticProps<PageMetaExtend> = async () => ({
   props: {
     pageTitle: "About",
-    pagePath: "/about/",
+    pagePath: PAGE_ABOUT,
     pageShareImage: ASSETS_OGP_ABOUT
   }
 });
