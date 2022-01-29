@@ -12,49 +12,49 @@ export function groupBy<T, P>(arr: T[], identifier: (val: T) => P) {
   return m;
 }
 
-export function uniqBy<T, TT>(array: T[], fn: (item: T) => TT): T[] {
-  return array.reduce<T[]>(
+export function uniqBy<T, TT>(arr: T[], fn: (item: T) => TT): T[] {
+  return arr.reduce<T[]>(
     (prev, curr) => (prev.map(fn).includes(fn(curr)) ? prev : [...prev, curr]),
     []
   );
 }
 
-export function uniq<T>(array: T[]): T[] {
-  return uniqBy(array, item => item);
+export function uniq<T>(arr: T[]): T[] {
+  return uniqBy(arr, item => item);
 }
 
-export function sumBy<T>(array: T[], handler: (item: T) => number): number {
-  return array.reduce((prev, current) => prev + handler(current), 0);
+export function sumBy<T>(arr: T[], handler: (item: T) => number): number {
+  return arr.reduce((prev, current) => prev + handler(current), 0);
 }
 
-export function sum(array: number[]): number {
-  return sumBy(array, item => item);
+export function sum(arr: number[]): number {
+  return sumBy(arr, item => item);
 }
 
 export function flatten<T>(matrix: T[][]): T[] {
   return matrix.reduce<T[]>((prev, curr) => [...prev, ...curr], []);
 }
 
-export function compact<T>(array: (T | null | undefined | false)[]): T[] {
-  return array.reduce<T[]>((prev, curr) => (curr ? [...prev, curr] : prev), []);
+export function compact<T>(arr: (T | null | undefined | false)[]): T[] {
+  return arr.reduce<T[]>((prev, curr) => (curr ? [...prev, curr] : prev), []);
 }
 
-export function sortBy<T>(array: T[], fn: (item: T) => number) {
-  return [...array].sort((a, b) => (fn(a) < fn(b) ? -1 : 1));
+export function sortBy<T>(arr: T[], fn: (item: T) => number) {
+  return [...arr].sort((a, b) => (fn(a) < fn(b) ? -1 : 1));
 }
 
-export function shuffle<T>(array: T[], length: number = array.length): T[] {
+export function shuffle<T>(arr: T[], length: number = arr.length): T[] {
   if (length <= 0) {
     return [];
   }
-  const index = Math.floor(array.length * Math.random());
-  const target = array[index];
-  const rest = [...array.slice(0, index), ...array.slice(index + 1)];
+  const index = Math.floor(arr.length * Math.random());
+  const target = arr[index];
+  const rest = [...arr.slice(0, index), ...arr.slice(index + 1)];
   return [target, ...shuffle(rest, length - 1)];
 }
 
-export function sample<T>(array: T[]): T {
-  return array[Math.floor(array.length * Math.random())];
+export function sample<T>(arr: T[]): T {
+  return arr[Math.floor(arr.length * Math.random())];
 }
 
 export const makeArray = (length: number) => new Array(length).fill(0);
@@ -82,7 +82,9 @@ export function hasIntersection<T>(arr1: T[], arr2: T[]) {
 }
 
 export function every<T>(arr: T[], fn: (item: T) => boolean) {
-  return arr.reduce((prev, curr) => prev && fn(curr), true);
+  return arr.length
+    ? arr.reduce((prev, curr) => prev && fn(curr), true)
+    : false;
 }
 
 export function some<T>(arr: T[], fn: (item: T) => boolean) {
@@ -106,13 +108,11 @@ export function gachaLogic<T>(arr: { rate: number; item: T }[]): T {
 }
 
 export function combination<T>(arr: T[], count: number): T[][] {
-  if (count <= 1) {
-    return arr.map(n => [n]);
+  if (count <= 0) {
+    return [[]];
   }
-  let copy = [...arr];
-  const res = arr.map(n => {
-    copy = copy.filter(nn => nn !== n);
-    return combination(copy, count - 1).map(child => [n, ...child]);
-  });
-  return flatten(res);
+  return arr.reduce<T[][]>((prev, curr, i) => {
+    const children = combination(arr.slice(i + 1), count - 1);
+    return [...prev, ...children.map(child => [curr, ...child])];
+  }, []);
 }
