@@ -1,0 +1,34 @@
+name: build and deploy firebase hosting
+
+on:
+  push:
+    branches:
+      - sample
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 15.x
+
+      - uses: actions/cache@v2
+        with:
+          path: ~/.next
+          key: node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            node-
+
+      - name: npm install
+        run: npm install
+
+      - name: npm build
+        env:
+          SITE_ORIGIN: https://example.com
+        run: npm run build
+
+      - name: firebase deploy
+        run: ./node_modules/.bin/firebase deploy --only hosting --token ${{ secrets.FIREBASE_TOKEN }}
