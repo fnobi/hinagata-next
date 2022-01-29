@@ -7,9 +7,9 @@ import {
   OrthographicCamera
 } from "three";
 import { FloatUniform, Vec2Uniform } from "~/lib/GLSLUniformType";
+import { ThreeAgent } from "~/components/FullScreenThree";
 import flatVertex from "~/glsl/flatVertex.glsl";
 import monotoneNoiseFragment from "~/glsl/monotoneNoiseFragment.glsl";
-import { ThreeAgent } from "~/components/FullScreenThree";
 
 type UniformObject = {
   resolution: Vec2Uniform;
