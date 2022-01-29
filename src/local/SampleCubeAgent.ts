@@ -7,9 +7,9 @@ import {
   Vector2
 } from "three";
 import { FloatUniform, Vec2Uniform } from "~/lib/GLSLUniformType";
+import { ThreeAgent } from "~/components/FullScreenThree";
 import beatBoxVertex from "~/glsl/beatBoxVertex.glsl";
 import cubeGradFragment from "~/glsl/cubeGradFragment.glsl";
-import { ThreeAgent } from "~/components/FullScreenThree";
 
 type UniformObject = {
   resolution: Vec2Uniform;
