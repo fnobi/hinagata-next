@@ -1,5 +1,5 @@
-import React, { useEffect, useCallback, useState, useMemo } from "react";
-import { css } from "@emotion/core";
+import { useEffect, useCallback, useState, useMemo, FC } from "react";
+import { css } from "@emotion/react";
 import { WebGLRenderer, Camera, Scene } from "three";
 import { px, percent } from "~/lib/cssUtil";
 
@@ -20,8 +20,7 @@ const canvasStyle = css({
   height: percent(100)
 });
 
-export default (props: { agent: ThreeAgent }) => {
-  const { agent } = props;
+const FullScreenThree: FC<{ agent: ThreeAgent }> = ({ agent }) => {
   const [renderer, setRenderer] = useState<WebGLRenderer | null>(null);
 
   const canvasRef = useCallback(el => {
@@ -65,3 +64,5 @@ export default (props: { agent: ThreeAgent }) => {
 
   return <canvas css={canvasStyle} ref={canvasRef} />;
 };
+
+export default FullScreenThree;

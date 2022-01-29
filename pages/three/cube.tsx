@@ -1,9 +1,9 @@
-import React, { useMemo } from "react";
-import { css } from "@emotion/core";
+import { useMemo } from "react";
+import { css } from "@emotion/react";
 import Link from "next/link";
 import { px } from "~/lib/cssUtil";
+import { NextPage } from "next";
 import SampleCubeAgent from "~/local/SampleCubeAgent";
-import DefaultLayout from "~/layouts/DefaultLayout";
 import FullScreenThree from "~/components/FullScreenThree";
 
 const SWITCH_LINK = "/three/plane/";
@@ -16,16 +16,18 @@ const uiStyle = css({
   backgroundColor: `rgba(0,0,0,0.5)`
 });
 
-export default () => {
+const PageThreeCube: NextPage = () => {
   const sampleCubeAgent = useMemo(() => new SampleCubeAgent(), []);
   return (
-    <DefaultLayout>
+    <div>
       <FullScreenThree agent={sampleCubeAgent} />
       <div css={uiStyle}>
         <Link href={SWITCH_LINK}>
           <a href={SWITCH_LINK}>plane</a>
         </Link>
       </div>
-    </DefaultLayout>
+    </div>
   );
 };
+
+export default PageThreeCube;
