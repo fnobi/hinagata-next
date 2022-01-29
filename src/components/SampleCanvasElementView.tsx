@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { FC, useRef } from "react";
 import { css } from "@emotion/react";
 import { percent } from "~/lib/cssUtil";
 import useCanvasAgent from "~/lib/useCanvasAgent";
@@ -19,7 +19,7 @@ const canvasStyle = css({
   }
 });
 
-const SampleCanvasElementView = () => {
+const SampleCanvasElementView: FC = () => {
   const wrapperRef = useRef<HTMLDivElement | null>(null);
   useCanvasAgent({
     initializer: () => new SampleCanvasElementPlayer(),

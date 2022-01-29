@@ -1,3 +1,4 @@
+import { FC } from "react";
 import Head from "next/head";
 import META from "~/local/META";
 
@@ -13,8 +14,11 @@ export type PageMetaExtend = {
   pagePath?: string;
 };
 
-const MetaSettings = (props: PageMetaExtend) => {
-  const { pageTitle, pageShareImage, pagePath } = props;
+const MetaSettings: FC<PageMetaExtend> = ({
+  pageTitle,
+  pageShareImage,
+  pagePath
+}) => {
   const title = pageTitle ? `${pageTitle} | ${META.TITLE}` : META.TITLE;
   const description = META.DESCRIPTION;
   const shareImagePath =

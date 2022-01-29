@@ -1,4 +1,5 @@
 import { useState, MouseEvent } from "react";
+import { NextPage } from "next";
 import Link from "next/link";
 import { css } from "@emotion/react";
 import { px, percent, em } from "~/lib/cssUtil";
@@ -22,7 +23,7 @@ const titleStyle = css({
   marginBottom: em(0.5)
 });
 
-const PageIndex = () => {
+const PageIndex: NextPage = () => {
   const [mouse, setMouse] = useState<[number, number]>([0, 0]);
   const [count, increment] = useSampleCounter();
 

@@ -1,4 +1,4 @@
-import { GetStaticProps } from "next";
+import { GetStaticProps, NextPage } from "next";
 import Link from "next/link";
 import { css } from "@emotion/react";
 import { percent, px, em } from "~/lib/cssUtil";
@@ -28,7 +28,7 @@ const titleStyle = css({
 
 const kvStyle = css(responsiveImageTile(ASSETS_OGP_ABOUT, ASSETS_OGP));
 
-const PageAbout = () => {
+const PageAbout: NextPage = () => {
   const [count, increment] = useSampleCounter();
 
   return (
