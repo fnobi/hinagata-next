@@ -12,33 +12,10 @@ export function groupBy<T, P>(arr: T[], identifier: (val: T) => P) {
   return m;
 }
 
-export const padLeft = (num: number, count: number) => {
-  return (new Array(count).join("0") + num.toString()).slice(-count);
-};
-
-export function filterMap<K, V>(
-  src: Map<K, V>,
-  handler: (value: V, key: K) => boolean
-): Map<K, V> {
-  const res = new Map<K, V>();
-  [...src.entries()].forEach(([k, v]) => {
-    if (handler(v, k)) {
-      res.set(k, v);
-    }
-  });
-  return res;
-}
-
 export function uniqBy<T, TT>(array: T[], fn: (item: T) => TT): T[] {
-  return array.reduce(
-    (prev, current) => {
-      const factor: TT = fn(current);
-      if (prev.map(fn).includes(factor)) {
-        return prev;
-      }
-      return [...prev, current];
-    },
-    [] as T[]
+  return array.reduce<T[]>(
+    (prev, curr) => (prev.map(fn).includes(fn(curr)) ? prev : [...prev, curr]),
+    []
   );
 }
 
@@ -60,16 +37,6 @@ export function flatten<T>(matrix: T[][]): T[] {
 
 export function compact<T>(array: (T | null | undefined | false)[]): T[] {
   return array.reduce<T[]>((prev, curr) => (curr ? [...prev, curr] : prev), []);
-}
-
-export function compactMap<K, V>(m: Map<K | null, V>): Map<K, V> {
-  const res = new Map<K, V>();
-  [...m.entries()].forEach(([k, v]) => {
-    if (k) {
-      res.set(k, v);
-    }
-  });
-  return res;
 }
 
 export function sortBy<T>(array: T[], fn: (item: T) => number) {
@@ -110,6 +77,10 @@ export function intersection<T>(arr1: T[], arr2: T[]) {
   return arr1.filter(item => arr2.includes(item));
 }
 
+export function hasIntersection<T>(arr1: T[], arr2: T[]) {
+  return !!arr1.find(item => arr2.includes(item));
+}
+
 export function every<T>(arr: T[], fn: (item: T) => boolean) {
   return arr.reduce((prev, curr) => prev && fn(curr), true);
 }
@@ -120,15 +91,6 @@ export function some<T>(arr: T[], fn: (item: T) => boolean) {
 
 export function maxBy<T>(arr: T[], fn: (item: T) => number, base: number = 0) {
   return arr.reduce((prev, curr) => Math.max(fn(curr), prev), base);
-}
-
-export const trim = (str: string) => {
-  // eslint-disable-next-line no-irregular-whitespace
-  return str.replace(/^[ 　]+/g, "").replace(/[ 　]+$/g, "");
-};
-
-export function hasIntersection<T>(arr1: T[], arr2: T[]) {
-  return !!arr1.find(item => arr2.includes(item));
 }
 
 export function gachaLogic<T>(arr: { rate: number; item: T }[]): T {
@@ -143,7 +105,7 @@ export function gachaLogic<T>(arr: { rate: number; item: T }[]): T {
   return e.item;
 }
 
-export function combination(arr: string[], count: number): string[][] {
+export function combination<T>(arr: T[], count: number): T[][] {
   if (count <= 1) {
     return arr.map(n => [n]);
   }
@@ -153,27 +115,4 @@ export function combination(arr: string[], count: number): string[][] {
     return combination(copy, count - 1).map(child => [n, ...child]);
   });
   return flatten(res);
-}
-
-export function promiseParallel<T, TT>(
-  arr: T[],
-  fn: (item: T) => Promise<TT>
-): Promise<TT[]> {
-  return Promise.all(arr.map(item => fn(item)));
-}
-
-export async function promiseSeries<T, TT>(
-  arr: T[],
-  fn: (item: T) => Promise<TT>,
-  parallel: number = 1
-): Promise<TT[]> {
-  if (!arr.length) {
-    return [];
-  }
-  const head = arr.slice(0, parallel);
-  const rest = arr.slice(parallel);
-  return [
-    ...(await Promise.all(head.map(item => fn(item)))),
-    ...(await promiseSeries(rest, fn, parallel))
-  ];
 }
