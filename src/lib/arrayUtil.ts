@@ -13,9 +13,11 @@ export function groupBy<T, P>(arr: T[], identifier: (val: T) => P) {
 }
 
 export function uniqBy<T, TT>(arr: T[], fn: (item: T) => TT): T[] {
-  return arr.reduce<T[]>(
+  const head = arr.slice(0, 1);
+  const tail = arr.slice(1);
+  return tail.reduce<T[]>(
     (prev, curr) => (prev.map(fn).includes(fn(curr)) ? prev : [...prev, curr]),
-    []
+    head
   );
 }
 
