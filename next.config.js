@@ -20,7 +20,7 @@ module.exports = {
 
     config.module.rules.push({
       loader: "raw-loader",
-      test: /\.(glsl|vs|fs|vert|frag)$/,
+      test: /\.glsl$/,
       exclude: /node_modules/
     });
 
