@@ -1,12 +1,13 @@
-import React from "react";
+import { GetStaticProps } from "next";
 import Link from "next/link";
-import { css } from "@emotion/core";
-import { connectStoreAll } from "~/lib/typeRegiHelper";
+import { css } from "@emotion/react";
 import { percent, px, em } from "~/lib/cssUtil";
-import sampleStore, { SampleState } from "~/store/sample";
-import DefaultLayout from "~/layouts/DefaultLayout";
-
-type Props = {};
+import { responsiveImageTile } from "~/local/commonCss";
+import { PAGE_ABOUT, PAGE_TOP } from "~/local/pagePath";
+import { useSampleCounter } from "~/store/sample";
+import { PageMetaExtend } from "~/components/MetaSettings";
+import ASSETS_OGP_ABOUT from "~/assets/meta/ogp-about.png";
+import ASSETS_OGP from "~/assets/meta/ogp.png";
 
 const wrapperStyle = css({
   position: "fixed",
@@ -25,25 +26,33 @@ const titleStyle = css({
   marginBottom: em(0.5)
 });
 
-export default connectStoreAll(sampleStore, (props: Props & SampleState) => {
-  const { count } = props;
+const kvStyle = css(responsiveImageTile(ASSETS_OGP_ABOUT, ASSETS_OGP));
+
+const PageAbout = () => {
+  const [count, increment] = useSampleCounter();
 
   return (
-    <DefaultLayout title="about">
-      <div css={wrapperStyle}>
-        <div css={titleStyle}>About</div>
-        <button
-          type="button"
-          onClick={() => sampleStore.dispatch("incrementCounter", { value: 1 })}
-        >
-          count up:{count}
-        </button>
-        <p>
-          <Link href="/">
-            <a href="/">top</a>
-          </Link>
-        </p>
-      </div>
-    </DefaultLayout>
+    <div css={wrapperStyle}>
+      <div css={titleStyle}>About</div>
+      <button type="button" onClick={increment}>
+        count up:{count}
+      </button>
+      <div css={kvStyle} />
+      <p>
+        <Link href={PAGE_TOP}>
+          <a href={PAGE_TOP}>top</a>
+        </Link>
+      </p>
+    </div>
   );
+};
+
+export const getStaticProps: GetStaticProps<PageMetaExtend> = async () => ({
+  props: {
+    pageTitle: "About",
+    pagePath: PAGE_ABOUT,
+    pageShareImage: ASSETS_OGP_ABOUT
+  }
 });
+
+export default PageAbout;

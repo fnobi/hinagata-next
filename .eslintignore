@@ -1,2 +1,6 @@
 node_modules
 **/*.min.js
+next.config.js
+next-env.d.ts
+dist
+scripts

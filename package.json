@@ -5,42 +5,53 @@
   "main": "index.js",
   "scripts": {
     "dev": "next",
-    "build": "next build && next export",
+    "build": "next build && next export && node scripts/make-dist-dir",
     "lint": "eslint --ext .ts,.tsx,.js --fix ."
   },
   "keywords": [],
   "author": "Fujisawa Shin",
   "license": "ISC",
   "devDependencies": {
-    "@emotion/babel-preset-css-prop": "^10.0.14",
+    "@babel/core": "^7.13.10",
+    "@emotion/babel-preset-css-prop": "^11.2.0",
     "@types/node": "^12.6.2",
     "@types/react": "^16.8.23",
+    "@types/recoil": "0.0.1",
     "@types/three": "^0.103.2",
-    "@typescript-eslint/eslint-plugin": "^1.12.0",
-    "@typescript-eslint/parser": "^1.12.0",
+    "@typescript-eslint/eslint-plugin": "^4.27.0",
+    "@typescript-eslint/parser": "^4.27.0",
     "@zeit/next-typescript": "^1.1.1",
     "babel-plugin-module-resolver": "^3.2.0",
-    "eslint": "^6.0.1",
+    "eslint": "^7.28.0",
     "eslint-config-airbnb": "^17.1.1",
+    "eslint-config-next": "^11.0.0",
     "eslint-config-prettier": "^6.0.0",
-    "eslint-loader": "^2.2.1",
     "eslint-plugin-import": "^2.20.1",
     "eslint-plugin-jsx-a11y": "^6.2.3",
     "eslint-plugin-prettier": "^3.1.0",
     "eslint-plugin-react": "^7.14.2",
     "eslint-plugin-react-hooks": "^1.6.1",
+    "file-loader": "^6.0.0",
     "prettier": "^1.18.2",
     "raw-loader": "^4.0.0",
-    "react-dom": "^16.8.6",
-    "typescript": "^3.5.3"
+    "react-dom": "^17.0.2",
+    "typescript": "~4.3.2"
   },
   "dependencies": {
-    "@emotion/core": "^10.0.14",
+    "@emotion/react": "^11.4.0",
     "css-transform-builder": "^1.0.0",
-    "emotion-reset": "^2.0.1",
-    "next": "^9.1.5",
-    "react": "^16.8.6",
-    "three": "^0.111.0",
-    "type-regi": "^1.0.2"
-  }
+    "emotion-reset": "~3.0.0",
+    "next": "^11.0.0",
+    "react": "^17.0.2",
+    "recoil": "0.0.10",
+    "three": "^0.111.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fnobi/hinagata-next.git"
+  },
+  "bugs": {
+    "url": "https://github.com/fnobi/hinagata-next/issues"
+  },
+  "homepage": "https://github.com/fnobi/hinagata-next#readme"
 }
