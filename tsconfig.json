@@ -25,14 +25,16 @@
     "noEmit": true,
     "esModuleInterop": true,
     "resolveJsonModule": true,
-    "isolatedModules": true
+    "isolatedModules": true,
+    "jsxImportSource": "@emotion/react"
   },
   "exclude": [
     "node_modules"
   ],
   "include": [
     "next-env.d.ts",
-    "**/*.ts",
-    "**/*.tsx"
+    "src/**/*",
+    "pages/**/*",
+    "typings/**/*.d.ts",
   ]
 }

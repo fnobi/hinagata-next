@@ -1,8 +1,13 @@
-import React from "react";
+import { GetStaticProps, NextPage } from "next";
 import Link from "next/link";
-import { css } from "@emotion/core";
+import { css } from "@emotion/react";
 import { percent, px, em } from "~/lib/cssUtil";
+import { responsiveImageTile } from "~/local/commonCss";
+import { PAGE_ABOUT, PAGE_TOP } from "~/local/pagePath";
 import { useSampleCounter } from "~/store/sample";
+import { PageMetaExtend } from "~/components/MetaSettings";
+import ASSETS_OGP_ABOUT from "~/assets/meta/ogp-about.png";
+import ASSETS_OGP from "~/assets/meta/ogp.png";
 
 const wrapperStyle = css({
   position: "fixed",
@@ -21,7 +26,9 @@ const titleStyle = css({
   marginBottom: em(0.5)
 });
 
-const PageAbout = () => {
+const kvStyle = css(responsiveImageTile(ASSETS_OGP_ABOUT, ASSETS_OGP));
+
+const PageAbout: NextPage = () => {
   const [count, increment] = useSampleCounter();
 
   return (
@@ -30,19 +37,22 @@ const PageAbout = () => {
       <button type="button" onClick={increment}>
         count up:{count}
       </button>
+      <div css={kvStyle} />
       <p>
-        <Link href="/">
-          <a href="/">top</a>
+        <Link href={PAGE_TOP}>
+          <a href={PAGE_TOP}>top</a>
         </Link>
       </p>
     </div>
   );
 };
 
-PageAbout.getInitialProps = async () => ({
-  pageTitle: "About",
-  pagePath: "/about/",
-  pageShareImage: await import("~/assets/meta/ogp-about.png")
+export const getStaticProps: GetStaticProps<PageMetaExtend> = async () => ({
+  props: {
+    pageTitle: "About",
+    pagePath: PAGE_ABOUT,
+    pageShareImage: ASSETS_OGP_ABOUT
+  }
 });
 
 export default PageAbout;

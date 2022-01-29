@@ -1,0 +1,44 @@
+name: build and deploy s3
+
+on:
+  push:
+    branches:
+      - sample
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 15.x
+
+      - uses: actions/cache@v2
+        with:
+          path: ~/.next
+          key: node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            node-
+
+      - name: npm install
+        run: npm install
+
+      - name: npm build
+        env:
+          SITE_ORIGIN: https://example.com
+        run: npm run build
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.SECRET_ACCESS_KEY }}
+          aws-region: ap-northeast-1
+
+      - name: aws sync
+        env:
+          SYNC_FROM: dist/
+          SYNC_TO: s3://sample-s3-bucket
+        run: aws s3 sync ${SYNC_FROM} ${SYNC_TO} --exact-timestamps --exclude "**/.*" --cache-control max-age=60 --delete

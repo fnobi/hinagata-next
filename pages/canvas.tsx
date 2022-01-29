@@ -1,4 +1,4 @@
-import React from "react";
+import { NextPage } from "next";
 import dynamic from "next/dynamic";
 
 const SampleCanvasElementView = dynamic(
@@ -8,6 +8,6 @@ const SampleCanvasElementView = dynamic(
   }
 );
 
-const PageCanvas = () => <SampleCanvasElementView />;
+const PageCanvas: NextPage = () => <SampleCanvasElementView />;
 
 export default PageCanvas;

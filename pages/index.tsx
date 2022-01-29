@@ -1,7 +1,9 @@
-import React, { useState } from "react";
+import { useState, MouseEvent } from "react";
+import { NextPage } from "next";
 import Link from "next/link";
-import { css } from "@emotion/core";
+import { css } from "@emotion/react";
 import { px, percent, em } from "~/lib/cssUtil";
+import { PAGE_ABOUT } from "~/local/pagePath";
 import { useSampleCounter } from "~/store/sample";
 
 const wrapperStyle = css({
@@ -21,11 +23,11 @@ const titleStyle = css({
   marginBottom: em(0.5)
 });
 
-const PageIndex = () => {
+const PageIndex: NextPage = () => {
   const [mouse, setMouse] = useState<[number, number]>([0, 0]);
   const [count, increment] = useSampleCounter();
 
-  const updateMouse = (e: React.MouseEvent) => {
+  const updateMouse = (e: MouseEvent) => {
     setMouse([e.pageX, e.pageY]);
   };
 
@@ -36,8 +38,8 @@ const PageIndex = () => {
         count up:{count}
       </button>
       <p>
-        <Link href="/about">
-          <a href="/about">about</a>
+        <Link href={PAGE_ABOUT}>
+          <a href={PAGE_ABOUT}>about</a>
         </Link>
       </p>
       <p>{mouse.join(",")}</p>

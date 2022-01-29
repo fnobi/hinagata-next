@@ -91,7 +91,7 @@ function usePageView(id: string) {
     } else {
       landingPathRef.current = pagePath;
     }
-  }, [route.asPath]);
+  }, [route.asPath, id]);
 }
 
 export function GTagSnippet(props: { trackingId: string }) {
