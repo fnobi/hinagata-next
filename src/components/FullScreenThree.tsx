@@ -1,4 +1,4 @@
-import { useEffect, useCallback, useState, useMemo, FC } from "react";
+import { useEffect, useState, useMemo, FC, useRef } from "react";
 import { css } from "@emotion/react";
 import { WebGLRenderer, Camera, Scene } from "three";
 import { px, percent } from "~/lib/cssUtil";
@@ -22,12 +22,14 @@ const canvasStyle = css({
 
 const FullScreenThree: FC<{ agent: ThreeAgent }> = ({ agent }) => {
   const [renderer, setRenderer] = useState<WebGLRenderer | null>(null);
-
-  const canvasRef = useCallback(el => {
-    setRenderer(el ? new WebGLRenderer({ canvas: el }) : null);
-  }, []);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   const startTime = useMemo(() => Date.now(), []);
+
+  useEffect(() => {
+    const { current: canvas } = canvasRef;
+    setRenderer(canvas ? new WebGLRenderer({ canvas }) : null);
+  }, []);
 
   useEffect(() => {
     const handler = () => {

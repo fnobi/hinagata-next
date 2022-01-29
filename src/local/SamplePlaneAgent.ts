@@ -67,7 +67,6 @@ export default class SamplePlaneAgent implements ThreeAgent {
     this.uniformObject.time.value = time;
   }
 
-  public dispose() {
-    this.activeScene.dispose();
-  }
+  // eslint-disable-next-line class-methods-use-this
+  public dispose() {}
 }

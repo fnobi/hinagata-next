@@ -65,7 +65,6 @@ export default class SampleCubeAgent implements ThreeAgent {
     this.cube.rotation.z += 0.01;
   }
 
-  public dispose() {
-    this.activeScene.dispose();
-  }
+  // eslint-disable-next-line class-methods-use-this
+  public dispose() {}
 }
