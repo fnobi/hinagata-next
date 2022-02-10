@@ -2,15 +2,9 @@ import { FC } from "react";
 import Head from "next/head";
 import META from "~/local/META";
 
-export type ImageMetaField = {
-  src: string;
-  height: number;
-  width: number;
-};
-
 export type PageMetaExtend = {
   pageTitle?: string;
-  pageShareImage?: ImageMetaField;
+  pageShareImage?: ImageFile;
   pagePath?: string;
 };
 

@@ -1,5 +1,4 @@
 import { basePath } from "~/local/constants";
-import { ImageMetaField } from "~/components/MetaSettings";
 import ASSETS_OGP from "~/assets/meta/ogp.png";
 import ASSETS_FAVICON from "~/assets/meta/favicon.ico";
 
@@ -8,8 +7,8 @@ const META: {
   DESCRIPTION?: string;
   URL: string;
   KEYWORDS?: string[];
-  DEFAULT_SHARE_IMAGE?: ImageMetaField;
-  FAVICON_IMAGE?: ImageMetaField;
+  DEFAULT_SHARE_IMAGE?: ImageFile;
+  FAVICON_IMAGE?: ImageFile;
 } = {
   TITLE: "hinagata-next",
   DESCRIPTION: "Awsome next.js project.",
