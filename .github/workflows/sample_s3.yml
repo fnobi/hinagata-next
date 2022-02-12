@@ -27,7 +27,7 @@ jobs:
 
       - name: npm build
         env:
-          SITE_ORIGIN: https://example.com
+          NEXT_PUBLIC_SITE_ORIGIN: https://example.com
         run: npm run build
 
       - name: Configure AWS Credentials
