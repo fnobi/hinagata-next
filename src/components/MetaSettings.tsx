@@ -1,7 +1,7 @@
 import { FC } from "react";
 import Head from "next/head";
 import { StaticImageData } from "next/image-types";
-import { BASE_PATH, SITE_ORIGIN } from "~/local/constants";
+import { BASE_URL, SITE_ORIGIN } from "~/local/constants";
 
 const MetaSettings: FC<{
   pagePath: string;
@@ -11,10 +11,8 @@ const MetaSettings: FC<{
   keywords?: string[];
   favicon?: StaticImageData;
 }> = ({ pagePath, title, description, shareImage, favicon, keywords }) => {
-  const shareImageUrl = shareImage ? `${SITE_ORIGIN}${shareImage.src}` : null;
-  const canonicalUrl = pagePath
-    ? `${SITE_ORIGIN}${BASE_PATH}${pagePath}`
-    : null;
+  const shareImageUrl = shareImage ? SITE_ORIGIN + shareImage.src : null;
+  const canonicalUrl = pagePath ? BASE_URL + pagePath : null;
   return (
     <Head>
       {title ? (
