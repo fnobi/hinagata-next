@@ -82,8 +82,8 @@ const PageAbout: NextPage = () => {
           </p>
         </div>
         <p>
-          <Link href={PAGE_TOP}>
-            <a href={PAGE_TOP}>top</a>
+          <Link href={PAGE_TOP} passHref>
+            <a href="passHref">top</a>
           </Link>
         </p>
       </div>

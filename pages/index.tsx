@@ -38,8 +38,8 @@ const PageIndex: NextPage = () => {
         count up:{count}
       </button>
       <p>
-        <Link href={PAGE_ABOUT}>
-          <a href={PAGE_ABOUT}>about</a>
+        <Link href={PAGE_ABOUT} passHref>
+          <a href="passHref">about</a>
         </Link>
       </p>
       <p>{mouse.join(",")}</p>
