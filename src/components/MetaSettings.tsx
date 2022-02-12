@@ -1,10 +1,11 @@
 import { FC } from "react";
 import Head from "next/head";
+import { StaticImageData } from "next/image-types";
 import META from "~/local/META";
 
 export type PageMetaExtend = {
   pageTitle?: string;
-  pageShareImage?: ImageFile;
+  pageShareImage?: StaticImageData;
   pagePath?: string;
 };
 
