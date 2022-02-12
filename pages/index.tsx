@@ -4,7 +4,7 @@ import Link from "next/link";
 import { css } from "@emotion/react";
 import { px, percent, em } from "~/lib/cssUtil";
 import { PAGE_ABOUT } from "~/local/pagePath";
-import { useSampleCounter } from "~/store/sample";
+import useSampleCounter from "~/local/useSampleCounter";
 
 const wrapperStyle = css({
   position: "fixed",

@@ -4,7 +4,7 @@ import { css } from "@emotion/react";
 import { percent, px, em } from "~/lib/cssUtil";
 import { responsiveImageTile } from "~/local/commonCss";
 import { PAGE_ABOUT, PAGE_TOP } from "~/local/pagePath";
-import { useSampleCounter } from "~/store/sample";
+import useSampleCounter from "~/local/useSampleCounter";
 import { PageMetaExtend } from "~/components/MetaSettings";
 import ASSETS_OGP_ABOUT from "~/assets/meta/ogp-about.png";
 import ASSETS_OGP from "~/assets/meta/ogp.png";

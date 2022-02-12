@@ -13,7 +13,7 @@ export const sampleStore = atom<SampleState>({
   default: initialSampleState
 });
 
-export const useSampleCounter = (): [number, () => void] => {
+const useSampleCounter = (): [number, () => void] => {
   const [sample, setSample] = useRecoilState(sampleStore);
   const { count } = sample;
   const increment = () => {
@@ -24,3 +24,5 @@ export const useSampleCounter = (): [number, () => void] => {
   };
   return [count, increment];
 };
+
+export default useSampleCounter;
