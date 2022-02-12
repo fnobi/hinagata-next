@@ -1,54 +1,87 @@
 import { FC } from "react";
 import Head from "next/head";
 import { StaticImageData } from "next/image-types";
-import META from "~/local/META";
+import { BASE_PATH, SITE_ORIGIN } from "~/local/constants";
 
-export type PageMetaExtend = {
-  pageTitle?: string;
-  pageShareImage?: StaticImageData;
-  pagePath?: string;
-};
-
-const MetaSettings: FC<PageMetaExtend> = ({
-  pageTitle,
-  pageShareImage,
-  pagePath
-}) => {
-  const title = pageTitle ? `${pageTitle} | ${META.TITLE}` : META.TITLE;
-  const description = META.DESCRIPTION;
-  const shareImagePath =
-    (pageShareImage ? pageShareImage.src : null) ||
-    (META.DEFAULT_SHARE_IMAGE ? META.DEFAULT_SHARE_IMAGE.src : null);
-  const shareImageUrl = shareImagePath
-    ? `${process.env.SITE_ORIGIN}${shareImagePath}`
+const MetaSettings: FC<{
+  pagePath: string;
+  title?: string;
+  description?: string;
+  shareImage?: StaticImageData;
+  keywords?: string[];
+  favicon?: StaticImageData;
+}> = ({ pagePath, title, description, shareImage, favicon, keywords }) => {
+  const shareImageUrl = shareImage ? `${SITE_ORIGIN}${shareImage.src}` : null;
+  const canonicalUrl = pagePath
+    ? `${SITE_ORIGIN}${BASE_PATH}${pagePath}`
     : null;
-  const canonicalUrl = `${META.URL}${pagePath || "/"}`;
   return (
     <Head>
-      <title>{title}</title>
-      {description ? <meta name="description" content={description} /> : null}
-      {META.KEYWORDS ? (
-        <meta name="keywords" content={META.KEYWORDS.join(",")} />
+      {title ? (
+        <>
+          <title key="meta-title">{title}</title>
+          <meta key="meta-og-title" property="og:title" content={title} />
+          <meta
+            key="meta-twitter-title"
+            property="twitter:title"
+            content={title}
+          />
+        </>
       ) : null}
-      <meta property="og:url" content={canonicalUrl} />
-      {shareImageUrl ? (
-        <meta property="og:image" content={shareImageUrl} />
-      ) : null}
-      <meta property="og:title" content={title} />
       {description ? (
-        <meta property="og:description" content={description} />
+        <>
+          <meta name="description" content={description} />
+          <meta
+            key="meta-og-description"
+            property="og:description"
+            content={description}
+          />
+          <meta
+            key="meta-twitter-description"
+            property="twitter:description"
+            content={description}
+          />
+        </>
       ) : null}
-      <meta property="twitter:card" content="summary_large_image" />
+      {keywords && keywords.length ? (
+        <meta
+          key="meta-keywords"
+          name="keywords"
+          content={keywords.join(",")}
+        />
+      ) : null}
+      {favicon ? (
+        <link
+          key="meta-favicon"
+          rel="icon"
+          type="image/x-icon"
+          href={favicon.src}
+        />
+      ) : null}
+      <meta
+        key="meta-twitter-card"
+        property="twitter:card"
+        content="summary_large_image"
+      />
+      {canonicalUrl ? (
+        <>
+          <link key="meta-canonical" rel="canonical" href={canonicalUrl} />
+          <meta key="meta-og-url" property="og:url" content={canonicalUrl} />
+        </>
+      ) : null}
       {shareImageUrl ? (
-        <meta property="twitter:image" content={shareImageUrl} />
-      ) : null}
-      <meta property="twitter:title" content={title} />
-      {description ? (
-        <meta property="twitter:description" content={description} />
-      ) : null}
-      <link rel="canonical" href={canonicalUrl} />
-      {META.FAVICON_IMAGE ? (
-        <link rel="icon" type="image/x-icon" href={META.FAVICON_IMAGE.src} />
+        <>
+          <meta
+            key="meta-og-image"
+            property="og:image"
+            content={shareImageUrl}
+          />
+          <meta
+            key="meta-twitter-image"
+            property="twitter:image"
+            content={shareImageUrl}
+          />
+        </>
       ) : null}
     </Head>
   );

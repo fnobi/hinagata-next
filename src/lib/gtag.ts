@@ -1,6 +1,6 @@
 import { useRouter } from "next/router";
 import React, { useEffect, useRef } from "react";
-import { basePath } from "~/local/constants";
+import { BASE_PATH } from "~/local/constants";
 
 type GTagMethod = {
   event: [
@@ -82,7 +82,7 @@ function usePageView(id: string) {
   const route = useRouter();
   useEffect(() => {
     const { current: landingPath } = landingPathRef;
-    const pagePath = basePath + route.asPath;
+    const pagePath = BASE_PATH + route.asPath;
     if (landingPath) {
       sendPageView({
         id,

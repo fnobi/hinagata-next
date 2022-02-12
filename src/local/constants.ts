@@ -1,4 +1,6 @@
 const config = require("../../next.config");
 
-// eslint-disable-next-line import/prefer-default-export
-export const { basePath } = config;
+const { basePath } = config;
+
+export const { SITE_ORIGIN } = process.env;
+export const BASE_PATH = basePath;
