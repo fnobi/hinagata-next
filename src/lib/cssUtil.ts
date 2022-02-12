@@ -1,27 +1,20 @@
-const SP_VIEWPORT_SIZE = 1125;
-const PC_VIEWPORT_SIZE = 2880;
+import CSSTransformBuilder from "css-transform-builder";
 
-type SizeKeyword = number | "auto";
+export type CSSSizeKeyword = number | "auto";
 
-const appendPostfix = (nums: SizeKeyword[], postfix: string) =>
+const appendPostfix = (nums: CSSSizeKeyword[], postfix: string) =>
   nums
     .map<string>(n => (typeof n === "string" ? n : `${n}${postfix}`))
     .join(" ");
 
-export const px = (...nums: SizeKeyword[]) => appendPostfix(nums, "px");
+export const px = (...nums: CSSSizeKeyword[]) => appendPostfix(nums, "px");
 
-export const percent = (...nums: SizeKeyword[]) => appendPostfix(nums, "%");
+export const percent = (...nums: CSSSizeKeyword[]) => appendPostfix(nums, "%");
 
-export const em = (...nums: SizeKeyword[]) => appendPostfix(nums, "em");
+export const em = (...nums: CSSSizeKeyword[]) => appendPostfix(nums, "em");
 
-export const vw = (...nums: SizeKeyword[]) => appendPostfix(nums, "vw");
+export const vw = (...nums: CSSSizeKeyword[]) => appendPostfix(nums, "vw");
 
-export const pcp = (...nums: SizeKeyword[]) =>
-  vw(
-    ...nums.map(n => (typeof n === "string" ? n : (n / PC_VIEWPORT_SIZE) * 100))
-  );
-
-export const spp = (...nums: SizeKeyword[]) =>
-  vw(
-    ...nums.map(n => (typeof n === "string" ? n : (n / SP_VIEWPORT_SIZE) * 100))
-  );
+export const transform = (
+  chain: (t: CSSTransformBuilder) => CSSTransformBuilder
+) => chain(new CSSTransformBuilder()).toString();

@@ -2,12 +2,12 @@ import { GetStaticProps, NextPage } from "next";
 import Link from "next/link";
 import { css } from "@emotion/react";
 import { percent, px, em } from "~/lib/cssUtil";
-import { responsiveImageTile } from "~/local/commonCss";
 import { PAGE_ABOUT, PAGE_TOP } from "~/local/pagePath";
 import useSampleCounter from "~/local/useSampleCounter";
+import { pcp, spp } from "~/local/emotionMixin";
+import { pcStyle, spStyle } from "~/local/emotionMixin";
 import { PageMetaExtend } from "~/components/MetaSettings";
 import ASSETS_OGP_ABOUT from "~/assets/meta/ogp-about.png";
-import ASSETS_OGP from "~/assets/meta/ogp.png";
 
 const wrapperStyle = css({
   position: "fixed",
@@ -26,7 +26,22 @@ const titleStyle = css({
   marginBottom: em(0.5)
 });
 
-const kvStyle = css(responsiveImageTile(ASSETS_OGP_ABOUT, ASSETS_OGP));
+const kvStyle = css(
+  {
+    backgroundImage: `url(${ASSETS_OGP_ABOUT.src})`,
+    backgroundRepeat: "no-repeat",
+    backgroundSize: "contain",
+    backgroundPosition: "center"
+  },
+  spStyle({
+    width: spp(ASSETS_OGP_ABOUT.width),
+    height: spp(ASSETS_OGP_ABOUT.height)
+  }),
+  pcStyle({
+    width: pcp(ASSETS_OGP_ABOUT.width),
+    height: pcp(ASSETS_OGP_ABOUT.height)
+  })
+);
 
 const PageAbout: NextPage = () => {
   const [count, increment] = useSampleCounter();

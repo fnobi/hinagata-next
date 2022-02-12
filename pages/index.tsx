@@ -2,7 +2,7 @@ import { useState, MouseEvent } from "react";
 import { NextPage } from "next";
 import Link from "next/link";
 import { css } from "@emotion/react";
-import { px, percent, em } from "~/lib/cssUtil";
+import { percent, em } from "~/lib/cssUtil";
 import { PAGE_ABOUT } from "~/local/pagePath";
 import useSampleCounter from "~/local/useSampleCounter";
 
@@ -12,8 +12,8 @@ const wrapperStyle = css({
   alignItems: "center",
   justifyContent: "center",
   flexDirection: "column",
-  top: px(0),
-  left: px(0),
+  top: percent(0),
+  left: percent(0),
   width: percent(100),
   height: percent(100)
 });

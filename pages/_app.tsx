@@ -2,7 +2,7 @@ import { AppProps } from "next/app";
 import { Global, css } from "@emotion/react";
 import emotionReset from "emotion-reset";
 import { RecoilRoot } from "recoil";
-import { globalStyle } from "~/local/commonCss";
+import { globalStyle } from "~/local/emotionMixin";
 import MetaSettings from "~/components/MetaSettings";
 import LayoutRoot from "~/components/LayoutRoot";
 
