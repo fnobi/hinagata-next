@@ -1,5 +1,3 @@
-import CSSTransformBuilder from "css-transform-builder";
-
 export type CSSSizeKeyword = number | "auto";
 
 const appendPostfix = (nums: CSSSizeKeyword[], postfix: string) =>
@@ -14,7 +12,3 @@ export const percent = (...nums: CSSSizeKeyword[]) => appendPostfix(nums, "%");
 export const em = (...nums: CSSSizeKeyword[]) => appendPostfix(nums, "em");
 
 export const vw = (...nums: CSSSizeKeyword[]) => appendPostfix(nums, "vw");
-
-export const transform = (
-  chain: (t: CSSTransformBuilder) => CSSTransformBuilder
-) => chain(new CSSTransformBuilder()).toString();

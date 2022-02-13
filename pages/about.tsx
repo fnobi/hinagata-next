@@ -1,8 +1,9 @@
 import { NextPage } from "next";
 import Link from "next/link";
-import { css } from "@emotion/react";
+import { css, keyframes } from "@emotion/react";
 import { percent, px, em } from "~/lib/cssUtil";
 import { createTweetIntent } from "~/lib/shareUtil";
+import { buildTransform } from "css-transform-builder";
 import { PAGE_ABOUT, PAGE_TOP } from "~/local/pagePath";
 import useSampleCounter from "~/local/useSampleCounter";
 import { pcp, spp } from "~/local/emotionMixin";
@@ -34,12 +35,22 @@ const mainStyle = css({
   textAlign: "center"
 });
 
+const shake = keyframes({
+  "0%,100%": {
+    transform: buildTransform(t => t.translateY(0, "%"))
+  },
+  "50%": {
+    transform: buildTransform(t => t.translateY(-3, "%"))
+  }
+});
+
 const kvStyle = css(
   {
     backgroundImage: `url(${ASSETS_OGP_ABOUT.src})`,
     backgroundRepeat: "no-repeat",
     backgroundSize: "contain",
-    backgroundPosition: "center"
+    backgroundPosition: "center",
+    animation: `${shake} 1s infinite`
   },
   spStyle({
     width: spp(ASSETS_OGP_ABOUT.width),
