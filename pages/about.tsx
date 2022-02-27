@@ -1,13 +1,17 @@
-import { GetStaticProps } from "next";
+import { NextPage } from "next";
 import Link from "next/link";
-import { css } from "@emotion/react";
+import { css, keyframes } from "@emotion/react";
 import { percent, px, em } from "~/lib/cssUtil";
-import { responsiveImageTile } from "~/local/commonCss";
+import { createTweetIntent } from "~/lib/shareUtil";
+import { buildTransform } from "css-transform-builder";
 import { PAGE_ABOUT, PAGE_TOP } from "~/local/pagePath";
-import { useSampleCounter } from "~/store/sample";
-import { PageMetaExtend } from "~/components/MetaSettings";
+import useSampleCounter from "~/local/useSampleCounter";
+import { pcp, spp } from "~/local/emotionMixin";
+import { pcStyle, spStyle } from "~/local/emotionMixin";
+import { BASE_URL } from "~/local/constants";
+import { DEFAULT_TITLE } from "~/components/DefaultMetaSettings";
+import MetaSettings from "~/components/MetaSettings";
 import ASSETS_OGP_ABOUT from "~/assets/meta/ogp-about.png";
-import ASSETS_OGP from "~/assets/meta/ogp.png";
 
 const wrapperStyle = css({
   position: "fixed",
@@ -26,33 +30,76 @@ const titleStyle = css({
   marginBottom: em(0.5)
 });
 
-const kvStyle = css(responsiveImageTile(ASSETS_OGP_ABOUT, ASSETS_OGP));
+const mainStyle = css({
+  margin: em(1, 0),
+  textAlign: "center"
+});
 
-const PageAbout = () => {
+const shake = keyframes({
+  "0%,100%": {
+    transform: buildTransform(t => t.translateY(0, "%"))
+  },
+  "50%": {
+    transform: buildTransform(t => t.translateY(-3, "%"))
+  }
+});
+
+const kvStyle = css(
+  {
+    backgroundImage: `url(${ASSETS_OGP_ABOUT.src})`,
+    backgroundRepeat: "no-repeat",
+    backgroundSize: "contain",
+    backgroundPosition: "center",
+    animation: `${shake} 1s infinite`
+  },
+  spStyle({
+    width: spp(ASSETS_OGP_ABOUT.width),
+    height: spp(ASSETS_OGP_ABOUT.height)
+  }),
+  pcStyle({
+    width: pcp(ASSETS_OGP_ABOUT.width),
+    height: pcp(ASSETS_OGP_ABOUT.height)
+  })
+);
+
+const PageAbout: NextPage = () => {
   const [count, increment] = useSampleCounter();
 
   return (
-    <div css={wrapperStyle}>
-      <div css={titleStyle}>About</div>
-      <button type="button" onClick={increment}>
-        count up:{count}
-      </button>
-      <div css={kvStyle} />
-      <p>
-        <Link href={PAGE_TOP}>
-          <a href={PAGE_TOP}>top</a>
-        </Link>
-      </p>
-    </div>
+    <>
+      <MetaSettings
+        title={`About | ${DEFAULT_TITLE}`}
+        pagePath={PAGE_ABOUT}
+        shareImage={ASSETS_OGP_ABOUT}
+      />
+      <div css={wrapperStyle}>
+        <div css={titleStyle}>About</div>
+        <button type="button" onClick={increment}>
+          count up:{count}
+        </button>
+        <div css={mainStyle}>
+          <div css={kvStyle} />
+          <p>
+            <a
+              href={createTweetIntent({
+                url: BASE_URL + PAGE_ABOUT,
+                text: "hinagata-next"
+              })}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              share this page with twitter
+            </a>
+          </p>
+        </div>
+        <p>
+          <Link href={PAGE_TOP} passHref>
+            <a href="passHref">top</a>
+          </Link>
+        </p>
+      </div>
+    </>
   );
 };
-
-export const getStaticProps: GetStaticProps<PageMetaExtend> = async () => ({
-  props: {
-    pageTitle: "About",
-    pagePath: PAGE_ABOUT,
-    pageShareImage: ASSETS_OGP_ABOUT
-  }
-});
 
 export default PageAbout;

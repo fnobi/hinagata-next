@@ -1,6 +1,7 @@
 import { useRouter } from "next/router";
+import Script from "next/script";
 import React, { useEffect, useRef } from "react";
-import { basePath } from "~/local/constants";
+import { BASE_PATH } from "~/local/constants";
 
 type GTagMethod = {
   event: [
@@ -82,7 +83,7 @@ function usePageView(id: string) {
   const route = useRouter();
   useEffect(() => {
     const { current: landingPath } = landingPathRef;
-    const pagePath = basePath + route.asPath;
+    const pagePath = BASE_PATH + route.asPath;
     if (landingPath) {
       sendPageView({
         id,
@@ -98,25 +99,23 @@ export function GTagSnippet(props: { trackingId: string }) {
   const { trackingId } = props;
   usePageView(trackingId);
 
-  const snippet = `
+  return React.createElement(
+    React.Fragment,
+    null,
+    React.createElement(Script, {
+      async: true,
+      src: `https://www.googletagmanager.com/gtag/js?id=${trackingId}`
+    }),
+    React.createElement(
+      Script,
+      null,
+      `
 window.dataLayer = window.dataLayer || [];
 function gtag() {
   dataLayer.push(arguments);
 }
 gtag("js", new Date());
-gtag("config", "${trackingId}");`;
-
-  return React.createElement(
-    React.Fragment,
-    null,
-    React.createElement("script", {
-      async: true,
-      src: `https://www.googletagmanager.com/gtag/js?id=${trackingId}`
-    }),
-    React.createElement("script", {
-      dangerouslySetInnerHTML: {
-        __html: snippet
-      }
-    })
+gtag("config", "${trackingId}");`
+    )
   );
 }
