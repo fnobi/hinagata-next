@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "next",
     "build": "next build && next export && node scripts/make-dist-dir",
-    "lint": "eslint --ext .ts,.tsx,.js --fix ."
+    "lint": "eslint --ext .ts,.tsx,.js --fix .",
+    "test": "jest"
   },
   "keywords": [],
   "author": "Fujisawa Shin",
@@ -14,6 +15,7 @@
   "devDependencies": {
     "@babel/core": "^7.13.10",
     "@emotion/babel-preset-css-prop": "^11.2.0",
+    "@types/jest": "^27.4.1",
     "@types/node": "^12.6.2",
     "@types/react": "^16.8.23",
     "@types/recoil": "0.0.1",
@@ -31,8 +33,10 @@
     "eslint-plugin-react": "^7.14.2",
     "eslint-plugin-react-hooks": "^1.6.1",
     "file-loader": "^6.0.0",
+    "jest": "^27.5.1",
     "prettier": "^1.18.2",
     "react-dom": "^17.0.2",
+    "ts-jest": "^27.1.3",
     "typescript": "~4.3.2"
   },
   "dependencies": {
