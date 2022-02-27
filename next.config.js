@@ -12,6 +12,13 @@ module.exports = {
         outputPath: "static/files"
       },
     });
+
+    config.module.rules.push({
+      loader: "raw-loader",
+      test: /\.glsl$/,
+      exclude: /node_modules/
+    });
+
     return config;
   }
 };
