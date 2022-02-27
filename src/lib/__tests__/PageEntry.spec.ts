@@ -15,10 +15,12 @@ describe("PageEntry", () => {
     const paths = topPage.childStaticPaths(["a", "b", "c"]);
     expect(paths).toEqual(["/a", "/b", "/c"]);
   });
-  it("normalize path", () => {
-    const page = new PageEntry("https://example.com/", "/");
-    expect(page.href).toEqual("/");
-    expect(page.url).toEqual("https://example.com/");
-    expect(page.childStaticPaths(["/d"])).toEqual(["/d"]);
+  it("assert segment", () => {
+    expect(() => new PageEntry("https://example.com/")).toThrow();
+    expect(() => new PageEntry("https://example.com", "hoge/")).toThrow();
+    expect(() => topPage.child("/hoge")).toThrow();
+    expect(() => topPage.child("hoge/")).toThrow();
+    expect(() => topPage.childStaticPaths(["/d"])).toThrow();
+    expect(() => topPage.childStaticPaths(["e/"])).toThrow();
   });
 });

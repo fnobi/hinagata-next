@@ -7,30 +7,24 @@ export default class PageEntry {
 
   public readonly url: string;
 
-  public constructor(baseUrl: string, path: string = "") {
-    this.baseUrl = PageEntry.normalizeSegment(baseUrl);
-    this.basePath = PageEntry.normalizeBasePath(path);
-    this.href = PageEntry.normalizeHref(this.basePath);
+  public constructor(url: string, path: string = "") {
+    if (!/^https?:\/\/.+[^/]$/.test(url)) {
+      throw new Error(`invalid url format: ${url}`);
+    }
+    if ((path && !/^\//.test(path)) || /\/$/.test(path)) {
+      throw new Error(`invalid path format: ${path}`);
+    }
+    this.baseUrl = url;
+    this.basePath = path;
+    this.href = `${path}/`;
     this.url = this.baseUrl + this.href;
   }
 
-  private static normalizeSegment(p: string) {
-    return p.replace(/^\//, "").replace(/\/$/, "");
-  }
-
-  private static normalizeBasePath(p: string) {
-    return /^\//.test(p) ? p : `/${p}`;
-  }
-
-  private static normalizeHref(p: string) {
-    return /\/$/.test(p) ? p : `${p}/`;
-  }
-
   public child(id: string) {
-    return new PageEntry(
-      this.baseUrl,
-      this.href + PageEntry.normalizeSegment(id)
-    );
+    if (!id || /^\//.test(id)) {
+      throw new Error(`invalid id format: ${id}`);
+    }
+    return new PageEntry(this.baseUrl, this.href + id);
   }
 
   public childStaticPaths(ids: string[]) {
