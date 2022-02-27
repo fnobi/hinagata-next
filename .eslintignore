@@ -1,6 +1,7 @@
 node_modules
 **/*.min.js
 next.config.js
+jest.config.js
 next-env.d.ts
 dist
 scripts
