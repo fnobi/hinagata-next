@@ -1,13 +1,17 @@
+import { FC } from "react";
 import { PAGE_TOP } from "~/local/pagePath";
 import MetaSettings from "~/components/MetaSettings";
 import ASSETS_OGP from "~/assets/meta/ogp.png";
 import ASSETS_FAVICON from "~/assets/meta/favicon.ico";
 
-export const DEFAULT_TITLE = "hinagata-next";
+const DEFAULT_TITLE = "hinagata-next";
 const DEFAULT_DESCRIPTION = "Awsome next.js project.";
 const DEFAULT_KEYWORDS = ["react", "typescript", "next.js"];
 
-export const DefaultMetaSettings = () => (
+export const makePageMetaTitle = (pageTitle: string) =>
+  [pageTitle, DEFAULT_TITLE].join(" | ");
+
+export const DefaultMetaSettings: FC = ({ children }) => (
   <MetaSettings
     pagePath={PAGE_TOP}
     title={DEFAULT_TITLE}
@@ -15,7 +19,9 @@ export const DefaultMetaSettings = () => (
     shareImage={ASSETS_OGP}
     keywords={DEFAULT_KEYWORDS}
     favicon={ASSETS_FAVICON}
-  />
+  >
+    {children}
+  </MetaSettings>
 );
 
 export default DefaultMetaSettings;

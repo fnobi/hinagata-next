@@ -9,7 +9,7 @@ import useSampleCounter from "~/local/useSampleCounter";
 import { pcp, spp } from "~/local/emotionMixin";
 import { pcStyle, spStyle } from "~/local/emotionMixin";
 import { BASE_URL } from "~/local/constants";
-import { DEFAULT_TITLE } from "~/components/DefaultMetaSettings";
+import { makePageMetaTitle } from "~/components/DefaultMetaSettings";
 import MetaSettings from "~/components/MetaSettings";
 import ASSETS_OGP_ABOUT from "~/assets/meta/ogp-about.png";
 
@@ -66,12 +66,11 @@ const PageAbout: NextPage = () => {
   const [count, increment] = useSampleCounter();
 
   return (
-    <>
-      <MetaSettings
-        title={`About | ${DEFAULT_TITLE}`}
-        pagePath={PAGE_ABOUT}
-        shareImage={ASSETS_OGP_ABOUT}
-      />
+    <MetaSettings
+      title={makePageMetaTitle("About")}
+      pagePath={PAGE_ABOUT}
+      shareImage={ASSETS_OGP_ABOUT}
+    >
       <div css={wrapperStyle}>
         <div css={titleStyle}>About</div>
         <button type="button" onClick={increment}>
@@ -98,7 +97,7 @@ const PageAbout: NextPage = () => {
           </Link>
         </p>
       </div>
-    </>
+    </MetaSettings>
   );
 };
 
