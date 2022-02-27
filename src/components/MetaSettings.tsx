@@ -1,17 +1,18 @@
 import { FC } from "react";
 import Head from "next/head";
 import { StaticImageData } from "next/image-types";
-import { BASE_URL, SITE_ORIGIN } from "~/local/constants";
+import PageEntry from "~/lib/PageEntry";
+import { SITE_ORIGIN } from "~/local/constants";
 
 const MetaSettings: FC<{
-  pagePath: string;
+  page: PageEntry;
   title?: string;
   description?: string;
   shareImage?: StaticImageData;
   keywords?: string[];
   favicon?: StaticImageData;
 }> = ({
-  pagePath,
+  page,
   title,
   description,
   shareImage,
@@ -20,7 +21,7 @@ const MetaSettings: FC<{
   children
 }) => {
   const shareImageUrl = shareImage ? SITE_ORIGIN + shareImage.src : null;
-  const canonicalUrl = pagePath ? BASE_URL + pagePath : null;
+  const canonicalUrl = page.url;
   return (
     <>
       <Head>

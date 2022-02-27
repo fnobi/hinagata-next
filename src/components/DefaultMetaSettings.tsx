@@ -13,7 +13,7 @@ export const makePageMetaTitle = (...pageTitle: string[]) =>
 
 export const DefaultMetaSettings: FC = ({ children }) => (
   <MetaSettings
-    pagePath={PAGE_TOP}
+    page={PAGE_TOP}
     title={DEFAULT_TITLE}
     description={DEFAULT_DESCRIPTION}
     shareImage={ASSETS_OGP}

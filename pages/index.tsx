@@ -38,7 +38,7 @@ const PageIndex: NextPage = () => {
         count up:{count}
       </button>
       <p>
-        <Link href={PAGE_ABOUT} passHref>
+        <Link href={PAGE_ABOUT.href} passHref>
           <a href="passHref">about</a>
         </Link>
       </p>

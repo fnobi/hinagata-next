@@ -2,7 +2,7 @@ import { NextPage } from "next";
 import { css } from "@emotion/react";
 import { percent, px, em } from "~/lib/cssUtil";
 import Link from "next/link";
-import { PAGE_ARTICLE_DETAIL, PAGE_ARTICLE_INDEX } from "~/local/pagePath";
+import { PAGE_ARTICLE } from "~/local/pagePath";
 import articleData from "~/local/articleData";
 import { makePageMetaTitle } from "~/components/DefaultMetaSettings";
 import MetaSettings from "~/components/MetaSettings";
@@ -26,16 +26,13 @@ const titleStyle = css({
 
 const PageArticleIndex: NextPage = () => {
   return (
-    <MetaSettings
-      title={makePageMetaTitle("Articles")}
-      pagePath={PAGE_ARTICLE_INDEX}
-    >
+    <MetaSettings title={makePageMetaTitle("Articles")} page={PAGE_ARTICLE}>
       <div css={wrapperStyle}>
         <div css={titleStyle}>Articles</div>
         <ul>
           {Object.entries(articleData).map(([id, item]) => (
             <li key={id}>
-              <Link href={PAGE_ARTICLE_DETAIL(id)} passHref>
+              <Link href={PAGE_ARTICLE.child(id).href} passHref>
                 <a href="passHref">{item.title}</a>
               </Link>
             </li>

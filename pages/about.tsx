@@ -8,7 +8,6 @@ import { PAGE_ABOUT, PAGE_TOP } from "~/local/pagePath";
 import useSampleCounter from "~/local/useSampleCounter";
 import { pcp, spp } from "~/local/emotionMixin";
 import { pcStyle, spStyle } from "~/local/emotionMixin";
-import { BASE_URL } from "~/local/constants";
 import { makePageMetaTitle } from "~/components/DefaultMetaSettings";
 import MetaSettings from "~/components/MetaSettings";
 import ASSETS_OGP_ABOUT from "~/assets/meta/ogp-about.png";
@@ -68,7 +67,7 @@ const PageAbout: NextPage = () => {
   return (
     <MetaSettings
       title={makePageMetaTitle("About")}
-      pagePath={PAGE_ABOUT}
+      page={PAGE_ABOUT}
       shareImage={ASSETS_OGP_ABOUT}
     >
       <div css={wrapperStyle}>
@@ -81,7 +80,7 @@ const PageAbout: NextPage = () => {
           <p>
             <a
               href={createTweetIntent({
-                url: BASE_URL + PAGE_ABOUT,
+                url: PAGE_ABOUT.url,
                 text: "hinagata-next"
               })}
               target="_blank"
@@ -92,7 +91,7 @@ const PageAbout: NextPage = () => {
           </p>
         </div>
         <p>
-          <Link href={PAGE_TOP} passHref>
+          <Link href={PAGE_TOP.href} passHref>
             <a href="passHref">top</a>
           </Link>
         </p>
