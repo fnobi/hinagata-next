@@ -97,13 +97,16 @@ export function maxBy<T>(arr: T[], fn: (item: T) => number, base: number = 0) {
   return arr.reduce((prev, curr) => Math.max(fn(curr), prev), base);
 }
 
-export function gachaLogic<T>(arr: { rate: number; item: T }[]): T {
+export function gachaLogic<T>(
+  arr: { rate: number; item: T }[],
+  seed: number = Math.random()
+): T {
   const t = arr.reduce<number[]>((p, { rate }) => {
     const [l] = p;
     return [(l || 0) + rate, ...p];
   }, []);
   const [s] = t;
-  const r = Math.floor(s * Math.random());
+  const r = Math.floor(s * seed);
   const i = t.filter(n => n <= r).length;
   const e = arr[i];
   return e.item;
