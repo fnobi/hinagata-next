@@ -8,10 +8,14 @@ export default class PageEntry {
   public readonly url: string;
 
   public constructor(baseUrl: string, path: string = "") {
-    this.baseUrl = baseUrl;
+    this.baseUrl = PageEntry.normalizeSegment(baseUrl);
     this.basePath = PageEntry.normalizeBasePath(path);
     this.href = PageEntry.normalizeHref(this.basePath);
-    this.url = baseUrl + this.href;
+    this.url = this.baseUrl + this.href;
+  }
+
+  private static normalizeSegment(p: string) {
+    return p.replace(/^\//, "").replace(/\/$/, "");
   }
 
   private static normalizeBasePath(p: string) {
@@ -23,7 +27,10 @@ export default class PageEntry {
   }
 
   public child(id: string) {
-    return new PageEntry(this.baseUrl, this.href + id);
+    return new PageEntry(
+      this.baseUrl,
+      this.href + PageEntry.normalizeSegment(id)
+    );
   }
 
   public childStaticPaths(ids: string[]) {
