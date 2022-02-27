@@ -8,8 +8,8 @@ const DEFAULT_TITLE = "hinagata-next";
 const DEFAULT_DESCRIPTION = "Awsome next.js project.";
 const DEFAULT_KEYWORDS = ["react", "typescript", "next.js"];
 
-export const makePageMetaTitle = (pageTitle: string) =>
-  [pageTitle, DEFAULT_TITLE].join(" | ");
+export const makePageMetaTitle = (...pageTitle: string[]) =>
+  [...pageTitle, DEFAULT_TITLE].join(" | ");
 
 export const DefaultMetaSettings: FC = ({ children }) => (
   <MetaSettings
