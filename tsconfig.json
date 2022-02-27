@@ -8,7 +8,7 @@
     ],
     "jsx": "preserve",
     "moduleResolution": "node",
-    "rootDirs": [ "./pages", "./src" ],
+    "rootDirs": [ "./src" ],
     "forceConsistentCasingInFileNames": false,
     "noImplicitReturns": true,
     "strict": true,
@@ -34,7 +34,6 @@
   "include": [
     "next-env.d.ts",
     "src/**/*",
-    "pages/**/*",
     "typings/**/*.d.ts",
   ]
 }
