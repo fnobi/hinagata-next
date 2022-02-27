@@ -17,10 +17,10 @@ const useSampleCounter = (): [number, () => void] => {
   const [sample, setSample] = useRecoilState(sampleStore);
   const { count } = sample;
   const increment = () => {
-    setSample({
-      ...sample,
+    setSample(s => ({
+      ...s,
       count: count + 1
-    });
+    }));
   };
   return [count, increment];
 };
