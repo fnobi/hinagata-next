@@ -15,6 +15,7 @@
     "curly": [1, "all"],
     "no-unused-vars": 0,
     "@next/next/no-page-custom-font": 0,
+    "@next/next/no-img-element": 0,
     "@typescript-eslint/explicit-member-accessibility": 2,
     "@typescript-eslint/no-unnecessary-type-assertion": 2,
     "@typescript-eslint/no-explicit-any": 2,
