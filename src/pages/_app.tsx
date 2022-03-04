@@ -11,6 +11,7 @@ const MyApp = ({ Component, pageProps }: AppProps) => (
     <DefaultMetaSettings />
     <Global styles={css(emotionReset, globalStyle)} />
     <LayoutRoot>
+      {/* eslint-disable-next-line react/jsx-props-no-spreading */}
       <Component {...pageProps} />
     </LayoutRoot>
     {/* <GTagSnippet trackingId="XX-XXXXXXXXX-XX" /> */}

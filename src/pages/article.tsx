@@ -24,23 +24,21 @@ const titleStyle = css({
   marginBottom: em(0.5)
 });
 
-const PageArticleIndex: NextPage = () => {
-  return (
-    <MetaSettings title={makePageMetaTitle("Articles")} page={PAGE_ARTICLE}>
-      <div css={wrapperStyle}>
-        <div css={titleStyle}>Articles</div>
-        <ul>
-          {Object.entries(articleData).map(([id, item]) => (
-            <li key={id}>
-              <Link href={PAGE_ARTICLE.child(id).href} passHref>
-                <a href="passHref">{item.title}</a>
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </div>
-    </MetaSettings>
-  );
-};
+const PageArticleIndex: NextPage = () => (
+  <MetaSettings title={makePageMetaTitle("Articles")} page={PAGE_ARTICLE}>
+    <div css={wrapperStyle}>
+      <div css={titleStyle}>Articles</div>
+      <ul>
+        {Object.entries(articleData).map(([id, item]) => (
+          <li key={id}>
+            <Link href={PAGE_ARTICLE.child(id).href} passHref>
+              <a href="passHref">{item.title}</a>
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </MetaSettings>
+);
 
 export default PageArticleIndex;

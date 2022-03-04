@@ -1,11 +1,9 @@
-export const padLeft = (num: number, count: number) => {
-  return (new Array(count).join("0") + num.toString()).slice(-count);
-};
+export const padLeft = (num: number, count: number) =>
+  (new Array(count).join("0") + num.toString()).slice(-count);
 
-export const trim = (str: string) => {
+export const trim = (str: string) =>
   // eslint-disable-next-line no-irregular-whitespace
-  return str.replace(/^[ 　]+/g, "").replace(/[ 　]+$/g, "");
-};
+  str.replace(/^[ 　]+/g, "").replace(/[ 　]+$/g, "");
 
 export const formatTime = (time: number | Date) => {
   const d = typeof time === "number" ? new Date(time) : time;

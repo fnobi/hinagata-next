@@ -28,18 +28,16 @@ type Props = {
   article: Article;
 };
 
-const PageArticleDetail: NextPage<Props> = ({ id, article }) => {
-  return (
-    <MetaSettings
-      title={makePageMetaTitle(article.title, "Article")}
-      page={PAGE_ARTICLE.child(id)}
-    >
-      <div css={wrapperStyle}>
-        <div css={titleStyle}>Articles: {article.title}</div>
-      </div>
-    </MetaSettings>
-  );
-};
+const PageArticleDetail: NextPage<Props> = ({ id, article }) => (
+  <MetaSettings
+    title={makePageMetaTitle(article.title, "Article")}
+    page={PAGE_ARTICLE.child(id)}
+  >
+    <div css={wrapperStyle}>
+      <div css={titleStyle}>Articles: {article.title}</div>
+    </div>
+  </MetaSettings>
+);
 
 export const getStaticProps: GetStaticProps<Props> = async ({
   params = {}

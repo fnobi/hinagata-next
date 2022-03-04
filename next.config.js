@@ -10,7 +10,7 @@ module.exports = {
       options: {
         publicPath: `${BASE_PATH}/_next/static/files`,
         outputPath: "static/files"
-      },
+      }
     });
     return config;
   }
