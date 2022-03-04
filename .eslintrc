@@ -1,5 +1,5 @@
 {
-  "extends": ["airbnb", "plugin:prettier/recommended", "next"],
+  "extends": ["airbnb", "prettier", "next"],
   "plugins": ["@typescript-eslint"],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
@@ -53,18 +53,19 @@
           "group": "parent"
         },
         {
-          "pattern": "~/store/**",
+          "pattern": "~/components/**",
           "group": "sibling"
         },
         {
-          "pattern": "~/components/**",
+          "pattern": "~/assets/**",
           "group": "index"
         }
       ]
-    }],    
+    }],
     "no-undef": 1,
     "react/no-array-index-key": 0,
-    "prettier/prettier": 1,
+    "react/require-default-props": [1, { "ignoreFunctionalComponents": true }],
+    "react/function-component-definition": 0,
     "jsx-a11y/label-has-associated-control": [2, {"assert": "either"}],
     "jsx-a11y/label-has-for": 0,
     "import/prefer-default-export": 1,
