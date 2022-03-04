@@ -1,11 +1,11 @@
 const path = require("path");
 const fs = require("fs");
-const { basePath } = require("../next.config");
 
+const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH || "";
 const EXPORT_DIR = "out";
 const DIST_DIR = "dist";
 
-const distPath = path.join(DIST_DIR, basePath);
+const distPath = path.join(DIST_DIR, BASE_PATH);
 
 function main() {
   if (!fs.existsSync(EXPORT_DIR)) {
