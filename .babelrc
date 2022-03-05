@@ -8,8 +8,7 @@
           "importSource": "@emotion/react"
         }
       }
-    ],
-    "@zeit/next-typescript/babel"
+    ]
   ],
   "plugins": [
     [
