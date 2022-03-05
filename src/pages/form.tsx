@@ -1,11 +1,10 @@
 import { NextPage } from "next";
 import { FC, FormEvent, useState } from "react";
-import {
+import FormSection, {
   emailValidator,
   FormPlot,
-  FormWidgetProps,
-  FormWrapper
-} from "~/lib/useFormLogic";
+  FormWidgetProps
+} from "~/lib/FormSection";
 
 type SampleFormData = {
   name: string;
@@ -119,7 +118,7 @@ const PageForm: NextPage = () => {
   };
   return (
     <form onSubmit={handleSubmit}>
-      <FormWrapper
+      <FormSection
         plot={FORM_PLOT}
         current={current}
         setCurrent={setCurrent}

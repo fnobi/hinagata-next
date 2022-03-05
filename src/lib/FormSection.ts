@@ -1,4 +1,4 @@
-import { createElement, FC, Fragment, useEffect } from "react";
+import { createElement, FC, useEffect } from "react";
 import { every } from "~/lib/arrayUtil";
 
 export type FormWidgetProps = {
@@ -37,7 +37,7 @@ export const emailValidator = (v: string) => {
   return "不正なメールアドレスです";
 };
 
-export function FormWrapper<T>(props: {
+export default function FormSection<T>(props: {
   plot: FormPlot<T>[];
   current: T;
   setCurrent: (fn: (c: T) => T) => void;
@@ -91,7 +91,7 @@ export function FormWrapper<T>(props: {
   }, [valid]);
 
   return createElement(
-    Fragment,
+    "div",
     null,
     sections.map(({ widget, props: p }) =>
       createElement(widget, { ...p, key: p.id })
