@@ -7,7 +7,7 @@ type FormValue = {
 };
 
 const PageForm: NextPage = () => {
-  const { current, setCurrent } = useFormLogic<FormValue>({
+  const { current, updateForm } = useFormLogic<FormValue>({
     defaultValue: {
       name: "",
       age: 0
@@ -20,7 +20,7 @@ const PageForm: NextPage = () => {
         <input
           type="text"
           value={current.name}
-          onChange={e => setCurrent(c => ({ ...c, name: e.target.value }))}
+          onChange={e => updateForm("name", e.target.value)}
         />
       </p>
       <p>
@@ -28,9 +28,7 @@ const PageForm: NextPage = () => {
         <input
           type="number"
           value={current.age}
-          onChange={e =>
-            setCurrent(c => ({ ...c, age: Number(e.target.value) }))
-          }
+          onChange={e => updateForm("age", Number(e.target.value))}
         />
       </p>
     </form>
