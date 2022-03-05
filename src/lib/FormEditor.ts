@@ -6,7 +6,7 @@ export type FormWidgetProps = {
   title: string;
   value: string;
   required: boolean;
-  options?: string[];
+  options?: { value: string; label: string }[];
   error: string | null;
   valid: boolean;
   update: (v: string) => void;
@@ -16,7 +16,8 @@ export type FormPlot<T> = {
   id: string;
   title: string;
   required?: boolean;
-  options?: string[];
+  optionsArray?: string[];
+  options?: { value: string; label: string }[];
   widget: FC<FormWidgetProps>;
   get: (c: T) => string;
   set: (v: string) => Partial<T>;
@@ -50,14 +51,15 @@ export default function FormEditor<T>(props: {
         id,
         title,
         required = true,
-        options,
-        validate: validator,
-        get: getter,
-        set: setter,
+        options: optionsOriginal,
+        optionsArray,
+        validate,
+        get,
+        set,
         widget
       }) => {
-        const value = getter(current);
-        const error = validator ? validator(value) : null;
+        const value = get(current);
+        const error = validate ? validate(value) : null;
         const valid = (() => {
           if (error) {
             return false;
@@ -67,7 +69,16 @@ export default function FormEditor<T>(props: {
           }
           return true;
         })();
-        const update = (v: string) => setCurrent(c => ({ ...c, ...setter(v) }));
+        const update = (v: string) => setCurrent(c => ({ ...c, ...set(v) }));
+        const options = (() => {
+          if (optionsOriginal) {
+            return optionsOriginal;
+          }
+          if (optionsArray) {
+            return optionsArray.map(s => ({ label: s, value: s }));
+          }
+          return undefined;
+        })();
 
         return {
           widget,

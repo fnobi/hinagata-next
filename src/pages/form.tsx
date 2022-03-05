@@ -11,6 +11,7 @@ type SampleFormData = {
   email: string;
   age: number;
   blood: "a" | "b" | "o" | "ab" | null;
+  gender: "male" | "female" | null;
 };
 
 const parseBlood = (v: string) => {
@@ -25,8 +26,47 @@ const parseBlood = (v: string) => {
   }
 };
 
-const SampleFormWidget: FC<FormWidgetProps> = ({
-  id,
+const parseGender = (v: string) => {
+  switch (v) {
+    case "male":
+    case "female":
+      return v;
+    default:
+      return null;
+  }
+};
+
+const FormWidgetFrame: FC<{
+  title: string;
+  required: boolean;
+  error: string | null;
+}> = ({ title, required, error, children }) => (
+  <div>
+    <p>
+      {title}
+      {required ? "※必須" : null}
+    </p>
+    {children}
+    {error ? <p>{error}</p> : null}
+    <br />
+  </div>
+);
+
+const StringFormWidget: FC<FormWidgetProps> = ({
+  title,
+  required,
+  value,
+  error,
+  update
+}) => (
+  <FormWidgetFrame title={title} required={required} error={error}>
+    <p>
+      <input type="text" value={value} onChange={e => update(e.target.value)} />
+    </p>
+  </FormWidgetFrame>
+);
+
+const SelectFormWidget: FC<FormWidgetProps> = ({
   title,
   required,
   options,
@@ -34,32 +74,43 @@ const SampleFormWidget: FC<FormWidgetProps> = ({
   error,
   update
 }) => (
-  <div key={id}>
+  <FormWidgetFrame title={title} required={required} error={error}>
     <p>
-      {title}
-      {required ? "※必須" : null}
+      <select value={value} onChange={e => update(e.target.value)}>
+        <option value="">-</option>
+        {(options || []).map(({ value: v, label }) => (
+          <option key={v} value={v}>
+            {label}
+          </option>
+        ))}
+      </select>
     </p>
-    {options ? (
-      <p>
-        <select value={value} onChange={e => update(e.target.value)}>
-          {options.map(o => (
-            <option key={o} value={o}>
-              {o}
-            </option>
-          ))}
-        </select>
-      </p>
-    ) : (
-      <div>
-        <input
-          type="text"
-          value={value}
-          onChange={e => update(e.target.value)}
-        />
-        {error ? <p>{error}</p> : null}
-      </div>
-    )}
-  </div>
+  </FormWidgetFrame>
+);
+
+const RadioFormWidget: FC<FormWidgetProps> = ({
+  title,
+  required,
+  options,
+  value,
+  error,
+  update
+}) => (
+  <FormWidgetFrame title={title} required={required} error={error}>
+    <p>
+      {(options || []).map(({ value: v, label }) => (
+        <label key={v}>
+          <input
+            type="radio"
+            value={v}
+            checked={v === value}
+            onChange={e => update(e.target.checked ? v : "")}
+          />
+          {label}
+        </label>
+      ))}
+    </p>
+  </FormWidgetFrame>
 );
 
 const FORM_PLOT: FormPlot<SampleFormData>[] = [
@@ -68,7 +119,7 @@ const FORM_PLOT: FormPlot<SampleFormData>[] = [
     title: "お名前を教えて下さい",
     get: c => c.name,
     set: v => ({ name: v }),
-    widget: SampleFormWidget
+    widget: StringFormWidget
   },
   {
     id: "age",
@@ -76,17 +127,29 @@ const FORM_PLOT: FormPlot<SampleFormData>[] = [
     required: false,
     get: c => String(c.age || ""),
     set: v => ({ age: Number(v) }),
-    widget: SampleFormWidget
+    widget: StringFormWidget
+  },
+  {
+    id: "gender",
+    title: "性別を教えて下さい",
+    options: [
+      { value: "male", label: "男性" },
+      { value: "female", label: "女性" }
+    ],
+    get: c => c.gender || "",
+    set: v => ({ gender: parseGender(v) }),
+    widget: RadioFormWidget
   },
   {
     id: "blood",
     title: "血液型を教えて下さい",
-    options: ["-", "a", "b", "o", "ab"],
+    optionsArray: ["a", "b", "o", "ab"],
+    required: false,
     get: c => c.blood || "",
     set: v => ({
       blood: parseBlood(v)
     }),
-    widget: SampleFormWidget
+    widget: SelectFormWidget
   },
   {
     id: "email",
@@ -94,7 +157,7 @@ const FORM_PLOT: FormPlot<SampleFormData>[] = [
     get: c => c.email,
     set: v => ({ email: v }),
     validate: emailValidator,
-    widget: SampleFormWidget
+    widget: StringFormWidget
   }
 ];
 
@@ -102,7 +165,8 @@ const SAMPLE_FORM_DEFAULT_DATA: SampleFormData = {
   name: "",
   email: "",
   age: 0,
-  blood: null
+  blood: null,
+  gender: null
 };
 
 const PageForm: NextPage = () => {
