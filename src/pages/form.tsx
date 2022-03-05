@@ -9,22 +9,28 @@ type FormValue = {
 };
 
 const PageForm: NextPage = () => {
-  const { current, updateForm, sections, valid } = useFormLogic<FormValue>({
+  const { current, sections, valid } = useFormLogic<FormValue>({
     plot: [
       {
+        id: "name",
         title: "お名前を教えて下さい",
         required: true,
-        key: "name"
+        getter: c => c.name,
+        setter: v => ({ name: v })
       },
       {
+        id: "age",
         title: "年齢を教えて下さい",
         required: false,
-        key: "age"
+        getter: c => String(c.age),
+        setter: v => ({ age: Number(v) })
       },
       {
+        id: "email",
         title: "メールアドレスを教えて下さい",
         required: true,
-        key: "email"
+        getter: c => c.email,
+        setter: v => ({ email: v })
       }
     ],
     defaultValue: {
@@ -44,21 +50,14 @@ const PageForm: NextPage = () => {
 
   return (
     <form onSubmit={handleSubmit}>
-      {sections.map(({ plot }) => (
-        <div key={plot.key}>
-          <p>{plot.title}</p>
+      {sections.map(({ id, title, value, update }) => (
+        <div key={id}>
+          <p>{title}</p>
           <p>
             <input
               type="text"
-              value={current[plot.key]}
-              onChange={e => {
-                switch (plot.key) {
-                  case "age":
-                    return updateForm(plot.key, Number(e.target.value));
-                  default:
-                    return updateForm(plot.key, e.target.value);
-                }
-              }}
+              value={value}
+              onChange={e => update(e.target.value)}
             />
           </p>
         </div>
