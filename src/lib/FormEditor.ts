@@ -16,11 +16,11 @@ export type FormPlot<T> = {
   id: string;
   title: string;
   required?: boolean;
-  getter: (c: T) => string;
-  setter: (v: string) => Partial<T>;
   options?: string[];
-  validator?: (v: string) => string | null;
   widget: FC<FormWidgetProps>;
+  get: (c: T) => string;
+  set: (v: string) => Partial<T>;
+  validate?: (v: string) => string | null;
 };
 
 export const emailValidator = (v: string) => {
@@ -37,7 +37,7 @@ export const emailValidator = (v: string) => {
   return "不正なメールアドレスです";
 };
 
-export default function FormSection<T>(props: {
+export default function FormEditor<T>(props: {
   plot: FormPlot<T>[];
   current: T;
   setCurrent: (fn: (c: T) => T) => void;
@@ -51,9 +51,9 @@ export default function FormSection<T>(props: {
         title,
         required = true,
         options,
-        validator,
-        getter,
-        setter,
+        validate: validator,
+        get: getter,
+        set: setter,
         widget
       }) => {
         const value = getter(current);

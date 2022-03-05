@@ -1,10 +1,10 @@
 import { NextPage } from "next";
 import { FC, FormEvent, useState } from "react";
-import FormSection, {
+import FormEditor, {
   emailValidator,
   FormPlot,
   FormWidgetProps
-} from "~/lib/FormSection";
+} from "~/lib/FormEditor";
 
 type SampleFormData = {
   name: string;
@@ -66,24 +66,24 @@ const FORM_PLOT: FormPlot<SampleFormData>[] = [
   {
     id: "name",
     title: "お名前を教えて下さい",
-    getter: c => c.name,
-    setter: v => ({ name: v }),
+    get: c => c.name,
+    set: v => ({ name: v }),
     widget: SampleFormWidget
   },
   {
     id: "age",
     title: "年齢を教えて下さい",
     required: false,
-    getter: c => String(c.age || ""),
-    setter: v => ({ age: Number(v) }),
+    get: c => String(c.age || ""),
+    set: v => ({ age: Number(v) }),
     widget: SampleFormWidget
   },
   {
     id: "blood",
     title: "血液型を教えて下さい",
     options: ["-", "a", "b", "o", "ab"],
-    getter: c => c.blood || "",
-    setter: v => ({
+    get: c => c.blood || "",
+    set: v => ({
       blood: parseBlood(v)
     }),
     widget: SampleFormWidget
@@ -91,9 +91,9 @@ const FORM_PLOT: FormPlot<SampleFormData>[] = [
   {
     id: "email",
     title: "メールアドレスを教えて下さい",
-    getter: c => c.email,
-    setter: v => ({ email: v }),
-    validator: emailValidator,
+    get: c => c.email,
+    set: v => ({ email: v }),
+    validate: emailValidator,
     widget: SampleFormWidget
   }
 ];
@@ -118,7 +118,7 @@ const PageForm: NextPage = () => {
   };
   return (
     <form onSubmit={handleSubmit}>
-      <FormSection
+      <FormEditor
         plot={FORM_PLOT}
         current={current}
         setCurrent={setCurrent}
