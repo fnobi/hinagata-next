@@ -1,4 +1,4 @@
-import { createElement, FC, useEffect } from "react";
+import { createElement, FC, Fragment, useEffect } from "react";
 import { every } from "~/lib/arrayUtil";
 
 export type FormWidgetProps = {
@@ -41,10 +41,9 @@ export function FormWrapper<T>(props: {
   plot: FormPlot<T>[];
   current: T;
   setCurrent: (fn: (c: T) => T) => void;
-  onSubmit: () => void;
   onValidate?: (valid: boolean) => void;
 }) {
-  const { current, setCurrent, plot, onSubmit, onValidate = () => {} } = props;
+  const { current, setCurrent, plot, onValidate = () => {} } = props;
   const sections: { widget: FC<FormWidgetProps>; props: FormWidgetProps }[] =
     plot.map(
       ({
@@ -92,13 +91,8 @@ export function FormWrapper<T>(props: {
   }, [valid]);
 
   return createElement(
-    "form",
-    {
-      onSubmit: e => {
-        e.preventDefault();
-        onSubmit();
-      }
-    },
+    Fragment,
+    null,
     sections.map(({ widget, props: p }) =>
       createElement(widget, { ...p, key: p.id })
     )

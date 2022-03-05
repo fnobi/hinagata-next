@@ -1,5 +1,5 @@
 import { NextPage } from "next";
-import { FC, useState } from "react";
+import { FC, FormEvent, useState } from "react";
 import {
   emailValidator,
   FormPlot,
@@ -109,7 +109,8 @@ const SAMPLE_FORM_DEFAULT_DATA: SampleFormData = {
 const PageForm: NextPage = () => {
   const [current, setCurrent] = useState(SAMPLE_FORM_DEFAULT_DATA);
   const [valid, setValid] = useState(false);
-  const handleSubmit = () => {
+  const handleSubmit = (e: FormEvent) => {
+    e.preventDefault();
     if (!valid) {
       return;
     }
@@ -117,20 +118,19 @@ const PageForm: NextPage = () => {
     console.log(current);
   };
   return (
-    <div>
+    <form onSubmit={handleSubmit}>
       <FormWrapper
         plot={FORM_PLOT}
         current={current}
         setCurrent={setCurrent}
-        onSubmit={handleSubmit}
         onValidate={setValid}
       />
       <p>
-        <button type="button" disabled={!valid} onClick={handleSubmit}>
+        <button type="submit" disabled={!valid}>
           OK
         </button>
       </p>
-    </div>
+    </form>
   );
 };
 
