@@ -14,7 +14,6 @@ const PageForm: NextPage = () => {
       {
         id: "name",
         title: "お名前を教えて下さい",
-        required: true,
         getter: c => c.name,
         setter: v => ({ name: v })
       },
@@ -28,7 +27,6 @@ const PageForm: NextPage = () => {
       {
         id: "email",
         title: "メールアドレスを教えて下さい",
-        required: true,
         getter: c => c.email,
         setter: v => ({ email: v })
       }
