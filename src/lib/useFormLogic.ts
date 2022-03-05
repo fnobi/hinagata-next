@@ -1,5 +1,16 @@
-import { useState } from "react";
+import { createElement, FC, useEffect } from "react";
 import { every } from "~/lib/arrayUtil";
+
+export type FormWidgetProps = {
+  id: string;
+  title: string;
+  value: string;
+  required: boolean;
+  options?: string[];
+  error: string | null;
+  valid: boolean;
+  update: (v: string) => void;
+};
 
 export type FormPlot<T> = {
   id: string;
@@ -9,41 +20,8 @@ export type FormPlot<T> = {
   setter: (v: string) => Partial<T>;
   options?: string[];
   validator?: (v: string) => string | null;
+  widget: FC<FormWidgetProps>;
 };
-
-function useFormLogic<T>(opts: { defaultValue: T; plot: FormPlot<T>[] }) {
-  const { defaultValue, plot } = opts;
-  const [current, setCurrent] = useState(defaultValue);
-  const sections = plot.map(
-    ({ id, title, required = true, options, validator, getter, setter }) => {
-      const value = getter(current);
-      const error = validator ? validator(value) : null;
-      const valid = (() => {
-        if (error) {
-          return false;
-        }
-        if (required && !value) {
-          return false;
-        }
-        return true;
-      })();
-      const update = (v: string) => setCurrent(c => ({ ...c, ...setter(v) }));
-
-      return {
-        id,
-        title,
-        value,
-        required,
-        options,
-        error,
-        valid,
-        update
-      };
-    }
-  );
-  const valid = every(sections, s => s.valid);
-  return { current, sections, valid };
-}
 
 export const emailValidator = (v: string) => {
   if (!v) {
@@ -59,4 +37,70 @@ export const emailValidator = (v: string) => {
   return "不正なメールアドレスです";
 };
 
-export default useFormLogic;
+export function FormWrapper<T>(props: {
+  plot: FormPlot<T>[];
+  current: T;
+  setCurrent: (fn: (c: T) => T) => void;
+  onSubmit: () => void;
+  onValidate?: (valid: boolean) => void;
+}) {
+  const { current, setCurrent, plot, onSubmit, onValidate = () => {} } = props;
+  const sections: { widget: FC<FormWidgetProps>; props: FormWidgetProps }[] =
+    plot.map(
+      ({
+        id,
+        title,
+        required = true,
+        options,
+        validator,
+        getter,
+        setter,
+        widget
+      }) => {
+        const value = getter(current);
+        const error = validator ? validator(value) : null;
+        const valid = (() => {
+          if (error) {
+            return false;
+          }
+          if (required && !value) {
+            return false;
+          }
+          return true;
+        })();
+        const update = (v: string) => setCurrent(c => ({ ...c, ...setter(v) }));
+
+        return {
+          widget,
+          props: {
+            id,
+            title,
+            value,
+            required,
+            options,
+            error,
+            valid,
+            update
+          }
+        };
+      }
+    );
+  const valid = every(sections, s => s.props.valid);
+
+  useEffect(() => {
+    onValidate(valid);
+  }, [valid]);
+
+  return createElement(
+    "form",
+    {
+      onSubmit: e => {
+        e.preventDefault();
+        onSubmit();
+      }
+    },
+    sections.map(({ widget, props: p }) =>
+      createElement(widget, { ...p, key: p.id })
+    )
+  );
+}
