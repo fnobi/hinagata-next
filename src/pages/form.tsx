@@ -1,6 +1,6 @@
 import { NextPage } from "next";
 import { FormEvent } from "react";
-import useFormLogic from "~/lib/useFormLogic";
+import useFormLogic, { emailValidator } from "~/lib/useFormLogic";
 
 type FormValue = {
   name: string;
@@ -34,7 +34,7 @@ const PageForm: NextPage = () => {
         id: "age",
         title: "年齢を教えて下さい",
         required: false,
-        getter: c => String(c.age),
+        getter: c => String(c.age || ""),
         setter: v => ({ age: Number(v) })
       },
       {
@@ -50,7 +50,8 @@ const PageForm: NextPage = () => {
         id: "email",
         title: "メールアドレスを教えて下さい",
         getter: c => c.email,
-        setter: v => ({ email: v })
+        setter: v => ({ email: v }),
+        validator: emailValidator
       }
     ],
     defaultValue: {
@@ -71,30 +72,36 @@ const PageForm: NextPage = () => {
 
   return (
     <form onSubmit={handleSubmit}>
-      {sections.map(({ id, title, value, options, update }) => (
-        <div key={id}>
-          <p>{title}</p>
-          {options ? (
+      {sections.map(
+        ({ id, title, required, value, options, error, update }) => (
+          <div key={id}>
             <p>
-              <select value={value} onChange={e => update(e.target.value)}>
-                {options.map(o => (
-                  <option key={o} value={o}>
-                    {o}
-                  </option>
-                ))}
-              </select>
+              {title}
+              {required ? "※必須" : null}
             </p>
-          ) : (
-            <p>
-              <input
-                type="text"
-                value={value}
-                onChange={e => update(e.target.value)}
-              />
-            </p>
-          )}
-        </div>
-      ))}
+            {options ? (
+              <p>
+                <select value={value} onChange={e => update(e.target.value)}>
+                  {options.map(o => (
+                    <option key={o} value={o}>
+                      {o}
+                    </option>
+                  ))}
+                </select>
+              </p>
+            ) : (
+              <div>
+                <input
+                  type="text"
+                  value={value}
+                  onChange={e => update(e.target.value)}
+                />
+                {error ? <p>{error}</p> : null}
+              </div>
+            )}
+          </div>
+        )
+      )}
       <p>
         <button type="submit" disabled={!valid}>
           OK
