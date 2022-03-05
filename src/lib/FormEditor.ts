@@ -1,27 +1,29 @@
-import { createElement, FC, useEffect } from "react";
+import { createElement, FC, useEffect, useMemo } from "react";
 import { every } from "~/lib/arrayUtil";
 
-export type FormWidgetProps = {
+type FormWidgetProps = {
   id: string;
   title: string;
   value: string;
   required: boolean;
-  options?: { value: string; label: string }[];
   error: string | null;
   valid: boolean;
   update: (v: string) => void;
 };
 
-export type FormPlot<T> = {
+export type FormWidget<T = {}> = FC<FormWidgetProps & T>;
+
+export type FormSectionConfig<T> = {
   id: string;
   title: string;
   required?: boolean;
-  optionsArray?: string[];
-  options?: { value: string; label: string }[];
-  widget: FC<FormWidgetProps>;
   get: (c: T) => string;
   set: (v: string) => Partial<T>;
   validate?: (v: string) => string | null;
+};
+
+export type FormSection<T> = FormSectionConfig<T> & {
+  widget: FC<FormWidgetProps>;
 };
 
 export const emailValidator = (v: string) => {
@@ -38,74 +40,96 @@ export const emailValidator = (v: string) => {
   return "不正なメールアドレスです";
 };
 
-export default function FormEditor<T>(props: {
-  plot: FormPlot<T>[];
+class SectionBuilder<T> {
+  private base: FormSection<T>[];
+
+  public constructor(...base: FormSection<T>[]) {
+    this.base = base;
+  }
+
+  public widget<O>(
+    config: FormSectionConfig<T>,
+    widget: FC<FormWidgetProps & O>,
+    option: O
+  ) {
+    return new SectionBuilder(...this.base, {
+      ...config,
+      widget: p => createElement(widget, { ...p, ...option })
+    });
+  }
+
+  public build() {
+    return this.base;
+  }
+}
+
+export type FormBuilder<T> = (b: SectionBuilder<T>) => SectionBuilder<T>;
+
+type FormEditorProps<T> = {
+  builder: FormBuilder<T>;
   current: T;
   setCurrent: (fn: (c: T) => T) => void;
   onValidate?: (valid: boolean) => void;
-}) {
-  const { current, setCurrent, plot, onValidate = () => {} } = props;
-  const sections: { widget: FC<FormWidgetProps>; props: FormWidgetProps }[] =
-    plot.map(
-      ({
-        id,
-        title,
-        required = true,
-        options: optionsOriginal,
-        optionsArray,
-        validate,
-        get,
-        set,
-        widget
-      }) => {
-        const value = get(current);
-        const error = validate ? validate(value) : null;
-        const valid = (() => {
-          if (error) {
-            return false;
-          }
-          if (required && !value) {
-            return false;
-          }
-          return true;
-        })();
-        const update = (v: string) => setCurrent(c => ({ ...c, ...set(v) }));
-        const options = (() => {
-          if (optionsOriginal) {
-            return optionsOriginal;
-          }
-          if (optionsArray) {
-            return optionsArray.map(s => ({ label: s, value: s }));
-          }
-          return undefined;
-        })();
+};
 
-        return {
-          widget,
-          props: {
+function FormEditor<T>({
+  builder,
+  current,
+  setCurrent,
+  onValidate = () => {}
+}: FormEditorProps<T>) {
+  const formFrame = useMemo(
+    () => builder(new SectionBuilder()).build(),
+    [builder]
+  );
+  const sections = useMemo(
+    () =>
+      formFrame.map(
+        ({ widget, id, title, required = true, validate, get, set }) => {
+          const value = get(current);
+          const error = validate ? validate(value) : null;
+          const valid = (() => {
+            if (error) {
+              return false;
+            }
+            if (required && !value) {
+              return false;
+            }
+            return true;
+          })();
+          const update = (v: string) => setCurrent(c => ({ ...c, ...set(v) }));
+          const props: FormWidgetProps = {
             id,
             title,
             value,
             required,
-            options,
             error,
             valid,
             update
-          }
-        };
-      }
-    );
-  const valid = every(sections, s => s.props.valid);
+          };
+          return {
+            widget,
+            props
+          };
+        }
+      ),
+    [formFrame, current]
+  );
+
+  const canSubmit = useMemo(
+    () => every(sections, s => s.props.valid),
+    [sections]
+  );
 
   useEffect(() => {
-    onValidate(valid);
-  }, [valid]);
+    onValidate(canSubmit);
+  }, [canSubmit]);
 
   return createElement(
     "div",
     null,
-    sections.map(({ widget, props: p }) =>
-      createElement(widget, { ...p, key: p.id })
-    )
+    sections.map(({ widget, props }) => createElement(widget, props))
   );
 }
+
+export default FormEditor;

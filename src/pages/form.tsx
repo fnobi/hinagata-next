@@ -1,9 +1,9 @@
 import { NextPage } from "next";
 import { FC, FormEvent, useState } from "react";
 import FormEditor, {
-  emailValidator,
-  FormPlot,
-  FormWidgetProps
+  FormBuilder,
+  FormWidget,
+  emailValidator
 } from "~/lib/FormEditor";
 
 type SampleFormData = {
@@ -52,28 +52,33 @@ const FormWidgetFrame: FC<{
   </div>
 );
 
-const StringFormWidget: FC<FormWidgetProps> = ({
+const StringFormWidget: FormWidget<{
+  placeHolder?: string;
+  type?: "text" | "number";
+}> = ({
   title,
   required,
   value,
   error,
+  placeHolder,
+  type = "text",
   update
 }) => (
   <FormWidgetFrame title={title} required={required} error={error}>
     <p>
-      <input type="text" value={value} onChange={e => update(e.target.value)} />
+      <input
+        type={type}
+        value={value}
+        placeholder={placeHolder}
+        onChange={e => update(e.target.value)}
+      />
     </p>
   </FormWidgetFrame>
 );
 
-const SelectFormWidget: FC<FormWidgetProps> = ({
-  title,
-  required,
-  options,
-  value,
-  error,
-  update
-}) => (
+const SelectFormWidget: FormWidget<{
+  options: { value: string; label: string }[];
+}> = ({ title, required, options, value, error, update }) => (
   <FormWidgetFrame title={title} required={required} error={error}>
     <p>
       <select value={value} onChange={e => update(e.target.value)}>
@@ -88,14 +93,9 @@ const SelectFormWidget: FC<FormWidgetProps> = ({
   </FormWidgetFrame>
 );
 
-const RadioFormWidget: FC<FormWidgetProps> = ({
-  title,
-  required,
-  options,
-  value,
-  error,
-  update
-}) => (
+const RadioFormWidget: FormWidget<{
+  options: { value: string; label: string }[];
+}> = ({ title, required, options, value, error, update }) => (
   <FormWidgetFrame title={title} required={required} error={error}>
     <p>
       {(options || []).map(({ value: v, label }) => (
@@ -113,53 +113,75 @@ const RadioFormWidget: FC<FormWidgetProps> = ({
   </FormWidgetFrame>
 );
 
-const FORM_PLOT: FormPlot<SampleFormData>[] = [
-  {
-    id: "name",
-    title: "お名前を教えて下さい",
-    get: c => c.name,
-    set: v => ({ name: v }),
-    widget: StringFormWidget
-  },
-  {
-    id: "age",
-    title: "年齢を教えて下さい",
-    required: false,
-    get: c => String(c.age || ""),
-    set: v => ({ age: Number(v) }),
-    widget: StringFormWidget
-  },
-  {
-    id: "gender",
-    title: "性別を教えて下さい",
-    options: [
-      { value: "male", label: "男性" },
-      { value: "female", label: "女性" }
-    ],
-    get: c => c.gender || "",
-    set: v => ({ gender: parseGender(v) }),
-    widget: RadioFormWidget
-  },
-  {
-    id: "blood",
-    title: "血液型を教えて下さい",
-    optionsArray: ["a", "b", "o", "ab"],
-    required: false,
-    get: c => c.blood || "",
-    set: v => ({
-      blood: parseBlood(v)
-    }),
-    widget: SelectFormWidget
-  },
-  {
-    id: "email",
-    title: "メールアドレスを教えて下さい",
-    get: c => c.email,
-    set: v => ({ email: v }),
-    validate: emailValidator,
-    widget: StringFormWidget
-  }
-];
+const builder: FormBuilder<SampleFormData> = b =>
+  b
+    .widget(
+      {
+        id: "name",
+        title: "お名前を教えて下さい",
+        get: c => c.name,
+        set: v => ({ name: v })
+      },
+      StringFormWidget,
+      { placeHolder: "タップして入力" }
+    )
+    .widget(
+      {
+        id: "age",
+        title: "年齢を教えて下さい",
+        required: false,
+        get: c => String(c.age || ""),
+        set: v => ({ age: Number(v) })
+      },
+      StringFormWidget,
+      { type: "number" }
+    )
+    .widget(
+      {
+        id: "gender",
+        title: "性別を教えて下さい",
+        get: c => c.gender || "",
+        set: v => ({ gender: parseGender(v) })
+      },
+      RadioFormWidget,
+      {
+        options: [
+          { value: "male", label: "男性" },
+          { value: "female", label: "女性" }
+        ]
+      }
+    )
+    .widget(
+      {
+        id: "blood",
+        title: "血液型を教えて下さい",
+        required: false,
+        get: c => c.blood || "",
+        set: v => ({
+          blood: parseBlood(v)
+        })
+      },
+      SelectFormWidget,
+      {
+        options: [
+          { value: "a", label: "A" },
+          { value: "b", label: "B" },
+          { value: "o", label: "O" },
+          { value: "ab", label: "AB" }
+        ]
+      }
+    )
+    .widget(
+      {
+        id: "email",
+        title: "メールアドレスを教えて下さい",
+        get: c => c.email,
+        set: v => ({ email: v }),
+        validate: emailValidator
+      },
+      StringFormWidget,
+      { placeHolder: "タップして入力" }
+    );
 
 const SAMPLE_FORM_DEFAULT_DATA: SampleFormData = {
   name: "",
@@ -183,7 +205,7 @@ const PageForm: NextPage = () => {
   return (
     <form onSubmit={handleSubmit}>
       <FormEditor
-        plot={FORM_PLOT}
+        builder={builder}
         current={current}
         setCurrent={setCurrent}
         onValidate={setValid}
