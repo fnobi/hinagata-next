@@ -7,18 +7,21 @@ export type FormPlot<T> = {
   required?: boolean;
   getter: (c: T) => string;
   setter: (v: string) => Partial<T>;
+  options?: string[];
 };
 
 function useFormLogic<T>(opts: { defaultValue: T; plot: FormPlot<T>[] }) {
   const { defaultValue, plot } = opts;
   const [current, setCurrent] = useState(defaultValue);
   const sections = plot.map(
-    ({ id, title, required = true, getter, setter }) => {
+    ({ id, title, required = true, options, getter, setter }) => {
       const value = getter(current);
       return {
         id,
         title,
         value,
+        required,
+        options,
         valid: required ? !!value : true,
         update: (v: string) => setCurrent(c => ({ ...c, ...setter(v) }))
       };

@@ -6,6 +6,19 @@ type FormValue = {
   name: string;
   email: string;
   age: number;
+  blood: "a" | "b" | "o" | "ab" | null;
+};
+
+const parseBlood = (v: string) => {
+  switch (v) {
+    case "a":
+    case "b":
+    case "o":
+    case "ab":
+      return v;
+    default:
+      return null;
+  }
 };
 
 const PageForm: NextPage = () => {
@@ -25,6 +38,15 @@ const PageForm: NextPage = () => {
         setter: v => ({ age: Number(v) })
       },
       {
+        id: "blood",
+        title: "血液型を教えて下さい",
+        options: ["-", "a", "b", "o", "ab"],
+        getter: c => c.blood || "",
+        setter: v => ({
+          blood: parseBlood(v)
+        })
+      },
+      {
         id: "email",
         title: "メールアドレスを教えて下さい",
         getter: c => c.email,
@@ -34,7 +56,8 @@ const PageForm: NextPage = () => {
     defaultValue: {
       name: "",
       email: "",
-      age: 0
+      age: 0,
+      blood: null
     }
   });
 
@@ -48,16 +71,28 @@ const PageForm: NextPage = () => {
 
   return (
     <form onSubmit={handleSubmit}>
-      {sections.map(({ id, title, value, update }) => (
+      {sections.map(({ id, title, value, options, update }) => (
         <div key={id}>
           <p>{title}</p>
-          <p>
-            <input
-              type="text"
-              value={value}
-              onChange={e => update(e.target.value)}
-            />
-          </p>
+          {options ? (
+            <p>
+              <select value={value} onChange={e => update(e.target.value)}>
+                {options.map(o => (
+                  <option key={o} value={o}>
+                    {o}
+                  </option>
+                ))}
+              </select>
+            </p>
+          ) : (
+            <p>
+              <input
+                type="text"
+                value={value}
+                onChange={e => update(e.target.value)}
+              />
+            </p>
+          )}
         </div>
       ))}
       <p>
