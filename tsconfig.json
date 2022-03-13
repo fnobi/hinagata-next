@@ -2,10 +2,15 @@
   "compilerOptions": {
     "module": "esnext",
     "target": "es2015",
-    "lib": ["esnext", "dom"],
+    "lib": [
+      "esnext",
+      "dom"
+    ],
     "jsx": "preserve",
     "moduleResolution": "node",
-    "rootDirs": ["./src"],
+    "rootDirs": [
+      "./src"
+    ],
     "forceConsistentCasingInFileNames": false,
     "noImplicitReturns": true,
     "strict": true,
@@ -13,7 +18,9 @@
     "noUnusedLocals": true,
     "baseUrl": ".",
     "paths": {
-      "~/*": ["src/*"]
+      "~/*": [
+        "src/*"
+      ]
     },
     "allowJs": true,
     "skipLibCheck": true,
@@ -21,8 +28,15 @@
     "esModuleInterop": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "jsxImportSource": "@emotion/react"
+    "jsxImportSource": "@emotion/react",
+    "incremental": true
   },
-  "exclude": ["node_modules"],
-  "include": ["next-env.d.ts", "src/**/*", "typings/**/*.d.ts"]
+  "exclude": [
+    "node_modules"
+  ],
+  "include": [
+    "next-env.d.ts",
+    "src/**/*",
+    "typings/**/*.d.ts"
+  ]
 }

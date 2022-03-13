@@ -1,6 +1,12 @@
 {
-  "extends": ["airbnb", "prettier", "next"],
-  "plugins": ["@typescript-eslint"],
+  "extends": [
+    "airbnb",
+    "prettier",
+    "next"
+  ],
+  "plugins": [
+    "@typescript-eslint"
+  ],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
     "ecmaFeatures": {
@@ -11,8 +17,14 @@
   },
   "root": true,
   "rules": {
-    "arrow-parens": [2, "as-needed"],
-    "curly": [1, "all"],
+    "arrow-parens": [
+      2,
+      "as-needed"
+    ],
+    "curly": [
+      1,
+      "all"
+    ],
     "no-unused-vars": 0,
     "@next/next/no-page-custom-font": 0,
     "@next/next/no-img-element": 0,
@@ -24,7 +36,11 @@
     "react/jsx-filename-extension": [
       1,
       {
-        "extensions": [".js", ".jsx", ".tsx"]
+        "extensions": [
+          ".js",
+          ".jsx",
+          ".tsx"
+        ]
       }
     ],
     "react-hooks/rules-of-hooks": 2,
