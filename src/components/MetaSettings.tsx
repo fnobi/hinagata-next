@@ -11,6 +11,7 @@ const MetaSettings: FC<{
   shareImage?: StaticImageData;
   keywords?: string[];
   favicon?: StaticImageData;
+  viewport?: string;
 }> = ({
   page,
   title,
@@ -18,6 +19,7 @@ const MetaSettings: FC<{
   shareImage,
   favicon,
   keywords,
+  viewport = "width=device-width",
   children
 }) => {
   const shareImageUrl = shareImage ? SITE_ORIGIN + shareImage.src : null;
@@ -91,6 +93,7 @@ const MetaSettings: FC<{
             />
           </>
         ) : null}
+        <meta key="viewport" name="viewport" content={viewport} />
       </Head>
       {children}
     </>
