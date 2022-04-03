@@ -6,7 +6,7 @@ module.exports = {
   webpack: config => {
     config.module.rules.push({
       loader: "file-loader",
-      test: /\.(mp4|mp3)$/i,
+      test: /\.(mp4|webm|mp3)$/i,
       options: {
         publicPath: `${BASE_PATH}/_next/static/files`,
         outputPath: "static/files"
