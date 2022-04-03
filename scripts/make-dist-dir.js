@@ -12,10 +12,10 @@ function main() {
     throw new Error(`"${EXPORT_DIR}" doesn't exist.`);
   }
   if (fs.existsSync(distPath)) {
-    fs.rmdirSync(distPath, { recursive: true });
+    fs.rmSync(distPath, { recursive: true });
   } else {
     fs.mkdirSync(distPath, { recursive: true });
-    fs.rmdirSync(distPath);
+    fs.rmSync(distPath);
   }
   fs.renameSync(EXPORT_DIR, distPath);
 }
