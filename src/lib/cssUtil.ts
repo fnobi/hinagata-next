@@ -15,11 +15,13 @@ export const vw = (...nums: CSSSizeKeyword[]) => appendPostfix(nums, "vw");
 
 export const vh = (...nums: CSSSizeKeyword[]) => appendPostfix(nums, "vh");
 
+export const deg = (...nums: CSSSizeKeyword[]) => appendPostfix(nums, "deg");
+
 export const buildLinearGradient = (
   pairs: [string, number][],
   turn: number = 0
 ) =>
   `linear-gradient(${[
-    ...(turn ? [`${turn}deg`] : []),
-    pairs.map(([p1, p2]) => `${p1} ${percent(p2)}`).join()
+    ...(turn ? [deg(turn)] : []),
+    pairs.map(([p1, p2]) => [p1, percent(p2)].join(" ")).join()
   ].join()})`;
