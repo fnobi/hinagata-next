@@ -5,7 +5,7 @@ import PageEntry from "~/lib/PageEntry";
 import { SITE_ORIGIN } from "~/local/constants";
 
 const MetaSettings: FC<{
-  page: PageEntry;
+  page: PageEntry<string>;
   title?: string;
   description?: string;
   shareImage?: StaticImageData;
