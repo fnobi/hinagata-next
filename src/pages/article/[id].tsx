@@ -1,7 +1,7 @@
 import { GetStaticPaths, GetStaticProps, NextPage } from "next";
 import { css } from "@emotion/react";
 import { percent, px, em } from "~/lib/cssUtil";
-import { PAGE_ARTICLE } from "~/local/pagePath";
+import { PAGE_ARTICLE_INDEX } from "~/local/pagePath";
 import articleData, { Article } from "~/local/articleData";
 import { makePageMetaTitle } from "~/components/DefaultMetaSettings";
 import MetaSettings from "~/components/MetaSettings";
@@ -31,7 +31,7 @@ type Props = {
 const PageArticleDetail: NextPage<Props> = ({ id, article }) => (
   <MetaSettings
     title={makePageMetaTitle(article.title, "Article")}
-    page={PAGE_ARTICLE.child(id)}
+    page={PAGE_ARTICLE_INDEX.child(id)}
   >
     <div css={wrapperStyle}>
       <div css={titleStyle}>Articles: {article.title}</div>
@@ -54,7 +54,9 @@ export const getStaticProps: GetStaticProps<Props> = async ({
 };
 
 export const getStaticPaths: GetStaticPaths = async () => ({
-  paths: PAGE_ARTICLE.childStaticPaths(Object.keys(articleData)),
+  paths: Object.keys(articleData).map(
+    id => PAGE_ARTICLE_INDEX.child(id).basePath
+  ),
   fallback: false
 });
 

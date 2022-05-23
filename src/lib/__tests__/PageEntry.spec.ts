@@ -12,7 +12,7 @@ describe("PageEntry", () => {
     expect(aboutPage.url).toEqual("https://example.com/about/");
   });
   it("make child static paths", () => {
-    const paths = topPage.childStaticPaths(["a", "b", "c"]);
+    const paths = ["a", "b", "c"].map(id => topPage.child(id).basePath);
     expect(paths).toEqual(["/a", "/b", "/c"]);
   });
   it("assert segment", () => {
@@ -20,7 +20,5 @@ describe("PageEntry", () => {
     expect(() => new PageEntry("https://example.com", "hoge/")).toThrow();
     expect(() => topPage.child("/hoge")).toThrow();
     expect(() => topPage.child("hoge/")).toThrow();
-    expect(() => topPage.childStaticPaths(["/d"])).toThrow();
-    expect(() => topPage.childStaticPaths(["e/"])).toThrow();
   });
 });
