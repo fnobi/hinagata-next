@@ -1,4 +1,5 @@
 import { stringify } from "querystring";
+import PageEntry from "~/lib/PageEntry";
 
 export function createTweetIntent(opts: {
   text: string;
@@ -6,6 +7,17 @@ export function createTweetIntent(opts: {
   hashtags?: string;
 }) {
   return `http://twitter.com/intent/tweet?${stringify(opts)}`;
+}
+
+export function createTweetIntentWithPage(opts: {
+  page: PageEntry;
+  text: string;
+  hashtags?: string;
+}) {
+  return createTweetIntent({
+    ...opts,
+    url: opts.page.url
+  });
 }
 
 export function createFacebookIntent(u: string) {

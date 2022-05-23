@@ -1,4 +1,4 @@
-export default class PageEntry<T extends string> {
+export default class PageEntry<T extends string = string> {
   private baseUrl: string;
 
   public readonly basePath: string;
@@ -25,5 +25,12 @@ export default class PageEntry<T extends string> {
       throw new Error(`invalid id format: ${id}`);
     }
     return new PageEntry<TT>(this.baseUrl, this.href + id);
+  }
+
+  public static makeStaticPaths<TT extends string>(
+    page: PageEntry<TT>,
+    arr: TT[]
+  ) {
+    return arr.map(id => page.child(id).basePath);
   }
 }

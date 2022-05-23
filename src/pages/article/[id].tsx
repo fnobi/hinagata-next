@@ -1,6 +1,7 @@
 import { GetStaticPaths, GetStaticProps, NextPage } from "next";
 import { css } from "@emotion/react";
 import { percent, px, em } from "~/lib/cssUtil";
+import PageEntry from "~/lib/PageEntry";
 import { PAGE_ARTICLE_INDEX } from "~/local/pagePath";
 import articleData, { Article } from "~/local/articleData";
 import { makePageMetaTitle } from "~/components/DefaultMetaSettings";
@@ -54,8 +55,9 @@ export const getStaticProps: GetStaticProps<Props> = async ({
 };
 
 export const getStaticPaths: GetStaticPaths = async () => ({
-  paths: Object.keys(articleData).map(
-    id => PAGE_ARTICLE_INDEX.child(id).basePath
+  paths: PageEntry.makeStaticPaths(
+    PAGE_ARTICLE_INDEX,
+    Object.keys(articleData)
   ),
   fallback: false
 });
