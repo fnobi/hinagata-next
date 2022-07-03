@@ -17,23 +17,6 @@ export const globalStyle = css({
   }
 });
 
-export const linkReset = css({
-  display: "inline-block",
-  textDecoration: "none",
-  color: "inherit"
-});
-
-export const buttonReset = css({
-  padding: 0,
-  margin: 0,
-  appearance: "none",
-  border: "none",
-  background: "none",
-  font: "inherit",
-  textAlign: "inherit",
-  color: "inherit"
-});
-
 export const spStyle = (styles: CSSInterpolation) =>
   css({
     [`@media(max-width: ${px(BREAKPOINT_MIN_PC - 1)})`]: styles

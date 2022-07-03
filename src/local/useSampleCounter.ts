@@ -1,14 +1,14 @@
 import { atom, useRecoilState } from "recoil";
 
-export type SampleState = {
+type SampleState = {
   count: number;
 };
 
-export const initialSampleState: SampleState = {
+const initialSampleState: SampleState = {
   count: 0
 };
 
-export const sampleStore = atom<SampleState>({
+const sampleStore = atom<SampleState>({
   key: "sampleStore",
   default: initialSampleState
 });

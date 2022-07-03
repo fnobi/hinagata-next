@@ -1,3 +1,5 @@
+import { CSSInterpolation } from "@emotion/serialize";
+
 export type CSSSizeKeyword = number | "auto";
 
 const appendPostfix = (nums: CSSSizeKeyword[], postfix: string) =>
@@ -25,3 +27,20 @@ export const buildLinearGradient = (
     ...(turn ? [deg(turn)] : []),
     pairs.map(([p1, p2]) => [p1, percent(p2)].join(" ")).join()
   ].join()})`;
+
+export const linkReset: CSSInterpolation = {
+  display: "inline-block",
+  textDecoration: "none",
+  color: "inherit"
+};
+
+export const buttonReset: CSSInterpolation = {
+  padding: 0,
+  margin: 0,
+  appearance: "none",
+  border: "none",
+  background: "none",
+  font: "inherit",
+  textAlign: "inherit",
+  color: "inherit"
+};
