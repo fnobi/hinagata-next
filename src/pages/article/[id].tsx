@@ -1,28 +1,10 @@
 import { GetStaticPaths, GetStaticProps, NextPage } from "next";
-import { css } from "@emotion/react";
-import { percent, px, em } from "~/lib/cssUtil";
 import PageEntry from "~/lib/PageEntry";
 import { PAGE_ARTICLE_INDEX } from "~/local/pagePath";
 import articleData, { Article } from "~/local/articleData";
 import { makePageMetaTitle } from "~/components/DefaultMetaSettings";
 import MetaSettings from "~/components/MetaSettings";
-
-const wrapperStyle = css({
-  position: "fixed",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  flexDirection: "column",
-  top: px(0),
-  left: px(0),
-  width: percent(100),
-  height: percent(100)
-});
-
-const titleStyle = css({
-  fontWeight: "bold",
-  marginBottom: em(0.5)
-});
+import ArticleDetailScene from "~/components/ArticleDetailScene";
 
 type Props = {
   id: string;
@@ -34,9 +16,7 @@ const PageArticleDetail: NextPage<Props> = ({ id, article }) => (
     title={makePageMetaTitle(article.title, "Article")}
     page={PAGE_ARTICLE_INDEX.child(id)}
   >
-    <div css={wrapperStyle}>
-      <div css={titleStyle}>Articles: {article.title}</div>
-    </div>
+    <ArticleDetailScene article={article} />
   </MetaSettings>
 );
 
