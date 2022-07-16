@@ -1,9 +1,9 @@
 import { useState, MouseEvent, FC } from "react";
-import Link from "next/link";
 import { css } from "@emotion/react";
 import { percent, em } from "~/lib/cssUtil";
 import useSampleCounter from "~/local/useSampleCounter";
 import { PAGE_ABOUT } from "~/local/pagePath";
+import PageLink from "~/components/PageLink";
 
 const wrapperStyle = css({
   position: "fixed",
@@ -37,9 +37,9 @@ const TopScene: FC = () => {
         count up:{count}
       </button>
       <p>
-        <Link href={PAGE_ABOUT.href} passHref>
+        <PageLink page={PAGE_ABOUT}>
           <a href="passHref">about</a>
-        </Link>
+        </PageLink>
       </p>
       <p>{mouse.join(",")}</p>
     </div>

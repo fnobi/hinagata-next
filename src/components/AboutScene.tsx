@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { css, keyframes } from "@emotion/react";
 import { percent, px, em } from "~/lib/cssUtil";
 import { createTweetIntent } from "~/lib/shareUtil";
@@ -8,6 +7,7 @@ import useSampleCounter from "~/local/useSampleCounter";
 import { pcp, spp } from "~/local/emotionMixin";
 import { pcStyle, spStyle } from "~/local/emotionMixin";
 import { PAGE_ABOUT, PAGE_TOP } from "~/local/pagePath";
+import PageLink from "~/components/PageLink";
 import ASSETS_OGP_ABOUT from "~/assets/meta/ogp-about.png";
 
 const wrapperStyle = css({
@@ -84,9 +84,9 @@ const AboutScene: FC = () => {
         </p>
       </div>
       <p>
-        <Link href={PAGE_TOP.href} passHref>
+        <PageLink page={PAGE_TOP}>
           <a href="passHref">top</a>
-        </Link>
+        </PageLink>
       </p>
     </div>
   );

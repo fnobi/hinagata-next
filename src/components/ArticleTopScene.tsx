@@ -1,9 +1,9 @@
 import { css } from "@emotion/react";
 import { percent, px, em } from "~/lib/cssUtil";
-import Link from "next/link";
 import { FC } from "react";
 import articleData from "~/local/articleData";
 import { PAGE_ARTICLE_INDEX } from "~/local/pagePath";
+import PageLink from "~/components/PageLink";
 
 const wrapperStyle = css({
   position: "fixed",
@@ -28,9 +28,9 @@ const ArticleTopScene: FC = () => (
     <ul>
       {Object.entries(articleData).map(([id, item]) => (
         <li key={id}>
-          <Link href={PAGE_ARTICLE_INDEX.child(id).href} passHref>
+          <PageLink page={PAGE_ARTICLE_INDEX.child(id)}>
             <a href="passHref">{item.title}</a>
-          </Link>
+          </PageLink>
         </li>
       ))}
     </ul>
