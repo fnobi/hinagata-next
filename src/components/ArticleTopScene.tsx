@@ -22,14 +22,18 @@ const titleStyle = css({
   marginBottom: em(0.5)
 });
 
+const textLinkStyle = css({
+  color: "inherit"
+});
+
 const ArticleTopScene: FC = () => (
   <div css={wrapperStyle}>
     <div css={titleStyle}>Articles</div>
     <ul>
       {Object.entries(articleData).map(([id, item]) => (
         <li key={id}>
-          <PageLink page={PAGE_ARTICLE_INDEX.child(id)}>
-            <a href="passHref">{item.title}</a>
+          <PageLink page={PAGE_ARTICLE_INDEX.child(id)} css={textLinkStyle}>
+            {item.title}
           </PageLink>
         </li>
       ))}

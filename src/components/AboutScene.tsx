@@ -59,6 +59,10 @@ const kvStyle = css(
   })
 );
 
+const textLinkStyle = css({
+  color: "inherit"
+});
+
 const AboutScene: FC = () => {
   const [count, increment] = useSampleCounter();
 
@@ -78,14 +82,15 @@ const AboutScene: FC = () => {
             })}
             target="_blank"
             rel="noopener noreferrer"
+            css={textLinkStyle}
           >
             share this page with twitter
           </a>
         </p>
       </div>
       <p>
-        <PageLink page={PAGE_TOP}>
-          <a href="passHref">top</a>
+        <PageLink page={PAGE_TOP} css={textLinkStyle}>
+          top
         </PageLink>
       </p>
     </div>

@@ -22,6 +22,10 @@ const titleStyle = css({
   marginBottom: em(0.5)
 });
 
+const textLinkStyle = css({
+  color: "inherit"
+});
+
 const TopScene: FC = () => {
   const [mouse, setMouse] = useState<[number, number]>([0, 0]);
   const [count, increment] = useSampleCounter();
@@ -37,8 +41,8 @@ const TopScene: FC = () => {
         count up:{count}
       </button>
       <p>
-        <PageLink page={PAGE_ABOUT}>
-          <a href="passHref">about</a>
+        <PageLink page={PAGE_ABOUT} css={textLinkStyle}>
+          about
         </PageLink>
       </p>
       <p>{mouse.join(",")}</p>
