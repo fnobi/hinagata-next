@@ -1,11 +1,7 @@
 import { FC, useRef, useEffect, useState } from "react";
 import { css } from "@emotion/react";
 import { em, percent } from "~/lib/cssUtil";
-
-const easeIn = (f: number) => (n: number) => n ** f;
-const easeOut = (f: number) => (n: number) => 1 - (1 - n) ** f;
-const easeInOut = (f: number) => (n: number) =>
-  n < 0.5 ? easeIn(f)(n * 2) * 0.5 : easeOut(f)((n - 0.5) * 2) * 0.5 + 0.5;
+import { easeIn, easeOut, easeInOut } from "~/lib/easing";
 
 const ELIST = {
   easeIn,
