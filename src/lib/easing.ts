@@ -1,4 +1,7 @@
 const multiEasing = (n: number, fns: ((nn: number) => number)[]) => {
+  if (n >= 1) {
+    return 1;
+  }
   const s = fns.length;
   const i = Math.floor(n * s);
   const o = (1 / s) * i;
