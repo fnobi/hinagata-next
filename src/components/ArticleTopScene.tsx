@@ -1,6 +1,6 @@
 import { css } from "@emotion/react";
-import { percent, px, em } from "~/lib/cssUtil";
 import { FC } from "react";
+import { percent, px, em } from "~/lib/cssUtil";
 import articleData from "~/local/articleData";
 import { PAGE_ARTICLE_INDEX } from "~/local/pagePath";
 import PageLink from "~/components/PageLink";

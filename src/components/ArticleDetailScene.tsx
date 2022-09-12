@@ -1,6 +1,6 @@
 import { css } from "@emotion/react";
-import { percent, px, em } from "~/lib/cssUtil";
 import { FC } from "react";
+import { percent, px, em } from "~/lib/cssUtil";
 import { Article } from "~/local/articleData";
 
 const wrapperStyle = css({

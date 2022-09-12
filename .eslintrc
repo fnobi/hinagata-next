@@ -51,34 +51,32 @@
     "import/order": [
       "error",
       {
-        "groups": [
-          "builtin",
-          "external",
-          "internal",
-          "parent",
-          "sibling",
-          "index"
-        ],
+        "pathGroupsExcludedImportTypes": [],
         "pathGroups": [
           {
             "pattern": "~/lib/**",
-            "group": "external"
+            "group": "internal",
+            "position": "after"
           },
           {
             "pattern": "~/local/**",
-            "group": "internal"
+            "group": "internal",
+            "position": "after"
           },
           {
             "pattern": "~/scheme/**",
-            "group": "parent"
+            "group": "internal",
+            "position": "after"
           },
           {
             "pattern": "~/components/**",
-            "group": "sibling"
+            "group": "internal",
+            "position": "after"
           },
           {
             "pattern": "~/assets/**",
-            "group": "index"
+            "group": "internal",
+            "position": "after"
           }
         ]
       }
