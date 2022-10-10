@@ -1,6 +1,18 @@
 export const clamp = (min: number, max: number, value: number) =>
   Math.max(min, Math.min(max, value));
 
+export const clampPeriod = (min: number, max: number, value: number) => {
+  let v = value;
+  const unit = max - min;
+  while (v > max) {
+    v -= unit;
+  }
+  while (v < min) {
+    v += unit;
+  }
+  return v;
+};
+
 export const lerp = (from: number, to: number, alpha: number) =>
   from + (to - from) * alpha;
 
