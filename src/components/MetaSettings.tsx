@@ -1,28 +1,33 @@
-import { FC } from "react";
+import { FC, PropsWithChildren } from "react";
 import Head from "next/head";
 import { StaticImageData } from "next/image";
 import PageEntry from "~/lib/PageEntry";
 import { SITE_ORIGIN } from "~/local/constants";
 
-const MetaSettings: FC<{
-  page: PageEntry;
-  title?: string;
-  description?: string;
-  shareImage?: StaticImageData;
-  keywords?: string[];
-  favicon?: StaticImageData;
-  viewport?: string;
-}> = ({
+const MetaSettings: FC<
+  PropsWithChildren<{
+    page: PageEntry;
+    title?: string;
+    description?: string;
+    shareImage?: StaticImageData;
+    customShareImageUrl?: string;
+    keywords?: string[];
+    favicon?: StaticImageData;
+    viewport?: string;
+  }>
+> = ({
   page,
   title,
   description,
   shareImage,
+  customShareImageUrl,
   favicon,
   keywords,
   viewport = "width=device-width",
   children
 }) => {
-  const shareImageUrl = shareImage ? SITE_ORIGIN + shareImage.src : null;
+  const shareImageUrl =
+    customShareImageUrl || (shareImage ? SITE_ORIGIN + shareImage.src : null);
   const canonicalUrl = page.url;
   return (
     <>
