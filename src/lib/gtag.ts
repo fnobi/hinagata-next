@@ -1,7 +1,6 @@
 import { useRouter } from "next/router";
 import Script from "next/script";
 import React, { useEffect, useRef } from "react";
-import { BASE_PATH } from "~/local/constants";
 
 type GTagMethod = {
   event: [
@@ -78,12 +77,12 @@ export function sendPageView({
   });
 }
 
-function usePageView(id: string) {
+function usePageView(id: string, basePath: string) {
   const landingPathRef = useRef("");
   const route = useRouter();
   useEffect(() => {
     const { current: landingPath } = landingPathRef;
-    const pagePath = BASE_PATH + route.asPath;
+    const pagePath = basePath + route.asPath;
     if (landingPath) {
       sendPageView({
         id,
@@ -92,12 +91,17 @@ function usePageView(id: string) {
     } else {
       landingPathRef.current = pagePath;
     }
-  }, [route.asPath, id]);
+  }, [route.asPath, id, basePath]);
 }
 
-export function GTagSnippet(props: { trackingId: string }) {
-  const { trackingId } = props;
-  usePageView(trackingId);
+export function GTagSnippet({
+  trackingId,
+  basePath
+}: {
+  trackingId: string;
+  basePath: string;
+}) {
+  usePageView(trackingId, basePath);
 
   return React.createElement(
     React.Fragment,
