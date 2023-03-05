@@ -1,6 +1,6 @@
 import { GetStaticPaths, GetStaticProps, NextPage } from "next";
-import PageEntry from "~/lib/PageEntry";
-import { PAGE_ARTICLE_INDEX } from "~/local/pagePath";
+import { PageEntry } from "~/lib/Page-entry";
+import { PAGE_ARTICLE_INDEX } from "~/local/page-path";
 import articleData, { Article } from "~/local/articleData";
 import { makePageMetaTitle } from "~/components/DefaultMetaSettings";
 import MetaSettings from "~/components/MetaSettings";

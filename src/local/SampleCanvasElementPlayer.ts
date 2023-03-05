@@ -1,4 +1,4 @@
-import { CanvasPlayer } from "~/lib/useCanvasAgent";
+import { CanvasPlayer } from "~/lib/canvas-agent";
 
 const RECT_SIZE = 100;
 

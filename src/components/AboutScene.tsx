@@ -1,12 +1,11 @@
 import { css, keyframes } from "@emotion/react";
 import { buildTransform } from "css-transform-builder";
 import { FC } from "react";
-import { percent, px, em } from "~/lib/cssUtil";
-import { createTweetIntent } from "~/lib/shareUtil";
+import { percent, px, em } from "~/lib/css-util";
+import { createTweetIntent } from "~/lib/share-util";
 import useSampleCounter from "~/local/useSampleCounter";
-import { pcp, spp } from "~/local/emotionMixin";
-import { pcStyle, spStyle } from "~/local/emotionMixin";
-import { PAGE_ABOUT, PAGE_TOP } from "~/local/pagePath";
+import { pcStyle, spStyle, pcp, spp } from "~/local/emotion-mixin";
+import { PAGE_ABOUT, PAGE_TOP } from "~/local/page-path";
 import PageLink from "~/components/PageLink";
 import ASSETS_OGP_ABOUT from "~/assets/meta/ogp-about.png";
 

@@ -1,5 +1,5 @@
 import { NextPage } from "next";
-import { PAGE_ABOUT } from "~/local/pagePath";
+import { PAGE_ABOUT } from "~/local/page-path";
 import AboutScene from "~/components/AboutScene";
 import { makePageMetaTitle } from "~/components/DefaultMetaSettings";
 import MetaSettings from "~/components/MetaSettings";

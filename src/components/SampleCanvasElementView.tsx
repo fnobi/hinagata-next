@@ -1,7 +1,7 @@
 import { FC, useRef } from "react";
 import { css } from "@emotion/react";
-import { percent } from "~/lib/cssUtil";
-import useCanvasAgent from "~/lib/useCanvasAgent";
+import { percent } from "~/lib/css-util";
+import { useCanvasAgent } from "~/lib/canvas-agent";
 import SampleCanvasElementPlayer from "~/local/SampleCanvasElementPlayer";
 
 const canvasStyle = css({

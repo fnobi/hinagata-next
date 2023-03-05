@@ -1,8 +1,8 @@
 import { css } from "@emotion/react";
 import { FC } from "react";
-import { percent, px, em } from "~/lib/cssUtil";
+import { percent, px, em } from "~/lib/css-util";
 import articleData from "~/local/articleData";
-import { PAGE_ARTICLE_INDEX } from "~/local/pagePath";
+import { PAGE_ARTICLE_INDEX } from "~/local/page-path";
 import PageLink from "~/components/PageLink";
 
 const wrapperStyle = css({

@@ -1,8 +1,8 @@
 import { FC, useRef, useEffect, useState } from "react";
 import { css } from "@emotion/react";
-import { em, percent, px } from "~/lib/cssUtil";
+import { em, percent, px } from "~/lib/css-util";
 import { easeIn, easeOut, easeInOut } from "~/lib/easing";
-import takeLoop from "~/lib/takeLoop";
+import { takeLoop } from "~/lib/take-loop";
 
 const ELIST = {
   easeIn,

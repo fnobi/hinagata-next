@@ -7,7 +7,7 @@ export interface CanvasPlayer {
   canvas: HTMLCanvasElement;
 }
 
-function useCanvasAgent<T extends CanvasPlayer>(opts: {
+export function useCanvasAgent<T extends CanvasPlayer>(opts: {
   initializer: () => T;
   wrapperRef: MutableRefObject<HTMLDivElement | null>;
 }) {
@@ -60,5 +60,3 @@ function useCanvasAgent<T extends CanvasPlayer>(opts: {
 
   return { playerRef };
 }
-
-export default useCanvasAgent;
