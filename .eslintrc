@@ -81,6 +81,17 @@
         ]
       }
     ],
+    "import/no-restricted-paths": [
+      "error",
+      {
+        "zones": [
+          {
+            "from": "./src/!(lib)/**/*",
+            "target": "./src/lib/**/*"
+          }
+        ]
+      }
+    ],
     "no-undef": 1,
     "react/no-array-index-key": 0,
     "react/require-default-props": [
