@@ -1,5 +1,5 @@
 import { FC } from "react";
-import { PAGE_TOP } from "~/local/pagePath";
+import { PAGE_TOP } from "~/local/page-path";
 import MetaSettings from "~/components/MetaSettings";
 import ASSETS_OGP from "~/assets/meta/ogp.png";
 import ASSETS_FAVICON from "~/assets/meta/favicon.ico";

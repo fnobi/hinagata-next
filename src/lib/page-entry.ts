@@ -1,4 +1,5 @@
-export default class PageEntry<T extends string = string> {
+// eslint-disable-next-line import/prefer-default-export
+export class PageEntry<T extends string = string> {
   private baseUrl: string;
 
   public readonly basePath: string;

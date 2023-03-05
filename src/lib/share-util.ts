@@ -1,5 +1,5 @@
 import { stringify } from "querystring";
-import PageEntry from "~/lib/PageEntry";
+import { PageEntry } from "~/lib/page-entry";
 
 export function createTweetIntent(opts: {
   text: string;

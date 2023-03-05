@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-const takeLoop = (fn: (time: number) => void) => {
+export const takeLoop = (fn: (time: number) => void) => {
   const startTime = Date.now();
   let t = -1;
   const handler = () => {
@@ -22,5 +22,3 @@ export const usePeriodLoop = (period: number, flag: boolean = true) => {
   }, [flag]);
   return (time % period) / period;
 };
-
-export default takeLoop;

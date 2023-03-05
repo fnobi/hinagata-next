@@ -1,4 +1,4 @@
-import { buildLinearGradient, em, percent, px, vh, vw } from "../cssUtil";
+import { buildLinearGradient, em, percent, px, vh, vw } from "../css-util";
 
 describe("css util", () => {
   it("px helper", () => {

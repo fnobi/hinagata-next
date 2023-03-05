@@ -1,4 +1,4 @@
-import PageEntry from "~/lib/PageEntry";
+import { PageEntry } from "~/lib/page-entry";
 import { BASE_URL } from "~/local/constants";
 
 const PAGE_ROOT = new PageEntry(BASE_URL);
