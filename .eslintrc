@@ -113,8 +113,7 @@
   "globals": {
     "window": true,
     "document": true,
-    "location": true,
-    "StaticImageData": true
+    "location": true
   },
   "env": {
     "jest": true

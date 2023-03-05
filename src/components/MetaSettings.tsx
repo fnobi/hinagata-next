@@ -1,5 +1,6 @@
 import { FC, PropsWithChildren } from "react";
 import Head from "next/head";
+import { StaticImageData } from "next/image";
 import { PageEntry } from "~/lib/page-entry";
 import { SITE_ORIGIN } from "~/local/constants";
 
