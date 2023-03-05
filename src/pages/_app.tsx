@@ -14,7 +14,7 @@ const MyApp = ({ Component, pageProps }: AppProps) => (
       {/* eslint-disable-next-line react/jsx-props-no-spreading */}
       <Component {...pageProps} />
     </LayoutRoot>
-    {/* <GTagSnippet trackingId="XX-XXXXXXXXX-XX" /> */}
+    {/* <GTagSnippet trackingId="XX-XXXXXXXXX-XX" basePath={BASE_PATH} /> */}
   </RecoilRoot>
 );
 
