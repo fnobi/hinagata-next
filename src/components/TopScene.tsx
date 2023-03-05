@@ -1,9 +1,6 @@
-import { useState, MouseEvent, FC } from "react";
+import { FC } from "react";
 import { css } from "@emotion/react";
 import { percent, em } from "~/lib/cssUtil";
-import useSampleCounter from "~/local/useSampleCounter";
-import { PAGE_ABOUT } from "~/local/pagePath";
-import PageLink from "~/components/PageLink";
 
 const wrapperStyle = css({
   position: "fixed",
@@ -22,32 +19,10 @@ const titleStyle = css({
   marginBottom: em(0.5)
 });
 
-const textLinkStyle = css({
-  color: "inherit"
-});
-
-const TopScene: FC = () => {
-  const [mouse, setMouse] = useState<[number, number]>([0, 0]);
-  const [count, increment] = useSampleCounter();
-
-  const updateMouse = (e: MouseEvent) => {
-    setMouse([e.pageX, e.pageY]);
-  };
-
-  return (
-    <div css={wrapperStyle} onMouseMove={updateMouse}>
-      <div css={titleStyle}>Welcome to Next.js!</div>
-      <button type="button" onClick={increment}>
-        count up:{count}
-      </button>
-      <p>
-        <PageLink page={PAGE_ABOUT} css={textLinkStyle}>
-          about
-        </PageLink>
-      </p>
-      <p>{mouse.join(",")}</p>
-    </div>
-  );
-};
+const TopScene: FC = () => (
+  <div css={wrapperStyle}>
+    <div css={titleStyle}>Welcome to Next.js!</div>
+  </div>
+);
 
 export default TopScene;
