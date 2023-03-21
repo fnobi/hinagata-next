@@ -42,5 +42,6 @@ export const buttonReset: CSSInterpolation = {
   background: "none",
   font: "inherit",
   textAlign: "inherit",
-  color: "inherit"
+  color: "inherit",
+  cursor: "pointer"
 };
