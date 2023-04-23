@@ -121,3 +121,16 @@ export function combination<T>(arr: T[], count: number): T[][] {
     return [...prev, ...children.map(child => [curr, ...child])];
   }, []);
 }
+
+export function mapObject<T>(
+  obj: { [k: string]: T },
+  fn: (v: T, k: string) => T
+) {
+  return Object.entries(obj).reduce<{ [k: string]: T }>(
+    (p, [k, v]) => ({
+      ...p,
+      [k]: fn(v, k)
+    }),
+    {}
+  );
+}
