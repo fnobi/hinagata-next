@@ -1,4 +1,4 @@
-import { PageEntry } from "../page-entry";
+import PageEntry from "../PageEntry";
 
 describe("PageEntry", () => {
   const topPage = new PageEntry("https://example.com");

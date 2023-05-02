@@ -1,7 +1,7 @@
 import { FC, PropsWithChildren } from "react";
 import Head from "next/head";
 import { StaticImageData } from "next/image";
-import { PageEntry } from "~/lib/page-entry";
+import PageEntry from "~/lib/PageEntry";
 import { SITE_ORIGIN } from "~/local/constants";
 
 const MetaSettings: FC<

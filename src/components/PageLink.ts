@@ -1,6 +1,6 @@
 import { AnchorHTMLAttributes, createElement, FC, ReactNode } from "react";
 import Link from "next/link";
-import { PageEntry } from "~/lib/page-entry";
+import PageEntry from "~/lib/PageEntry";
 
 const PageLink: FC<
   AnchorHTMLAttributes<Element> & {
