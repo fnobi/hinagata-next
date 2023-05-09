@@ -55,8 +55,8 @@ export function shuffle<T>(arr: T[], length: number = arr.length): T[] {
   return [target, ...shuffle(rest, length - 1)];
 }
 
-export function sample<T>(arr: T[]): T {
-  return arr[Math.floor(arr.length * Math.random())];
+export function sample<T>(arr: T[]): T | null {
+  return arr[Math.floor(arr.length * Math.random())] || null;
 }
 
 export const makeArray = (length: number) => new Array(length).fill(0);
