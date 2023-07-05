@@ -1,29 +1,27 @@
-import { stringify } from "querystring";
-import { PageEntry } from "~/lib/page-entry";
+import PageEntry from "~/lib/PageEntry";
 
-export function createTweetIntent(opts: {
+export const createTweetIntent = (opts: {
   text: string;
   url?: string;
   hashtags?: string;
-}) {
-  return `http://twitter.com/intent/tweet?${stringify(opts)}`;
-}
+}) => `http://twitter.com/intent/tweet?${new URLSearchParams(opts).toString()}`;
 
-export function createTweetIntentWithPage(opts: {
+export const createTweetIntentWithPage = (opts: {
   page: PageEntry;
   text: string;
   hashtags?: string;
-}) {
-  return createTweetIntent({
+}) =>
+  createTweetIntent({
     ...opts,
     url: opts.page.url
   });
-}
 
-export function createFacebookIntent(u: string) {
-  return `http://www.facebook.com/share.php?${stringify({ u })}`;
-}
+export const createFacebookIntent = (url: string) =>
+  `http://www.facebook.com/share.php?${new URLSearchParams({
+    u: url
+  }).toString()}`;
 
-export function createLineIntent(opts: { url: string; text: string }) {
-  return `https://social-plugins.line.me/lineit/share?${stringify(opts)}`;
-}
+export const createLineIntent = (opts: { url: string; text: string }) =>
+  `https://social-plugins.line.me/lineit/share?${new URLSearchParams(
+    opts
+  ).toString()}`;

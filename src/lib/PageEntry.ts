@@ -1,5 +1,4 @@
-// eslint-disable-next-line import/prefer-default-export
-export class PageEntry<T extends string = string> {
+class PageEntry<T extends string = string> {
   private baseUrl: string;
 
   public readonly basePath: string;
@@ -35,3 +34,5 @@ export class PageEntry<T extends string = string> {
     return arr.map(id => page.child(id).basePath);
   }
 }
+
+export default PageEntry;

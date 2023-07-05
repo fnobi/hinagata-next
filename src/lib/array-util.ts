@@ -55,8 +55,8 @@ export function shuffle<T>(arr: T[], length: number = arr.length): T[] {
   return [target, ...shuffle(rest, length - 1)];
 }
 
-export function sample<T>(arr: T[]): T {
-  return arr[Math.floor(arr.length * Math.random())];
+export function sample<T>(arr: T[]): T | null {
+  return arr[Math.floor(arr.length * Math.random())] || null;
 }
 
 export const makeArray = (length: number) => new Array(length).fill(0);
@@ -120,4 +120,17 @@ export function combination<T>(arr: T[], count: number): T[][] {
     const children = combination(arr.slice(i + 1), count - 1);
     return [...prev, ...children.map(child => [curr, ...child])];
   }, []);
+}
+
+export function mapObject<T>(
+  obj: { [k: string]: T },
+  fn: (v: T, k: string) => T
+) {
+  return Object.entries(obj).reduce<{ [k: string]: T }>(
+    (p, [k, v]) => ({
+      ...p,
+      [k]: fn(v, k)
+    }),
+    {}
+  );
 }

@@ -14,7 +14,6 @@
     "forceConsistentCasingInFileNames": false,
     "noImplicitReturns": true,
     "strict": true,
-    "suppressImplicitAnyIndexErrors": true,
     "noUnusedLocals": true,
     "baseUrl": ".",
     "paths": {
