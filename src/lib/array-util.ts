@@ -134,3 +134,7 @@ export function mapObject<T>(
     {}
   );
 }
+
+export function toggleArrayItem<T>(arr: T[], item: T, flag: boolean) {
+  return flag ? uniq([...arr, item]) : arr.filter(i => i !== item);
+}
