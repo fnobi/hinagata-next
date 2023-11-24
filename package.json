@@ -15,7 +15,6 @@
   "license": "ISC",
   "devDependencies": {
     "@babel/core": "^7.17.5",
-    "@emotion/babel-preset-css-prop": "^11.2.0",
     "@testing-library/jest-dom": "^5.16.2",
     "@testing-library/react": "^12.1.3",
     "@testing-library/react-hooks": "^7.0.2",
@@ -45,6 +44,7 @@
   "dependencies": {
     "@emotion/react": "^11.8.1",
     "@emotion/serialize": "^1.0.2",
+    "@emotion/styled": "^11.11.0",
     "css-transform-builder": "^1.1.2",
     "emotion-reset": "^3.0.1",
     "next": "^12.2.2",

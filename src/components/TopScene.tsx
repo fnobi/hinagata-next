@@ -1,7 +1,7 @@
-import { css } from "@emotion/react";
-import { percent, em } from "~/lib/css-util";
+import styled from "@emotion/styled";
+import { percent } from "~/lib/css-util";
 
-const wrapperStyle = css({
+const Wrapper = styled.div({
   position: "fixed",
   display: "flex",
   alignItems: "center",
@@ -13,16 +13,15 @@ const wrapperStyle = css({
   height: percent(100)
 });
 
-const titleStyle = css({
-  fontWeight: "bold",
-  marginBottom: em(0.5)
+const TitleLine = styled.div({
+  fontWeight: "bold"
 });
 
 function TopScene() {
   return (
-    <div css={wrapperStyle}>
-      <div css={titleStyle}>Welcome to Next.js!</div>
-    </div>
+    <Wrapper>
+      <TitleLine>Welcome to Next.js!</TitleLine>
+    </Wrapper>
   );
 }
 
