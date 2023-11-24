@@ -11,7 +11,7 @@ function PageLink(
   const { children, page } = props;
   return createElement(
     Link,
-    { href: page.href, passHref: true },
+    { href: page.href, passHref: true, legacyBehavior: true },
     createElement("a", { ...props, href: "passHref" }, children)
   );
 }

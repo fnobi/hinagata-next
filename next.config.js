@@ -2,6 +2,7 @@ const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH || "";
 
 module.exports = {
   basePath: BASE_PATH,
+  output: "export",
   trailingSlash: true,
   webpack: config => {
     config.module.rules.push({
