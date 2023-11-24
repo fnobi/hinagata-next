@@ -1,7 +1,8 @@
-import { NextPage } from "next";
 import { createElement } from "react";
 import TopScene from "~/components/TopScene";
 
-const PageIndex: NextPage = () => createElement(TopScene);
+function PageIndex() {
+  return createElement(TopScene);
+}
 
 export default PageIndex;

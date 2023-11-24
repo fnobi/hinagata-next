@@ -1,4 +1,3 @@
-import { FC } from "react";
 import { css } from "@emotion/react";
 import { percent, em } from "~/lib/css-util";
 
@@ -19,10 +18,12 @@ const titleStyle = css({
   marginBottom: em(0.5)
 });
 
-const TopScene: FC = () => (
-  <div css={wrapperStyle}>
-    <div css={titleStyle}>Welcome to Next.js!</div>
-  </div>
-);
+function TopScene() {
+  return (
+    <div css={wrapperStyle}>
+      <div css={titleStyle}>Welcome to Next.js!</div>
+    </div>
+  );
+}
 
 export default TopScene;

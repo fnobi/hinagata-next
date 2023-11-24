@@ -1,21 +1,10 @@
-import { FC, PropsWithChildren } from "react";
+import { PropsWithChildren } from "react";
 import Head from "next/head";
 import { StaticImageData } from "next/image";
 import PageEntry from "~/lib/PageEntry";
 import { SITE_ORIGIN } from "~/local/constants";
 
-const MetaSettings: FC<
-  PropsWithChildren<{
-    page: PageEntry;
-    title?: string;
-    description?: string;
-    shareImage?: StaticImageData;
-    customShareImageUrl?: string;
-    keywords?: string[];
-    favicon?: StaticImageData;
-    viewport?: string;
-  }>
-> = ({
+function MetaSettings({
   page,
   title,
   description,
@@ -25,7 +14,16 @@ const MetaSettings: FC<
   keywords,
   viewport = "width=device-width",
   children
-}) => {
+}: PropsWithChildren<{
+  page: PageEntry;
+  title?: string;
+  description?: string;
+  shareImage?: StaticImageData;
+  customShareImageUrl?: string;
+  keywords?: string[];
+  favicon?: StaticImageData;
+  viewport?: string;
+}>) {
   const shareImageUrl =
     customShareImageUrl || (shareImage ? SITE_ORIGIN + shareImage.src : null);
   const canonicalUrl = page.url;
@@ -103,6 +101,6 @@ const MetaSettings: FC<
       {children}
     </>
   );
-};
+}
 
 export default MetaSettings;

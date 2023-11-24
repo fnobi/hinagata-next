@@ -1,4 +1,4 @@
-import { FC } from "react";
+import { ReactNode } from "react";
 import { PAGE_TOP } from "~/local/page-path";
 import MetaSettings from "~/components/MetaSettings";
 import ASSETS_OGP from "~/assets/meta/ogp.png";
@@ -11,17 +11,19 @@ const DEFAULT_KEYWORDS = ["react", "typescript", "next.js"];
 export const makePageMetaTitle = (...pageTitle: string[]) =>
   [...pageTitle, DEFAULT_TITLE].join(" | ");
 
-const DefaultMetaSettings: FC = ({ children }) => (
-  <MetaSettings
-    page={PAGE_TOP}
-    title={DEFAULT_TITLE}
-    description={DEFAULT_DESCRIPTION}
-    shareImage={ASSETS_OGP}
-    keywords={DEFAULT_KEYWORDS}
-    favicon={ASSETS_FAVICON}
-  >
-    {children}
-  </MetaSettings>
-);
+function DefaultMetaSettings({ children }: { children?: ReactNode }) {
+  return (
+    <MetaSettings
+      page={PAGE_TOP}
+      title={DEFAULT_TITLE}
+      description={DEFAULT_DESCRIPTION}
+      shareImage={ASSETS_OGP}
+      keywords={DEFAULT_KEYWORDS}
+      favicon={ASSETS_FAVICON}
+    >
+      {children}
+    </MetaSettings>
+  );
+}
 
 export default DefaultMetaSettings;
