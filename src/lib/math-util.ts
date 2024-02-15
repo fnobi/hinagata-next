@@ -4,7 +4,7 @@ export const clamp = (min: number, max: number, value: number) =>
 export const clampPeriod = (min: number, max: number, value: number) => {
   let v = value;
   const unit = max - min;
-  while (v > max) {
+  while (v >= max) {
     v -= unit;
   }
   while (v < min) {
