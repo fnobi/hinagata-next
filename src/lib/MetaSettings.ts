@@ -167,7 +167,7 @@ function MetaSettings({
       Array.from(convertMetaOptions(options).entries()).map(([k, v]) => {
         switch (v.type) {
           case "title":
-            return createElement("title", null, v.title);
+            return createElement("title", { key: k }, v.title);
           default:
             return createElement(v.type, { key: k, ...v.attributes });
         }
