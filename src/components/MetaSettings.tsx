@@ -6,18 +6,15 @@ import {
   createElement
 } from "react";
 import Head from "next/head";
-import { StaticImageData } from "next/image";
 import PageEntry from "~/lib/PageEntry";
-import { SITE_ORIGIN } from "~/local/constants";
 
-type MetaOptions = {
+export type MetaOptions = {
   page: PageEntry;
   title?: string;
   description?: string;
-  shareImage?: StaticImageData;
-  customShareImageUrl?: string;
+  shareImageUrl?: string;
   keywords?: string[];
-  favicon?: StaticImageData;
+  faviconUrl?: string;
   viewport?: string;
 };
 
@@ -46,14 +43,11 @@ const convertMetaOptions = ({
   page,
   title,
   description,
-  shareImage,
-  customShareImageUrl,
+  shareImageUrl,
   keywords,
-  favicon,
+  faviconUrl,
   viewport
 }: MetaOptions): Map<MetaTagKey, MetaTagParam> => {
-  const shareImageUrl =
-    customShareImageUrl || (shareImage ? SITE_ORIGIN + shareImage.src : null);
   const canonicalUrl = page.url;
   const params = new Map<MetaTagKey, MetaTagParam>();
   if (title) {
@@ -96,13 +90,13 @@ const convertMetaOptions = ({
       }
     });
   }
-  if (favicon) {
+  if (faviconUrl) {
     params.set("meta-favicon", {
       type: "link",
       attributes: {
         rel: "icon",
         type: "image/x-icon",
-        href: favicon.src
+        href: faviconUrl
       }
     });
   }

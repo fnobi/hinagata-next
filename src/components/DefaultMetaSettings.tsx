@@ -1,6 +1,7 @@
-import { ReactNode } from "react";
+import { ReactNode, createElement } from "react";
 import { PAGE_TOP } from "~/local/page-path";
-import MetaSettings from "~/components/MetaSettings";
+import { SITE_ORIGIN } from "~/local/constants";
+import MetaSettings, { MetaOptions } from "~/components/MetaSettings";
 import ASSETS_OGP from "~/assets/meta/ogp.png";
 import ASSETS_FAVICON from "~/assets/meta/favicon.ico";
 
@@ -12,19 +13,16 @@ export const makePageMetaTitle = (...pageTitle: string[]) =>
   [...pageTitle, DEFAULT_TITLE].join(" | ");
 
 function DefaultMetaSettings({ children }: { children?: ReactNode }) {
-  return (
-    <MetaSettings
-      page={PAGE_TOP}
-      title={DEFAULT_TITLE}
-      description={DEFAULT_DESCRIPTION}
-      shareImage={ASSETS_OGP}
-      keywords={DEFAULT_KEYWORDS}
-      favicon={ASSETS_FAVICON}
-      viewport="width=device-width"
-    >
-      {children}
-    </MetaSettings>
-  );
+  const options: MetaOptions = {
+    page: PAGE_TOP,
+    title: DEFAULT_TITLE,
+    description: DEFAULT_DESCRIPTION,
+    shareImageUrl: SITE_ORIGIN + ASSETS_OGP.src,
+    keywords: DEFAULT_KEYWORDS,
+    faviconUrl: ASSETS_FAVICON.src,
+    viewport: "width=device-width"
+  };
+  return createElement(MetaSettings, options, children);
 }
 
 export default DefaultMetaSettings;
