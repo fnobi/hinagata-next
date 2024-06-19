@@ -20,6 +20,7 @@ function DefaultMetaSettings({ children }: { children?: ReactNode }) {
       shareImage={ASSETS_OGP}
       keywords={DEFAULT_KEYWORDS}
       favicon={ASSETS_FAVICON}
+      viewport="width=device-width"
     >
       {children}
     </MetaSettings>
