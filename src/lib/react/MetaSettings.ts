@@ -1,12 +1,12 @@
 import {
   Fragment,
-  LinkHTMLAttributes,
-  MetaHTMLAttributes,
-  ReactNode,
+  type LinkHTMLAttributes,
+  type MetaHTMLAttributes,
+  type ReactNode,
   createElement
 } from "react";
 import Head from "next/head";
-import PageEntry from "~/lib/PageEntry";
+import type PageEntry from "~/lib/PageEntry";
 
 export type MetaOptions = {
   page: PageEntry;

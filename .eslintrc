@@ -5,7 +5,8 @@
     "next"
   ],
   "plugins": [
-    "@typescript-eslint"
+    "@typescript-eslint",
+    "strict-dependencies"
   ],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
@@ -32,6 +33,19 @@
     "@typescript-eslint/no-unnecessary-type-assertion": 2,
     "@typescript-eslint/no-explicit-any": 2,
     "@typescript-eslint/no-unused-vars": 2,
+    "@typescript-eslint/consistent-type-imports": [
+      "error",
+      {
+        "prefer": "type-imports",
+        "fixStyle": "inline-type-imports",
+        "disallowTypeAnnotations": true
+      }
+    ],
+    "import/consistent-type-specifier-style": [
+      "error",
+      "prefer-inline"
+    ],
+    "@typescript-eslint/consistent-type-exports": "error",
     "prefer-arrow/prefer-arrow-functions": 0,
     "react/jsx-filename-extension": [
       1,
@@ -59,12 +73,12 @@
             "position": "after"
           },
           {
-            "pattern": "~/local/**",
+            "pattern": "~/scheme/**",
             "group": "internal",
             "position": "after"
           },
           {
-            "pattern": "~/scheme/**",
+            "pattern": "~/hooks/**",
             "group": "internal",
             "position": "after"
           },
@@ -81,16 +95,65 @@
         ]
       }
     ],
+    "no-restricted-imports": [
+      "error",
+      {
+        "patterns": [
+          "./",
+          "../"
+        ]
+      }
+    ],
     "import/no-restricted-paths": [
       "error",
       {
         "zones": [
           {
-            "from": "./src/!(lib)/**/*",
-            "target": "./src/lib/**/*"
+            "from": "src/!(lib)/**/*",
+            "target": "src/lib/**/*"
+          },
+          {
+            "from": "src/!(scheme|lib)/**/*",
+            "target": "src/scheme/**/*"
           }
         ]
       }
+    ],
+    "strict-dependencies/strict-dependencies": [
+      "error",
+      [
+        {
+          "module": "@emotion/styled",
+          "allowReferenceFrom": [
+            "src/components/*",
+            "src/components/!(provider)/**/*"
+          ],
+          "allowSameModule": false
+        },
+        {
+          "module": "react",
+          "allowReferenceFrom": [
+            "src/!(scheme|lib)/**/*",
+            "src/lib/react/**/*"
+          ],
+          "allowSameModule": false
+        },
+        {
+          "module": "src/hooks/database",
+          "allowReferenceFrom": [
+            "src/pages/**/*",
+            "src/components/provider/**/*"
+          ],
+          "allowSameModule": true
+        },
+        {
+          "module": "src/scheme/app-firestore-scheme",
+          "allowReferenceFrom": [
+            "src/hooks/database/**/*"
+          ],
+          "allowSameModule": false
+        }
+      ]
     ],
     "no-undef": 1,
     "react/no-array-index-key": 0,
@@ -119,13 +182,7 @@
     "react/prop-types": 0,
     "react/react-in-jsx-scope": 0,
     "no-shadow": 1,
-    "no-param-reassign": 1,
-    "no-restricted-imports": [
-      "error",
-      {
-        "patterns": ["./", "../", ".."]
-      }
-    ]
+    "no-param-reassign": 1
   },
   "globals": {
     "window": true,

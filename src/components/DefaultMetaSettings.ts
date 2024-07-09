@@ -1,7 +1,7 @@
-import { ReactNode, createElement } from "react";
-import MetaSettings, { MetaOptions } from "~/lib/MetaSettings";
+import { type ReactNode, createElement } from "react";
 import { PAGE_TOP } from "~/local/page-path";
 import { SITE_ORIGIN } from "~/local/constants";
+import MetaSettings, { type MetaOptions } from "~/lib/react/MetaSettings";
 import ASSETS_OGP from "~/assets/meta/ogp.png";
 import ASSETS_FAVICON from "~/assets/meta/favicon.ico";
 

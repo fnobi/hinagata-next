@@ -1,6 +1,10 @@
-import { AnchorHTMLAttributes, createElement, ReactNode } from "react";
+import {
+  type AnchorHTMLAttributes,
+  createElement,
+  type ReactNode
+} from "react";
 import Link from "next/link";
-import PageEntry from "~/lib/PageEntry";
+import type PageEntry from "~/lib/PageEntry";
 
 function PageLink(
   props: AnchorHTMLAttributes<Element> & {

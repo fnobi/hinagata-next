@@ -1,4 +1,4 @@
-import { CSSInterpolation } from "@emotion/serialize";
+import { type CSSInterpolation } from "@emotion/serialize";
 
 export type CSSSizeKeyword = number | "auto";
 

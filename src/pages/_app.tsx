@@ -1,4 +1,4 @@
-import { AppProps } from "next/app";
+import { type AppProps } from "next/app";
 import { Global, css } from "@emotion/react";
 import emotionReset from "emotion-reset";
 import { RecoilRoot } from "recoil";

@@ -1,4 +1,4 @@
-import PageEntry from "~/lib/PageEntry";
+import type PageEntry from "~/lib/PageEntry";
 
 export const createTweetIntent = (opts: {
   text: string;

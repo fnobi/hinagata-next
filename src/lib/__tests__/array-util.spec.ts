@@ -5,7 +5,7 @@ import {
   sumBy,
   uniq,
   uniqBy
-} from "../array-util";
+} from "~/lib/array-util";
 
 describe("array util: uniq, uniqBy", () => {
   it("remove duplicated", () => {
