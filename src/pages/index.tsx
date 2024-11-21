@@ -1,8 +1,7 @@
-import { createElement } from "react";
 import TopScene from "~/components/TopScene";
 
 function PageIndex() {
-  return createElement(TopScene);
+  return <TopScene />;
 }
 
 export default PageIndex;
