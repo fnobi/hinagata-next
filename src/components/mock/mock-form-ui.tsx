@@ -144,7 +144,7 @@ function FormView({
   );
 }
 
-export function AdminFormLayout<T>({
+export function MockFormFrame<T>({
   form,
   children,
   onCancel,
@@ -222,7 +222,7 @@ function StringFormInput({
   );
 }
 
-export function AdminStringFormRow({
+export function MockStringFormRow({
   form,
   readOnly,
   placeholder,
@@ -282,7 +282,7 @@ export function AdminStringFormRow({
   );
 }
 
-export function AdminTextFormRow({
+export function MockTextFormRow({
   label,
   counter,
   form
@@ -322,7 +322,7 @@ export function AdminTextFormRow({
   );
 }
 
-export function AdminNumberFormRow({
+export function MockNumberFormRow({
   label,
   form,
   min,
@@ -364,7 +364,7 @@ export function AdminNumberFormRow({
   );
 }
 
-export function AdminDateTimeFormRow({
+export function MockDateTimeFormRow({
   label,
   round,
   form
@@ -417,7 +417,7 @@ export function AdminDateTimeFormRow({
   );
 }
 
-export function AdminClockFormRow({
+export function MockClockFormRow({
   label,
   form
 }: {
@@ -469,7 +469,7 @@ export function AdminClockFormRow({
   );
 }
 
-export function AdminCheckboxFormRow({
+export function MockCheckboxFormRow({
   children,
   form
 }: {
@@ -488,7 +488,7 @@ export function AdminCheckboxFormRow({
   );
 }
 
-export function AdminPulldownFormRow({
+export function MockPulldownFormRow({
   label,
   form,
   options
@@ -513,7 +513,7 @@ export function AdminPulldownFormRow({
     </FormCommonRowWrapper>
   );
 }
-export function AdminRadioSelectFormRow({
+export function MockRadioSelectFormRow({
   label,
   form,
   options
@@ -550,7 +550,7 @@ export function AdminRadioSelectFormRow({
   );
 }
 
-export function AdminRangeFormRow({
+export function MockRangeFormRow({
   label,
   form,
   step = 1,
@@ -597,7 +597,7 @@ export function AdminRangeFormRow({
   );
 }
 
-export function AdminFileFormRow({
+export function MockFileFormRow({
   label,
   onChange
 }: {
@@ -611,7 +611,7 @@ export function AdminFileFormRow({
   );
 }
 
-export function AdminArrayFormUnit<T, P, R>({
+export function MockArrayFormRow<T, P, R>({
   form,
   label,
   Item,

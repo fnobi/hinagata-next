@@ -13,9 +13,9 @@ import {
 import type DummyProfile from "~/scheme/DummyProfile";
 import { type DummyProfileLink } from "~/scheme/DummyProfile";
 import {
-  AdminArrayFormUnit,
-  AdminFormLayout,
-  AdminStringFormRow
+  MockArrayFormRow,
+  MockFormFrame,
+  MockStringFormRow
 } from "~/components/mock/mock-form-ui";
 
 const NAME_MAX_LENGTH = 10;
@@ -42,10 +42,10 @@ function ProfileLinkFormField({
   });
 
   return (
-    <div>
-      <AdminStringFormRow label="URL" form={urlForm} />
-      <AdminStringFormRow label="ラベル" form={labelForm} />
-    </div>
+    <>
+      <MockStringFormRow label="URL" form={urlForm} />
+      <MockStringFormRow label="ラベル" form={labelForm} />
+    </>
   );
 }
 
@@ -81,18 +81,18 @@ function ProfileFormField({
 
   return (
     <>
-      <AdminStringFormRow
+      <MockStringFormRow
         label="名前"
         form={nameForm}
         counter={{ maxLength: NAME_MAX_LENGTH }}
         autoComplete="name"
       />
-      <AdminStringFormRow
+      <MockStringFormRow
         label="メールアドレス"
         form={emailForm}
         autoComplete="email"
       />
-      <AdminArrayFormUnit
+      <MockArrayFormRow
         label="リンク"
         form={profileLinkForm}
         Item={ProfileLinkFormField}
@@ -108,16 +108,16 @@ function DummyProfileForm({
   onCancel
 }: Pick<Parameters<typeof useFormNestRoot<DummyProfile>>[0], "defaultValue"> &
   Pick<
-    ComponentPropsWithoutRef<typeof AdminFormLayout<DummyProfile>>,
+    ComponentPropsWithoutRef<typeof MockFormFrame<DummyProfile>>,
     "onCancel" | "onSubmit"
   >) {
   const form = useFormNestRoot<DummyProfile>({
     defaultValue
   });
   return (
-    <AdminFormLayout form={form} onSubmit={onSubmit} onCancel={onCancel}>
+    <MockFormFrame form={form} onSubmit={onSubmit} onCancel={onCancel}>
       <ProfileFormField parentForm={form} />
-    </AdminFormLayout>
+    </MockFormFrame>
   );
 }
 
