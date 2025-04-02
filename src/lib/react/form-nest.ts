@@ -191,6 +191,10 @@ export const useArrayNest = <T, P>({
   );
 
   useEffect(() => {
+    setValidMap(l => l.slice(0, values.length));
+  }, [values.length]);
+
+  useEffect(() => {
     const v = flatten(validMap.map(m => Object.values(m)));
     const [first] = compact(v);
     parent.onSubValidation(key, lengthValidation || first || null);
