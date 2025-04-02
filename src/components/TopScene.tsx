@@ -1,26 +1,14 @@
-import styled from "@emotion/styled";
 import { useMemo, useState } from "react";
-import { em } from "~/lib/css-util";
 import type DummyProfile from "~/scheme/DummyProfile";
 import DummyProfileForm from "~/components/DummyProfileForm";
 import MockActionButton from "~/components/mock/MockActionButton";
 import DummyProfileListView from "~/components/DummyProfileListView";
-
-const Wrapper = styled.div({
-  padding: em(1)
-});
-
-const TitleLine = styled.div({
-  fontWeight: "bold"
-});
-
-const CommonSection = styled.div({
-  margin: em(1, 0)
-});
+import MockStaticLayout from "~/components/mock/MockStaticLayout";
 
 function TopScene() {
   const [list, setList] = useState<{ id: number; data: DummyProfile }[]>([]);
   const [formId, setFormId] = useState(0);
+
   const currentFormData = useMemo((): DummyProfile | null => {
     if (!formId) {
       return null;
@@ -33,26 +21,23 @@ function TopScene() {
   }, [list, formId]);
 
   return (
-    <Wrapper>
-      <TitleLine>Welcome to Next.js!</TitleLine>
+    <MockStaticLayout title="Welcome to Next.js!">
       {formId && currentFormData ? (
-        <CommonSection>
-          <DummyProfileForm
-            defaultValue={currentFormData}
-            onSubmit={v => {
-              setList(l =>
-                l.find(d => d.id === formId)
-                  ? l.map(d => (d.id === formId ? { id: d.id, data: v } : d))
-                  : [{ id: formId, data: v }, ...l]
-              );
-              setFormId(0);
-            }}
-            onCancel={() => setFormId(0)}
-          />
-        </CommonSection>
+        <DummyProfileForm
+          defaultValue={currentFormData}
+          onSubmit={v => {
+            setList(l =>
+              l.find(d => d.id === formId)
+                ? l.map(d => (d.id === formId ? { id: d.id, data: v } : d))
+                : [{ id: formId, data: v }, ...l]
+            );
+            setFormId(0);
+          }}
+          onCancel={() => setFormId(0)}
+        />
       ) : (
         <>
-          <CommonSection>
+          <p>
             <MockActionButton
               action={{
                 type: "button",
@@ -61,17 +46,15 @@ function TopScene() {
             >
               新規作成
             </MockActionButton>
-          </CommonSection>
-          <CommonSection>
-            <DummyProfileListView
-              list={list}
-              onEdit={id => setFormId(id)}
-              onDelete={id => setList(l => l.filter(d => d.id !== id))}
-            />
-          </CommonSection>
+          </p>
+          <DummyProfileListView
+            list={list}
+            onEdit={id => setFormId(id)}
+            onDelete={id => setList(l => l.filter(d => d.id !== id))}
+          />
         </>
       )}
-    </Wrapper>
+    </MockStaticLayout>
   );
 }
 
