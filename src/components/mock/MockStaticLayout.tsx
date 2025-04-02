@@ -3,6 +3,8 @@ import { ReactNode } from "react";
 import { em } from "~/lib/css-util";
 
 const Wrapper = styled.div({
+  margin: "auto",
+  maxWidth: em(40),
   padding: em(1),
   display: "flex",
   justifyContent: "flex-start",
