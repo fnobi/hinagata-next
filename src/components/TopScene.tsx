@@ -1,26 +1,57 @@
 import styled from "@emotion/styled";
-import { percent } from "~/lib/css-util";
+import { useState } from "react";
+import { em } from "~/lib/css-util";
+import ProfileForm from "~/components/ProfileForm";
+import MockActionButton from "~/components/mock/MockActionButton";
+
+const TABS = ["default", "form"] as const;
 
 const Wrapper = styled.div({
-  position: "fixed",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  flexDirection: "column",
-  top: percent(0),
-  left: percent(0),
-  width: percent(100),
-  height: percent(100)
+  padding: em(1)
 });
 
 const TitleLine = styled.div({
   fontWeight: "bold"
 });
 
+const CommonSection = styled.div({
+  margin: em(1, 0)
+});
+
+const TabRoot = styled.div({
+  display: "flex",
+  justifyContent: "flex-start",
+  alignItems: "flex-start",
+  gap: em(0.5)
+});
+
 function TopScene() {
+  const [currentTab, setCurrentTab] =
+    useState<(typeof TABS)[number]>("default");
   return (
     <Wrapper>
       <TitleLine>Welcome to Next.js!</TitleLine>
+      <CommonSection>
+        <TabRoot>
+          {TABS.map(t => (
+            <MockActionButton
+              key={t}
+              action={
+                t === currentTab
+                  ? null
+                  : { type: "button", onClick: () => setCurrentTab(t) }
+              }
+            >
+              {t}
+            </MockActionButton>
+          ))}
+        </TabRoot>
+      </CommonSection>
+      {currentTab === "form" ? (
+        <CommonSection>
+          <ProfileForm onCancel={() => setCurrentTab("default")} />
+        </CommonSection>
+      ) : null}
     </Wrapper>
   );
 }

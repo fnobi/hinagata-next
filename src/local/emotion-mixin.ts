@@ -36,3 +36,13 @@ export const spp = (...nums: CSSSizeKeyword[]) =>
   vw(
     ...nums.map(n => (typeof n === "string" ? n : (n / SP_VIEWPORT_SIZE) * 100))
   );
+
+export const THEME_COLOR = {
+  BLACK: "#000000",
+  DARK: "#333333",
+  WHITE: "#ffffff",
+  ERROR: "#ffaaaa"
+} satisfies Record<string, `#${string}`>;
+
+export const ALPHA_COLOR = (c: keyof typeof THEME_COLOR, alpha: number) =>
+  THEME_COLOR[c] + Math.floor(alpha * 256).toString(16);
