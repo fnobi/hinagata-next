@@ -1,7 +1,7 @@
 import styled from "@emotion/styled";
 import { useState } from "react";
 import { em } from "~/lib/css-util";
-import MockProfileForm from "~/components/MockProfileForm";
+import DummyProfileForm from "~/components/DummyProfileForm";
 import MockActionButton from "~/components/mock/MockActionButton";
 
 const TABS = ["default", "form"] as const;
@@ -28,6 +28,7 @@ const TabRoot = styled.div({
 function TopScene() {
   const [currentTab, setCurrentTab] =
     useState<(typeof TABS)[number]>("default");
+
   return (
     <Wrapper>
       <TitleLine>Welcome to Next.js!</TitleLine>
@@ -49,7 +50,7 @@ function TopScene() {
       </CommonSection>
       {currentTab === "form" ? (
         <CommonSection>
-          <MockProfileForm onCancel={() => setCurrentTab("default")} />
+          <DummyProfileForm onCancel={() => setCurrentTab("default")} />
         </CommonSection>
       ) : null}
     </Wrapper>

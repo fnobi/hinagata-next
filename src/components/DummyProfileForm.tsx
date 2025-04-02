@@ -9,26 +9,20 @@ import {
   useFormNestRoot,
   useObjectKeyForm
 } from "~/lib/react/form-nest";
+import type DummyProfile from "~/scheme/DummyProfile";
+import { type DummyProfileLink } from "~/scheme/DummyProfile";
 import {
   AdminArrayFormUnit,
   AdminFormLayout,
   AdminStringFormRow
 } from "~/components/mock/mock-form-ui";
 
-type MockProfileLink = { label: string; url: string };
-
-type MockProfile = {
-  name: string;
-  email: string;
-  profileLinks: MockProfileLink[];
-};
-
 const NAME_MAX_LENGTH = 10;
 
 function ProfileLinkFormField({
   form
 }: {
-  form: FormNestParentInterface<MockProfileLink>;
+  form: FormNestParentInterface<DummyProfileLink>;
 }) {
   const urlForm = useObjectKeyForm({
     parent: form,
@@ -57,7 +51,7 @@ function ProfileLinkFormField({
 function ProfileFormField({
   parentForm
 }: {
-  parentForm: FormNestParentInterface<MockProfile>;
+  parentForm: FormNestParentInterface<DummyProfile>;
 }) {
   const nameForm = useObjectKeyForm({
     parent: parentForm,
@@ -107,8 +101,8 @@ function ProfileFormField({
   );
 }
 
-function MockProfileForm({ onCancel }: { onCancel: () => void }) {
-  const form = useFormNestRoot<MockProfile>({
+function DummyProfileForm({ onCancel }: { onCancel: () => void }) {
+  const form = useFormNestRoot<DummyProfile>({
     defaultValue: { name: "", email: "", profileLinks: [] }
   });
   return (
@@ -125,4 +119,4 @@ function MockProfileForm({ onCancel }: { onCancel: () => void }) {
   );
 }
 
-export default MockProfileForm;
+export default DummyProfileForm;
