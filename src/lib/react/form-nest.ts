@@ -105,11 +105,10 @@ export const useObjectKeyForm = <P, K extends keyof P>({
   key,
   parent,
   validator
-}: {
-  key: K;
-  parent: FormNestParentInterface<P>;
-  validator: FormNestValidator<P[K]>;
-}) =>
+}: { key: K } & Pick<
+  Parameters<typeof useSubFormNest<P[K], P>>[0],
+  "parent" | "validator"
+>) =>
   useSubFormNest<P[K], P>({
     key,
     parent,
@@ -153,7 +152,6 @@ export const useFormNestReducer = <T, P>({
 const normalizeArrayLength = <T>(arr: T[], l: number, make: () => T) =>
   arr.length >= l ? arr : [...arr, ...makeArray(l - arr.length).map(make)];
 
-// TODO: AdminArrayFormUnitと密結合なロジックなので、あっちに統合しちゃってもいいかも
 export const useArrayNest = <T, P>({
   key,
   parent,
@@ -199,7 +197,7 @@ export const useArrayNest = <T, P>({
   }, [validMap, lengthValidation]);
 
   return {
-    forms: values.map(
+    subForms: values.map(
       (value, index): FormNestParentInterface<T> => ({
         value,
         invalid: null,

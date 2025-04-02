@@ -9,8 +9,8 @@ import {
 import { THEME_COLOR } from "~/local/emotion-mixin";
 import { em, percent, px } from "~/lib/css-util";
 import {
-  type FormNestParentInterface,
   type useArrayNest,
+  type FormNestParentInterface,
   type FormNestInterface
 } from "~/lib/react/form-nest";
 import { formatDatetimeValue } from "~/lib/string-util";
@@ -612,21 +612,22 @@ export function AdminFileFormRow({
 }
 
 export function AdminArrayFormUnit<T, P, R>({
-  forms,
-  minusCount,
-  plusCount,
-  lengthValidation,
+  form,
   label,
   Item,
   calcItemProps
-}: ReturnType<typeof useArrayNest<T, P>> & {
+}: {
+  form: ReturnType<typeof useArrayNest<T, P>>;
   label: string;
   Item: FunctionComponent<{ form: FormNestParentInterface<T> } & R>;
   calcItemProps: (i: number) => R;
 }) {
   return (
-    <FormCommonRowWrapper label={label} error={lengthValidation?.error ?? null}>
-      {forms.map((f, i) => (
+    <FormCommonRowWrapper
+      label={label}
+      error={form.lengthValidation?.error ?? null}
+    >
+      {form.subForms.map((f, i) => (
         <NestSection key={i}>
           {/* eslint-disable-next-line react/jsx-props-no-spreading */}
           <Item form={f} {...calcItemProps(i)} />
@@ -634,13 +635,19 @@ export function AdminArrayFormUnit<T, P, R>({
       ))}
       <div>
         <MockActionButton
-          action={minusCount ? { type: "button", onClick: minusCount } : null}
+          action={
+            form.minusCount
+              ? { type: "button", onClick: form.minusCount }
+              : null
+          }
         >
           −
         </MockActionButton>
         &nbsp;
         <MockActionButton
-          action={plusCount ? { type: "button", onClick: plusCount } : null}
+          action={
+            form.plusCount ? { type: "button", onClick: form.plusCount } : null
+          }
         >
           ＋
         </MockActionButton>

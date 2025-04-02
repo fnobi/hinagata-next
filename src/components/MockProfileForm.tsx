@@ -15,20 +15,20 @@ import {
   AdminStringFormRow
 } from "~/components/mock/mock-form-ui";
 
-type ProfileLink = { label: string; url: string };
+type MockProfileLink = { label: string; url: string };
 
-type MockData = {
+type MockProfile = {
   name: string;
   email: string;
-  profileLinks: ProfileLink[];
+  profileLinks: MockProfileLink[];
 };
 
 const NAME_MAX_LENGTH = 10;
 
-function ProfileLinkForm({
+function ProfileLinkFormField({
   form
 }: {
-  form: FormNestParentInterface<ProfileLink>;
+  form: FormNestParentInterface<MockProfileLink>;
 }) {
   const urlForm = useObjectKeyForm({
     parent: form,
@@ -54,12 +54,13 @@ function ProfileLinkForm({
   );
 }
 
-function ProfileForm({ onCancel }: { onCancel: () => void }) {
-  const formRoot = useFormNestRoot<MockData>({
-    defaultValue: { name: "", email: "", profileLinks: [] }
-  });
+function ProfileFormField({
+  parentForm
+}: {
+  parentForm: FormNestParentInterface<MockProfile>;
+}) {
   const nameForm = useObjectKeyForm({
-    parent: formRoot,
+    parent: parentForm,
     key: "name",
     validator: {
       required: true,
@@ -67,7 +68,7 @@ function ProfileForm({ onCancel }: { onCancel: () => void }) {
     }
   });
   const emailForm = useObjectKeyForm({
-    parent: formRoot,
+    parent: parentForm,
     key: "email",
     validator: {
       required: true,
@@ -75,22 +76,16 @@ function ProfileForm({ onCancel }: { onCancel: () => void }) {
     }
   });
   const profileLinkForm = useArrayNest({
-    parent: formRoot,
+    parent: parentForm,
     key: "profileLinks",
     maxLength: 3,
     makeNew: () => ({ url: "", label: "" }),
     pull: p => p.profileLinks,
     push: (v, p) => ({ ...p, profileLinks: v })
   });
+
   return (
-    <AdminFormLayout
-      form={formRoot}
-      onSubmit={v => {
-        // eslint-disable-next-line no-console
-        console.log("submit", v);
-      }}
-      onCancel={onCancel}
-    >
+    <>
       <AdminStringFormRow
         label="名前"
         form={nameForm}
@@ -103,14 +98,31 @@ function ProfileForm({ onCancel }: { onCancel: () => void }) {
         autoComplete="email"
       />
       <AdminArrayFormUnit
-        // eslint-disable-next-line react/jsx-props-no-spreading
-        {...profileLinkForm}
         label="リンク"
-        Item={ProfileLinkForm}
+        form={profileLinkForm}
+        Item={ProfileLinkFormField}
         calcItemProps={() => ({})}
       />
+    </>
+  );
+}
+
+function MockProfileForm({ onCancel }: { onCancel: () => void }) {
+  const form = useFormNestRoot<MockProfile>({
+    defaultValue: { name: "", email: "", profileLinks: [] }
+  });
+  return (
+    <AdminFormLayout
+      form={form}
+      onSubmit={v => {
+        // eslint-disable-next-line no-console
+        console.log("submit", v);
+      }}
+      onCancel={onCancel}
+    >
+      <ProfileFormField parentForm={form} />
     </AdminFormLayout>
   );
 }
 
-export default ProfileForm;
+export default MockProfileForm;

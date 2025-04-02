@@ -1,7 +1,7 @@
 import styled from "@emotion/styled";
 import { useState } from "react";
 import { em } from "~/lib/css-util";
-import ProfileForm from "~/components/ProfileForm";
+import MockProfileForm from "~/components/MockProfileForm";
 import MockActionButton from "~/components/mock/MockActionButton";
 
 const TABS = ["default", "form"] as const;
@@ -49,7 +49,7 @@ function TopScene() {
       </CommonSection>
       {currentTab === "form" ? (
         <CommonSection>
-          <ProfileForm onCancel={() => setCurrentTab("default")} />
+          <MockProfileForm onCancel={() => setCurrentTab("default")} />
         </CommonSection>
       ) : null}
     </Wrapper>
