@@ -1,10 +1,10 @@
 import styled from "@emotion/styled";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { em } from "~/lib/css-util";
+import type DummyProfile from "~/scheme/DummyProfile";
 import DummyProfileForm from "~/components/DummyProfileForm";
 import MockActionButton from "~/components/mock/MockActionButton";
-
-const TABS = ["default", "form"] as const;
+import DummyProfileListView from "~/components/DummyProfileListView";
 
 const Wrapper = styled.div({
   padding: em(1)
@@ -18,41 +18,59 @@ const CommonSection = styled.div({
   margin: em(1, 0)
 });
 
-const TabRoot = styled.div({
-  display: "flex",
-  justifyContent: "flex-start",
-  alignItems: "flex-start",
-  gap: em(0.5)
-});
-
 function TopScene() {
-  const [currentTab, setCurrentTab] =
-    useState<(typeof TABS)[number]>("default");
+  const [list, setList] = useState<{ id: number; data: DummyProfile }[]>([]);
+  const [formId, setFormId] = useState(0);
+  const currentFormData = useMemo((): DummyProfile | null => {
+    if (!formId) {
+      return null;
+    }
+    const m = list.find(d => d.id === formId);
+    if (m) {
+      return m.data;
+    }
+    return { name: "", email: "", profileLinks: [] };
+  }, [list, formId]);
 
   return (
     <Wrapper>
       <TitleLine>Welcome to Next.js!</TitleLine>
-      <CommonSection>
-        <TabRoot>
-          {TABS.map(t => (
-            <MockActionButton
-              key={t}
-              action={
-                t === currentTab
-                  ? null
-                  : { type: "button", onClick: () => setCurrentTab(t) }
-              }
-            >
-              {t}
-            </MockActionButton>
-          ))}
-        </TabRoot>
-      </CommonSection>
-      {currentTab === "form" ? (
+      {formId && currentFormData ? (
         <CommonSection>
-          <DummyProfileForm onCancel={() => setCurrentTab("default")} />
+          <DummyProfileForm
+            defaultValue={currentFormData}
+            onSubmit={v => {
+              setList(l =>
+                l.find(d => d.id === formId)
+                  ? l.map(d => (d.id === formId ? { id: d.id, data: v } : d))
+                  : [{ id: formId, data: v }, ...l]
+              );
+              setFormId(0);
+            }}
+            onCancel={() => setFormId(0)}
+          />
         </CommonSection>
-      ) : null}
+      ) : (
+        <>
+          <CommonSection>
+            <MockActionButton
+              action={{
+                type: "button",
+                onClick: () => setFormId(Date.now())
+              }}
+            >
+              新規作成
+            </MockActionButton>
+          </CommonSection>
+          <CommonSection>
+            <DummyProfileListView
+              list={list}
+              onEdit={id => setFormId(id)}
+              onDelete={id => setList(l => l.filter(d => d.id !== id))}
+            />
+          </CommonSection>
+        </>
+      )}
     </Wrapper>
   );
 }

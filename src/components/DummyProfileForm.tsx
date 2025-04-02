@@ -1,3 +1,4 @@
+import { type ComponentPropsWithoutRef } from "react";
 import {
   emaiValidator,
   maxLengthValidator,
@@ -101,19 +102,20 @@ function ProfileFormField({
   );
 }
 
-function DummyProfileForm({ onCancel }: { onCancel: () => void }) {
+function DummyProfileForm({
+  defaultValue,
+  onSubmit,
+  onCancel
+}: Pick<Parameters<typeof useFormNestRoot<DummyProfile>>[0], "defaultValue"> &
+  Pick<
+    ComponentPropsWithoutRef<typeof AdminFormLayout<DummyProfile>>,
+    "onCancel" | "onSubmit"
+  >) {
   const form = useFormNestRoot<DummyProfile>({
-    defaultValue: { name: "", email: "", profileLinks: [] }
+    defaultValue
   });
   return (
-    <AdminFormLayout
-      form={form}
-      onSubmit={v => {
-        // eslint-disable-next-line no-console
-        console.log("submit", v);
-      }}
-      onCancel={onCancel}
-    >
+    <AdminFormLayout form={form} onSubmit={onSubmit} onCancel={onCancel}>
       <ProfileFormField parentForm={form} />
     </AdminFormLayout>
   );
