@@ -33,7 +33,7 @@ function ProfileLinkFormField({
   const labelForm = useObjectKeyForm({
     parent: form,
     key: "label",
-    validator: []
+    validator: [new MaxLengthValidator(10)]
   });
   return (
     <>
