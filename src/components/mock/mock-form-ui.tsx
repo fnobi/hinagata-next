@@ -205,17 +205,16 @@ export function MockStringFormRow({
   };
 } & ComponentPropsWithoutRef<typeof StringFormInput>) {
   const counter = useMemo(() => {
-    const v = form.validator.find(vv => vv instanceof MaxLengthValidator);
-    const maxLength = v ? v.maxLength : 0;
-    if (!maxLength) {
+    const d = form.validator.find(v => v instanceof MaxLengthValidator);
+    if (!d) {
       return undefined;
     }
-    const i = form.invalid ? form.invalid.index : -1;
-    const isError = i >= 0 && form.validator[i] instanceof MaxLengthValidator;
     return {
       value: form.value.length,
-      max: maxLength,
-      isError
+      max: d.maxLength,
+      isError:
+        !!form.invalid &&
+        form.validator[form.invalid.index] instanceof MaxLengthValidator
     };
   }, [form.value, form.invalid]);
   return (
@@ -254,17 +253,16 @@ export function MockTextFormRow({
   form: FormNestInterface<string>;
 }) {
   const counter = useMemo(() => {
-    const v = form.validator.find(vv => vv instanceof MaxLengthValidator);
-    const maxLength = v ? v.maxLength : 0;
-    if (!maxLength) {
+    const d = form.validator.find(v => v instanceof MaxLengthValidator);
+    if (!d) {
       return undefined;
     }
-    const i = form.invalid ? form.invalid.index : -1;
-    const isError = i >= 0 && form.validator[i] instanceof MaxLengthValidator;
     return {
       value: form.value.length,
-      max: maxLength,
-      isError
+      max: d.maxLength,
+      isError:
+        !!form.invalid &&
+        form.validator[form.invalid.index] instanceof MaxLengthValidator
     };
   }, [form.value, form.invalid]);
   return (
