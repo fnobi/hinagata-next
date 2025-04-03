@@ -139,7 +139,7 @@ function FormCommonRowWrapper({
   children
 }: {
   label: string;
-  error?: ValidationErrorType | null;
+  error: ValidationErrorType | null;
   counter?: { value: number; max: number; isError: boolean };
   children: ReactNode;
 }) {
@@ -549,7 +549,7 @@ export function MockFileFormRow({
   onChange: (f: FileList | null) => void;
 }) {
   return (
-    <FormCommonRowWrapper label={label}>
+    <FormCommonRowWrapper label={label} error={null}>
       <input type="file" onChange={e => onChange(e.target.files)} />
     </FormCommonRowWrapper>
   );
@@ -581,8 +581,10 @@ export function MockArrayFormRow<T, P, R>({
     <FormCommonRowWrapper label={label} error={form.invalid}>
       {form.subForms.map((f, i) => (
         <NestSection key={i}>
-          {/* eslint-disable-next-line react/jsx-props-no-spreading */}
-          <Item form={f} {...calcItemProps(i)} />
+          <FormLayoutGrid>
+            {/* eslint-disable-next-line react/jsx-props-no-spreading */}
+            <Item form={f} {...calcItemProps(i)} />
+          </FormLayoutGrid>
         </NestSection>
       ))}
       <div>
