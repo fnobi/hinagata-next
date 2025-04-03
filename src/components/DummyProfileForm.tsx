@@ -3,8 +3,7 @@ import {
   EmailValidator,
   MaxLengthValidator,
   RequiredValidator,
-  UrlValidator,
-  ValidationErrorType
+  UrlValidator
 } from "~/lib/form-validator";
 import {
   type FormNestParentInterface,
@@ -25,7 +24,7 @@ const MAX_LINK_LENGTH = 3;
 function ProfileLinkFormField({
   form
 }: {
-  form: FormNestParentInterface<DummyProfileLink, ValidationErrorType>;
+  form: FormNestParentInterface<DummyProfileLink>;
 }) {
   const urlForm = useObjectKeyForm({
     parent: form,
@@ -35,9 +34,8 @@ function ProfileLinkFormField({
   const labelForm = useObjectKeyForm({
     parent: form,
     key: "label",
-    validator: [new RequiredValidator(), new MaxLengthValidator(5)]
+    validator: []
   });
-
   return (
     <>
       <MockStringFormRow label="URL" form={urlForm} />
@@ -49,7 +47,7 @@ function ProfileLinkFormField({
 function ProfileFormField({
   parentForm
 }: {
-  parentForm: FormNestParentInterface<DummyProfile, ValidationErrorType>;
+  parentForm: FormNestParentInterface<DummyProfile>;
 }) {
   const nameForm = useObjectKeyForm({
     parent: parentForm,
@@ -62,15 +60,12 @@ function ProfileFormField({
     key: "email",
     validator: [new RequiredValidator(), new EmailValidator()]
   });
-  const profileLinkForm = useArrayNest<
-    DummyProfileLink,
-    DummyProfile,
-    ValidationErrorType
-  >({
+  const profileLinkForm = useArrayNest({
     parent: parentForm,
     key: "profileLinks",
     maxLength: MAX_LINK_LENGTH,
     makeLengthError: () => ({
+      index: 0,
       type: "bad-array-length",
       message: `要素数が不正です。${MAX_LINK_LENGTH}個以下で設定してください。`
     }),
@@ -101,15 +96,12 @@ function DummyProfileForm({
   defaultValue,
   onSubmit,
   onCancel
-}: Pick<
-  Parameters<typeof useFormNestRoot<DummyProfile, ValidationErrorType>>[0],
-  "defaultValue"
-> &
+}: Pick<Parameters<typeof useFormNestRoot<DummyProfile>>[0], "defaultValue"> &
   Pick<
     ComponentPropsWithoutRef<typeof MockFormFrame<DummyProfile>>,
     "onCancel" | "onSubmit"
   >) {
-  const form = useFormNestRoot<DummyProfile, ValidationErrorType>({
+  const form = useFormNestRoot<DummyProfile>({
     defaultValue
   });
   return (
