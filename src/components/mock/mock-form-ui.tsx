@@ -12,7 +12,7 @@ import {
   type useArrayNest,
   type FormNestParentInterface,
   type FormNestInterface,
-  type TmpErrorType
+  type ValidationErrorType
 } from "~/lib/react/form-nest";
 import { formatDatetimeValue } from "~/lib/string-util";
 import { formatClock } from "~/lib/date-util";
@@ -139,7 +139,7 @@ function FormCommonRowWrapper({
   children
 }: {
   label: string;
-  error?: TmpErrorType | null;
+  error?: ValidationErrorType | null;
   counter?: { value: number; max: number; isError: boolean };
   children: ReactNode;
 }) {
