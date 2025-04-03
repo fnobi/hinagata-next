@@ -1,54 +1,49 @@
 import { useEffect, useMemo, useState } from "react";
 import { compact, flatten, makeArray } from "~/lib/array-util";
-import { type ValidationErrorType } from "~/lib/form-validator";
 
-type FormNestValidator<T> = {
-  required?: boolean;
-  getError?: (v: T) => ValidationErrorType | null;
-};
+export interface FormNestValidator<T, E> {
+  type: E;
+  validate: (v: T) => boolean;
+  getErrorMessage(): string;
+}
 
-type InvalidParameter = { error: ValidationErrorType | null; isBlank: boolean };
+export type TmpErrorType<K> = { type: K; message: string };
 
-export type FormNestInterface<T> = {
+// type InvalidParameter = { error: ValidationErrorType | null; isBlank: boolean };
+
+export type FormNestInterface<T, K> = {
   value: T;
-  invalid: InvalidParameter | null;
+  invalid: TmpErrorType<K> | null;
   onChange: (v: T | ((o: T) => T)) => void;
 };
 
-export type FormNestParentInterface<T> = FormNestInterface<T> & {
-  subValidationMap: Record<string | number | symbol, InvalidParameter | null>;
+export type FormNestParentInterface<T, K> = FormNestInterface<T, K> & {
+  subValidationMap: Record<string | number | symbol, TmpErrorType<K> | null>;
   onSubValidation: (
     id: string | number | symbol,
-    invalid: InvalidParameter | null
+    invalid: TmpErrorType<K> | null
   ) => void;
 };
 
-const validateFormValue = <T>({
+const validateFormValue = <T, E>({
   value,
   validator
 }: {
   value: T;
-  validator: FormNestValidator<T>;
-}): InvalidParameter | null => {
-  const { required = true, getError } = validator;
-  const isBlank = required && !value;
-  const error = getError ? getError(value) : null;
-  return !isBlank && !error
-    ? null
-    : {
-        isBlank,
-        error
-      };
+  validator: FormNestValidator<T, E>[];
+}): TmpErrorType<E> | null => {
+  const v = validator.find(v => v.validate(value));
+  return v ? { type: v.type, message: v.getErrorMessage() } : null;
 };
 
-export const useFormNestRoot = <T>({
+export const useFormNestRoot = <T, E>({
   defaultValue
 }: {
   defaultValue: T;
-}): FormNestParentInterface<T> => {
+}): FormNestParentInterface<T, E> => {
   const [editing, setEditing] = useState(defaultValue);
   const [validMap, setValidMap] = useState<
-    Record<string, InvalidParameter | null>
+    Record<string, TmpErrorType<E> | null>
   >({});
 
   const invalid = useMemo(() => {
@@ -69,7 +64,7 @@ export const useFormNestRoot = <T>({
   };
 };
 
-export const useSubFormNest = <T, P>({
+export const useSubFormNest = <T, P, E>({
   key,
   parent,
   pull,
@@ -77,11 +72,11 @@ export const useSubFormNest = <T, P>({
   validator
 }: {
   key: string | number | symbol;
-  parent: FormNestParentInterface<P>;
+  parent: FormNestParentInterface<P, E>;
   pull: (p: P) => T;
   push: (v: T, p: P) => P;
-  validator: FormNestValidator<T>;
-}): FormNestInterface<T> => {
+  validator: FormNestValidator<T, E>[];
+}): FormNestInterface<T, E> => {
   const value = useMemo(() => pull(parent.value), [parent.value]);
 
   useEffect(() => {
@@ -101,15 +96,15 @@ export const useSubFormNest = <T, P>({
   };
 };
 
-export const useObjectKeyForm = <P, K extends keyof P>({
+export const useObjectKeyForm = <P, K extends keyof P, E>({
   key,
   parent,
   validator
 }: { key: K } & Pick<
-  Parameters<typeof useSubFormNest<P[K], P>>[0],
+  Parameters<typeof useSubFormNest<P[K], P, E>>[0],
   "parent" | "validator"
 >) =>
-  useSubFormNest<P[K], P>({
+  useSubFormNest<P[K], P, E>({
     key,
     parent,
     pull: o => o[key],
@@ -117,20 +112,20 @@ export const useObjectKeyForm = <P, K extends keyof P>({
     validator
   });
 
-export const useFormNestReducer = <T, P>({
+export const useFormNestReducer = <T, P, E>({
   key,
   parent,
   pull,
   push
 }: {
   key: string | number | symbol;
-  parent: FormNestParentInterface<P>;
+  parent: FormNestParentInterface<P, E>;
   pull: (p: P) => T;
   push: (v: T, p: P) => P;
-}): FormNestParentInterface<T> => {
+}): FormNestParentInterface<T, E> => {
   const value = useMemo(() => pull(parent.value), [parent.value]);
   const [validMap, setValidMap] = useState<
-    Record<string, InvalidParameter | null>
+    Record<string, TmpErrorType<E> | null>
   >({});
 
   useEffect(() => {
@@ -152,19 +147,21 @@ export const useFormNestReducer = <T, P>({
 const normalizeArrayLength = <T>(arr: T[], l: number, make: () => T) =>
   arr.length >= l ? arr : [...arr, ...makeArray(l - arr.length).map(make)];
 
-export const useArrayNest = <T, P>({
+export const useArrayNest = <T, P, E>({
   key,
   parent,
   minLength = 0,
   maxLength = Infinity,
+  makeLengthError,
   makeNew,
   pull,
   push
 }: {
   key: string;
-  parent: FormNestParentInterface<P>;
+  parent: FormNestParentInterface<P, E>;
   minLength?: number;
   maxLength?: number;
+  makeLengthError: () => TmpErrorType<E>;
   makeNew: () => T;
   pull: (v: P) => T[];
   push: (v: T[], p: P) => P;
@@ -172,21 +169,14 @@ export const useArrayNest = <T, P>({
   const values = useMemo(() => pull(parent.value), [parent.value]);
 
   const [validMap, setValidMap] = useState<
-    Record<string, InvalidParameter | null>[]
+    Record<string, TmpErrorType<E> | null>[]
   >([]);
 
   const lengthValidation = useMemo(
-    (): InvalidParameter | null =>
+    (): TmpErrorType<E> | null =>
       values.length >= minLength && values.length <= maxLength
         ? null
-        : {
-            isBlank: false,
-            error: {
-              type: "bad-array-length",
-              minLength,
-              maxLength
-            }
-          },
+        : makeLengthError(),
     [values.length, minLength, maxLength]
   );
 
@@ -202,7 +192,7 @@ export const useArrayNest = <T, P>({
 
   return {
     subForms: values.map(
-      (value, index): FormNestParentInterface<T> => ({
+      (value, index): FormNestParentInterface<T, E> => ({
         value,
         invalid: null,
         onChange: arg =>

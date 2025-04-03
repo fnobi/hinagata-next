@@ -1,8 +1,10 @@
 import { type ComponentPropsWithoutRef } from "react";
 import {
-  emaiValidator,
-  maxLengthValidator,
-  urlValidator
+  EmailValidator,
+  MaxLengthValidator,
+  RequiredValidator,
+  UrlValidator,
+  ValidationErrorType
 } from "~/lib/form-validator";
 import {
   type FormNestParentInterface,
@@ -19,26 +21,22 @@ import {
 } from "~/components/mock/mock-form-ui";
 
 const NAME_MAX_LENGTH = 10;
+const MAX_LINK_LENGTH = 3;
 
 function ProfileLinkFormField({
   form
 }: {
-  form: FormNestParentInterface<DummyProfileLink>;
+  form: FormNestParentInterface<DummyProfileLink, ValidationErrorType>;
 }) {
   const urlForm = useObjectKeyForm({
     parent: form,
     key: "url",
-    validator: {
-      required: true,
-      getError: v => urlValidator(v)
-    }
+    validator: [new RequiredValidator(), new UrlValidator()]
   });
   const labelForm = useObjectKeyForm({
     parent: form,
     key: "label",
-    validator: {
-      required: false
-    }
+    validator: [new RequiredValidator()]
   });
 
   return (
@@ -52,28 +50,34 @@ function ProfileLinkFormField({
 function ProfileFormField({
   parentForm
 }: {
-  parentForm: FormNestParentInterface<DummyProfile>;
+  parentForm: FormNestParentInterface<DummyProfile, ValidationErrorType>;
 }) {
   const nameForm = useObjectKeyForm({
     parent: parentForm,
     key: "name",
-    validator: {
-      required: true,
-      getError: v => maxLengthValidator(v, NAME_MAX_LENGTH)
-    }
+    // TODO: validatorをdepsにいれたら死んじゃうのが怖い
+    validator: [
+      new RequiredValidator(),
+      new MaxLengthValidator(NAME_MAX_LENGTH)
+    ]
   });
   const emailForm = useObjectKeyForm({
     parent: parentForm,
     key: "email",
-    validator: {
-      required: true,
-      getError: v => emaiValidator(v)
-    }
+    validator: [new RequiredValidator(), new EmailValidator()]
   });
-  const profileLinkForm = useArrayNest({
+  const profileLinkForm = useArrayNest<
+    DummyProfileLink,
+    DummyProfile,
+    ValidationErrorType
+  >({
     parent: parentForm,
     key: "profileLinks",
-    maxLength: 3,
+    maxLength: MAX_LINK_LENGTH,
+    makeLengthError: () => ({
+      type: "bad-array-length",
+      message: `要素数が不正です。${MAX_LINK_LENGTH}個以下で設定してください。`
+    }),
     makeNew: () => ({ url: "", label: "" }),
     pull: p => p.profileLinks,
     push: (v, p) => ({ ...p, profileLinks: v })
@@ -106,12 +110,15 @@ function DummyProfileForm({
   defaultValue,
   onSubmit,
   onCancel
-}: Pick<Parameters<typeof useFormNestRoot<DummyProfile>>[0], "defaultValue"> &
+}: Pick<
+  Parameters<typeof useFormNestRoot<DummyProfile, ValidationErrorType>>[0],
+  "defaultValue"
+> &
   Pick<
     ComponentPropsWithoutRef<typeof MockFormFrame<DummyProfile>>,
     "onCancel" | "onSubmit"
   >) {
-  const form = useFormNestRoot<DummyProfile>({
+  const form = useFormNestRoot<DummyProfile, ValidationErrorType>({
     defaultValue
   });
   return (
