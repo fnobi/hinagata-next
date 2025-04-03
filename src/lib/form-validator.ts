@@ -55,12 +55,12 @@ export class RequiredValidator implements FormNestValidator<string> {
 }
 
 export class ArrayLengthValidator implements FormNestValidator<unknown[]> {
-  private minLength: number;
+  public readonly minLength: number;
 
-  private maxLength: number;
+  public readonly maxLength: number;
 
   public constructor({
-    minLength = -1,
+    minLength = 0,
     maxLength = -1
   }: {
     minLength?: number;
@@ -72,7 +72,7 @@ export class ArrayLengthValidator implements FormNestValidator<unknown[]> {
 
   public validate(values: unknown[]) {
     return (
-      (this.minLength >= 0 && values.length < this.minLength) ||
+      values.length < this.minLength ||
       (this.maxLength >= 0 && values.length > this.maxLength)
     );
   }

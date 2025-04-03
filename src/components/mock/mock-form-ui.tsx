@@ -16,7 +16,7 @@ import {
 } from "~/lib/react/form-nest";
 import { formatDatetimeValue } from "~/lib/string-util";
 import { formatClock } from "~/lib/date-util";
-import { MaxLengthValidator } from "~/lib/form-validator";
+import { ArrayLengthValidator, MaxLengthValidator } from "~/lib/form-validator";
 import MockActionButton from "~/components/mock/MockActionButton";
 
 const FormRowHeader = styled.div({
@@ -566,6 +566,17 @@ export function MockArrayFormRow<T, P, R>({
   Item: FunctionComponent<{ form: FormNestParentInterface<T> } & R>;
   calcItemProps: (i: number) => R;
 }) {
+  const { canPlus, canMinus } = useMemo(() => {
+    const { length: l } = form.subForms;
+    const { minLength, maxLength } =
+      form.validator.find(v => v instanceof ArrayLengthValidator) ||
+      new ArrayLengthValidator({});
+    return {
+      canPlus: maxLength >= 0 ? maxLength > l : true,
+      canMinus: minLength < l
+    };
+  }, [form.subForms.length]);
+
   return (
     <FormCommonRowWrapper label={label} error={form.invalid}>
       {form.subForms.map((f, i) => (
@@ -577,18 +588,14 @@ export function MockArrayFormRow<T, P, R>({
       <div>
         <MockActionButton
           action={
-            form.minusCount
-              ? { type: "button", onClick: form.minusCount }
-              : null
+            canMinus ? { type: "button", onClick: form.minusCount } : null
           }
         >
           −
         </MockActionButton>
         &nbsp;
         <MockActionButton
-          action={
-            form.plusCount ? { type: "button", onClick: form.plusCount } : null
-          }
+          action={canPlus ? { type: "button", onClick: form.plusCount } : null}
         >
           ＋
         </MockActionButton>

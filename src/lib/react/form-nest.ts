@@ -222,6 +222,7 @@ export const useArrayNest = <T, P>({
       })
     ),
     invalid,
+    validator,
     plusCount: () => parent.onChange(o => push([...values, makeNew()], o)),
     minusCount: () => parent.onChange(o => push(values.slice(0, -1), o))
   };
