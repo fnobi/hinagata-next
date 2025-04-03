@@ -20,7 +20,6 @@ import {
   MockStringFormRow
 } from "~/components/mock/mock-form-ui";
 
-const NAME_MAX_LENGTH = 10;
 const MAX_LINK_LENGTH = 3;
 
 function ProfileLinkFormField({
@@ -36,7 +35,7 @@ function ProfileLinkFormField({
   const labelForm = useObjectKeyForm({
     parent: form,
     key: "label",
-    validator: [new RequiredValidator()]
+    validator: [new RequiredValidator(), new MaxLengthValidator(5)]
   });
 
   return (
@@ -56,10 +55,7 @@ function ProfileFormField({
     parent: parentForm,
     key: "name",
     // TODO: validatorをdepsにいれたら死んじゃうのが怖い
-    validator: [
-      new RequiredValidator(),
-      new MaxLengthValidator(NAME_MAX_LENGTH)
-    ]
+    validator: [new RequiredValidator(), new MaxLengthValidator(10)]
   });
   const emailForm = useObjectKeyForm({
     parent: parentForm,
@@ -85,12 +81,7 @@ function ProfileFormField({
 
   return (
     <>
-      <MockStringFormRow
-        label="名前"
-        form={nameForm}
-        counter={{ maxLength: NAME_MAX_LENGTH }}
-        autoComplete="name"
-      />
+      <MockStringFormRow label="名前" form={nameForm} autoComplete="name" />
       <MockStringFormRow
         label="メールアドレス"
         form={emailForm}

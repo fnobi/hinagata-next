@@ -15,7 +15,7 @@ const URL_REGEXP = /^https?:\/\//;
 export class MaxLengthValidator
   implements FormNestValidator<string, ValidationErrorType>
 {
-  private maxLength: number;
+  public readonly maxLength: number;
 
   public get type(): ValidationErrorType {
     return "too-long-text";

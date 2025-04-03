@@ -17,7 +17,7 @@ import {
 import { formatDatetimeValue } from "~/lib/string-util";
 import { formatClock } from "~/lib/date-util";
 import MockActionButton from "~/components/mock/MockActionButton";
-import { ValidationErrorType } from "~/lib/form-validator";
+import { MaxLengthValidator, ValidationErrorType } from "~/lib/form-validator";
 
 const FormRowHeader = styled.div({
   display: "flex",
@@ -195,26 +195,29 @@ export function MockStringFormRow({
   placeholder,
   autoComplete,
   label,
-  counter,
   subAction
 }: {
   label: string;
-  counter?: { maxLength: number }; // TODO: 渡さなくても、formから読み取れるようにしたい
   subAction?: {
     label: string;
     disabled?: boolean;
     onClick: () => void;
   };
 } & ComponentPropsWithoutRef<typeof StringFormInput>) {
+  const maxLength = useMemo(() => {
+    const v = form.validator.find(vv => vv instanceof MaxLengthValidator);
+    return v ? v.maxLength : 0;
+  }, [form]);
+
   return (
     <FormCommonRowWrapper
       label={label}
       error={form.invalid}
       counter={
-        counter
+        maxLength
           ? {
               value: form.value.length,
-              max: counter.maxLength,
+              max: maxLength,
               isError: !!form.invalid && form.invalid.type === "too-long-text"
             }
           : undefined

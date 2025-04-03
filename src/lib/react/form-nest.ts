@@ -7,21 +7,20 @@ export interface FormNestValidator<T, E> {
   getErrorMessage(): string;
 }
 
-export type TmpErrorType<K> = { type: K; message: string };
+export type TmpErrorType<E> = { type: E; message: string };
 
-// type InvalidParameter = { error: ValidationErrorType | null; isBlank: boolean };
-
-export type FormNestInterface<T, K> = {
+export type FormNestInterface<T, E> = {
   value: T;
-  invalid: TmpErrorType<K> | null;
+  invalid: TmpErrorType<E> | null;
   onChange: (v: T | ((o: T) => T)) => void;
+  validator: FormNestValidator<T, E>[];
 };
 
-export type FormNestParentInterface<T, K> = FormNestInterface<T, K> & {
-  subValidationMap: Record<string | number | symbol, TmpErrorType<K> | null>;
+export type FormNestParentInterface<T, E> = FormNestInterface<T, E> & {
+  subValidationMap: Record<string | number | symbol, TmpErrorType<E> | null>;
   onSubValidation: (
     id: string | number | symbol,
-    invalid: TmpErrorType<K> | null
+    invalid: TmpErrorType<E> | null
   ) => void;
 };
 
@@ -60,7 +59,8 @@ export const useFormNestRoot = <T, E>({
     onChange: setEditing,
     invalid,
     subValidationMap: validMap,
-    onSubValidation: (k, v) => setValidMap(o => ({ ...o, [k]: v }))
+    onSubValidation: (k, v) => setValidMap(o => ({ ...o, [k]: v })),
+    validator: []
   };
 };
 
@@ -92,7 +92,8 @@ export const useSubFormNest = <T, P, E>({
       const e = validateFormValue({ value: v, validator });
       parent.onChange(o => push(v, o));
       parent.onSubValidation(key, e);
-    }
+    },
+    validator
   };
 };
 
@@ -140,7 +141,8 @@ export const useFormNestReducer = <T, P, E>({
     onChange: arg =>
       parent.onChange(o => push(arg instanceof Function ? arg(value) : arg, o)),
     subValidationMap: validMap,
-    onSubValidation: (k, f) => setValidMap(o => ({ ...o, [k]: f }))
+    onSubValidation: (k, f) => setValidMap(o => ({ ...o, [k]: f })),
+    validator: []
   };
 };
 
@@ -210,7 +212,8 @@ export const useArrayNest = <T, P, E>({
             return normalized.map((oo, i) =>
               i === index ? { ...oo, [k]: f } : oo
             );
-          })
+          }),
+        validator: []
       })
     ),
     lengthValidation,
