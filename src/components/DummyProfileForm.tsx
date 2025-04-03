@@ -1,5 +1,6 @@
 import { type ComponentPropsWithoutRef } from "react";
 import {
+  ArrayLengthValidator,
   EmailValidator,
   MaxLengthValidator,
   RequiredValidator,
@@ -18,8 +19,6 @@ import {
   MockFormFrame,
   MockStringFormRow
 } from "~/components/mock/mock-form-ui";
-
-const MAX_LINK_LENGTH = 3;
 
 function ProfileLinkFormField({
   form
@@ -52,7 +51,6 @@ function ProfileFormField({
   const nameForm = useObjectKeyForm({
     parent: parentForm,
     key: "name",
-    // TODO: validatorをdepsにいれたら死んじゃうのが怖い
     validator: [new RequiredValidator(), new MaxLengthValidator(10)]
   });
   const emailForm = useObjectKeyForm({
@@ -63,12 +61,11 @@ function ProfileFormField({
   const profileLinkForm = useArrayNest({
     parent: parentForm,
     key: "profileLinks",
-    maxLength: MAX_LINK_LENGTH,
-    makeLengthError: () => ({
-      index: 0,
-      type: "bad-array-length",
-      message: `要素数が不正です。${MAX_LINK_LENGTH}個以下で設定してください。`
-    }),
+    validator: [
+      new ArrayLengthValidator({
+        maxLength: 3
+      })
+    ],
     makeNew: () => ({ url: "", label: "" }),
     pull: p => p.profileLinks,
     push: (v, p) => ({ ...p, profileLinks: v })

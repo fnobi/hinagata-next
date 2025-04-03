@@ -1,5 +1,6 @@
 /* eslint-disable class-methods-use-this */
 /* eslint-disable max-classes-per-file */
+import { compact } from "~/lib/array-util";
 import { type FormNestValidator } from "~/lib/react/form-nest";
 
 const EMAIL_REGEXP =
@@ -50,5 +51,40 @@ export class RequiredValidator implements FormNestValidator<string> {
 
   public getErrorMessage() {
     return "入力必須です";
+  }
+}
+
+export class ArrayLengthValidator implements FormNestValidator<unknown[]> {
+  private minLength: number;
+
+  private maxLength: number;
+
+  public constructor({
+    minLength = -1,
+    maxLength = -1
+  }: {
+    minLength?: number;
+    maxLength?: number;
+  }) {
+    this.minLength = minLength;
+    this.maxLength = maxLength;
+  }
+
+  public validate(values: unknown[]) {
+    return (
+      (this.minLength >= 0 && values.length < this.minLength) ||
+      (this.maxLength >= 0 && values.length > this.maxLength)
+    );
+  }
+
+  public getErrorMessage() {
+    const l =
+      this.minLength === this.maxLength
+        ? `${this.maxLength}個`
+        : compact([
+            this.minLength >= 0 ? `${this.minLength}個以上` : null,
+            this.maxLength >= 0 ? `${this.maxLength}個以下` : null
+          ]).join("");
+    return `要素数が不正です。${l}で設定してください。`;
   }
 }

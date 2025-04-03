@@ -163,18 +163,14 @@ const normalizeArrayLength = <T>(arr: T[], l: number, make: () => T) =>
 export const useArrayNest = <T, P>({
   key,
   parent,
-  minLength = 0,
-  maxLength = Infinity,
-  makeLengthError,
+  validator,
   makeNew,
   pull,
   push
 }: {
   key: string;
   parent: FormNestParentInterface<P>;
-  minLength?: number;
-  maxLength?: number;
-  makeLengthError: () => ValidationErrorType;
+  validator: FormNestValidator<unknown[]>[];
   makeNew: () => T;
   pull: (v: P) => T[];
   push: (v: T[], p: P) => P;
@@ -185,12 +181,10 @@ export const useArrayNest = <T, P>({
     Record<string, ValidationErrorType | null>[]
   >([]);
 
-  const lengthValidation = useMemo(
+  const invalid = useMemo(
     (): ValidationErrorType | null =>
-      values.length >= minLength && values.length <= maxLength
-        ? null
-        : makeLengthError(),
-    [values.length, minLength, maxLength]
+      validateFormValue({ value: values, validator }),
+    [values.length]
   );
 
   useEffect(() => {
@@ -199,9 +193,9 @@ export const useArrayNest = <T, P>({
 
   useEffect(() => {
     const v = flatten(validMap.map(m => Object.values(m)));
-    const [first] = compact(v);
-    parent.onSubValidation(key, lengthValidation || first || null);
-  }, [validMap, lengthValidation]);
+    const [first] = compact([invalid, ...v]);
+    parent.onSubValidation(key, first || null);
+  }, [validMap, invalid]);
 
   return {
     subForms: values.map(
@@ -227,14 +221,8 @@ export const useArrayNest = <T, P>({
         validator: []
       })
     ),
-    lengthValidation,
-    plusCount:
-      values.length + 1 <= maxLength
-        ? () => parent.onChange(o => push([...values, makeNew()], o))
-        : undefined,
-    minusCount:
-      values.length - 1 >= minLength
-        ? () => parent.onChange(o => push(values.slice(0, -1), o))
-        : undefined
+    invalid,
+    plusCount: () => parent.onChange(o => push([...values, makeNew()], o)),
+    minusCount: () => parent.onChange(o => push(values.slice(0, -1), o))
   };
 };

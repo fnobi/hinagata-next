@@ -567,7 +567,7 @@ export function MockArrayFormRow<T, P, R>({
   calcItemProps: (i: number) => R;
 }) {
   return (
-    <FormCommonRowWrapper label={label} error={form.lengthValidation}>
+    <FormCommonRowWrapper label={label} error={form.invalid}>
       {form.subForms.map((f, i) => (
         <NestSection key={i}>
           {/* eslint-disable-next-line react/jsx-props-no-spreading */}
