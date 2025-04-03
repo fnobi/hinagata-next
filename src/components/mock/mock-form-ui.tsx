@@ -12,12 +12,12 @@ import {
   type useArrayNest,
   type FormNestParentInterface,
   type FormNestInterface,
-  TmpErrorType
+  type TmpErrorType
 } from "~/lib/react/form-nest";
 import { formatDatetimeValue } from "~/lib/string-util";
 import { formatClock } from "~/lib/date-util";
-import MockActionButton from "~/components/mock/MockActionButton";
 import { MaxLengthValidator } from "~/lib/form-validator";
+import MockActionButton from "~/components/mock/MockActionButton";
 
 const FormRowHeader = styled.div({
   display: "flex",
@@ -64,7 +64,7 @@ const ValidationErrorText = styled.div({
 });
 
 const CounterText = styled.div<{ isError: boolean }>(({ isError }) => ({
-  color: isError ? "#f00" : "inherit",
+  color: isError ? THEME_COLOR.ERROR : "inherit",
   marginLeft: px(5),
   fontSize: px(15)
 }));
