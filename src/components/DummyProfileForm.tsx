@@ -1,10 +1,11 @@
 import { type ComponentPropsWithoutRef } from "react";
 import {
-  ArrayLengthValidator,
-  EmailValidator,
-  MaxLengthValidator,
-  RequiredValidator,
-  UrlValidator
+  type AppValidationErrorType,
+  arrayLengthValidator,
+  emailValidator,
+  maxLengthValidator,
+  requiredValidator,
+  urlValidator
 } from "~/lib/form-validator";
 import {
   type FormNestParentInterface,
@@ -23,17 +24,17 @@ import {
 function ProfileLinkFormField({
   form
 }: {
-  form: FormNestParentInterface<DummyProfileLink>;
+  form: FormNestParentInterface<DummyProfileLink, AppValidationErrorType>;
 }) {
   const urlForm = useObjectKeyForm({
     parent: form,
     key: "url",
-    validator: [new RequiredValidator(), new UrlValidator()]
+    validator: [requiredValidator(), urlValidator()]
   });
   const labelForm = useObjectKeyForm({
     parent: form,
     key: "label",
-    validator: [new MaxLengthValidator(10)]
+    validator: [maxLengthValidator(10)]
   });
   return (
     <>
@@ -46,26 +47,22 @@ function ProfileLinkFormField({
 function ProfileFormField({
   parentForm
 }: {
-  parentForm: FormNestParentInterface<DummyProfile>;
+  parentForm: FormNestParentInterface<DummyProfile, AppValidationErrorType>;
 }) {
   const nameForm = useObjectKeyForm({
     parent: parentForm,
     key: "name",
-    validator: [new RequiredValidator(), new MaxLengthValidator(10)]
+    validator: [requiredValidator(), maxLengthValidator(10)]
   });
   const emailForm = useObjectKeyForm({
     parent: parentForm,
     key: "email",
-    validator: [new RequiredValidator(), new EmailValidator()]
+    validator: [requiredValidator(), emailValidator()]
   });
   const profileLinkForm = useArrayNest({
     parent: parentForm,
     key: "profileLinks",
-    validator: [
-      new ArrayLengthValidator({
-        maxLength: 3
-      })
-    ],
+    validator: [arrayLengthValidator({ maxLength: 3 })],
     makeNew: () => ({ url: "", label: "" }),
     pull: p => p.profileLinks,
     push: (v, p) => ({ ...p, profileLinks: v })
@@ -93,12 +90,15 @@ function DummyProfileForm({
   defaultValue,
   onSubmit,
   onCancel
-}: Pick<Parameters<typeof useFormNestRoot<DummyProfile>>[0], "defaultValue"> &
+}: Pick<
+  Parameters<typeof useFormNestRoot<DummyProfile, AppValidationErrorType>>[0],
+  "defaultValue"
+> &
   Pick<
     ComponentPropsWithoutRef<typeof MockFormFrame<DummyProfile>>,
     "onCancel" | "onSubmit"
   >) {
-  const form = useFormNestRoot<DummyProfile>({
+  const form = useFormNestRoot<DummyProfile, AppValidationErrorType>({
     defaultValue
   });
   return (

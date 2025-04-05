@@ -1,5 +1,3 @@
-/* eslint-disable class-methods-use-this */
-/* eslint-disable max-classes-per-file */
 import { compact } from "~/lib/array-util";
 import { type FormNestValidator } from "~/lib/react/form-nest";
 
@@ -8,83 +6,72 @@ const EMAIL_REGEXP =
 
 const URL_REGEXP = /^https?:\/\//;
 
-export class MaxLengthValidator implements FormNestValidator<string> {
-  public readonly maxLength: number;
+export type AppValidationErrorType =
+  | { type: "required" }
+  | { type: "too-long-string"; maxLength: number }
+  | { type: "invalid-email" }
+  | { type: "invalid-url" }
+  | { type: "invalid-array-length"; minLength: number; maxLength: number };
 
-  public constructor(l: number) {
-    this.maxLength = l;
-  }
+export const maxLengthValidator = (
+  maxLength: number
+): FormNestValidator<string, AppValidationErrorType> => ({
+  param: { type: "too-long-string", maxLength },
+  validate: v =>
+    !!v && v.length > maxLength ? `${maxLength}字以内で入力してください` : null
+});
 
-  public validate(v: string) {
-    return !!v && v.length > this.maxLength;
-  }
+export const emailValidator = (): FormNestValidator<
+  string,
+  AppValidationErrorType
+> => ({
+  param: { type: "invalid-email" },
+  validate: v =>
+    !!v && !EMAIL_REGEXP.test(v) ? "メールアドレスの形式が不正です" : null
+});
 
-  public getErrorMessage() {
-    return `${this.maxLength}字以内で入力してください`;
-  }
-}
+export const urlValidator = (): FormNestValidator<
+  string,
+  AppValidationErrorType
+> => ({
+  param: { type: "invalid-url" },
+  validate: v => (!!v && !URL_REGEXP.test(v) ? "URLの形式が不正です" : null)
+});
 
-export class EmailValidator implements FormNestValidator<string> {
-  public validate(v: string) {
-    return !!v && !EMAIL_REGEXP.test(v);
-  }
+export const requiredValidator = (): FormNestValidator<
+  string,
+  AppValidationErrorType
+> => ({
+  param: { type: "required" },
+  validate: v => (!v ? "入力必須です" : null)
+});
 
-  public getErrorMessage() {
-    return "メールアドレスの形式が不正です";
-  }
-}
-
-export class UrlValidator implements FormNestValidator<string> {
-  public validate(v: string) {
-    return !!v && !URL_REGEXP.test(v);
-  }
-
-  public getErrorMessage() {
-    return "URLの形式が不正です";
-  }
-}
-
-export class RequiredValidator implements FormNestValidator<string> {
-  public validate(v: string) {
-    return !v;
-  }
-
-  public getErrorMessage() {
-    return "入力必須です";
-  }
-}
-
-export class ArrayLengthValidator implements FormNestValidator<unknown[]> {
-  public readonly minLength: number;
-
-  public readonly maxLength: number;
-
-  public constructor({
-    minLength = 0,
-    maxLength = -1
-  }: {
-    minLength?: number;
-    maxLength?: number;
-  }) {
-    this.minLength = minLength;
-    this.maxLength = maxLength;
-  }
-
-  public validate(values: unknown[]) {
-    return (
-      values.length < this.minLength ||
-      (this.maxLength >= 0 && values.length > this.maxLength)
-    );
-  }
-
-  public getErrorMessage() {
+export const arrayLengthValidator = ({
+  minLength = 0,
+  maxLength = -1
+}: {
+  minLength?: number;
+  maxLength?: number;
+}): FormNestValidator<unknown[], AppValidationErrorType> => ({
+  param: {
+    type: "invalid-array-length",
+    minLength,
+    maxLength
+  },
+  validate: values => {
+    if (
+      values.length > minLength &&
+      (maxLength < 0 || values.length <= maxLength)
+    ) {
+      return null;
+    }
     const l =
-      this.minLength === this.maxLength
-        ? `${this.maxLength}個`
+      minLength === maxLength
+        ? `${maxLength}個`
         : compact([
-            this.minLength >= 0 ? `${this.minLength}個以上` : null,
-            this.maxLength >= 0 ? `${this.maxLength}個以下` : null
+            minLength >= 0 ? `${minLength}個以上` : null,
+            maxLength >= 0 ? `${maxLength}個以下` : null
           ]).join("");
     return `要素数が不正です。${l}で設定してください。`;
   }
-}
+});

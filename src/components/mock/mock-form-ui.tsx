@@ -16,7 +16,8 @@ import {
 } from "~/lib/react/form-nest";
 import { formatDatetimeValue } from "~/lib/string-util";
 import { formatClock } from "~/lib/date-util";
-import { ArrayLengthValidator, MaxLengthValidator } from "~/lib/form-validator";
+import { type AppValidationErrorType } from "~/lib/form-validator";
+import { compact } from "~/lib/array-util";
 import MockActionButton from "~/components/mock/MockActionButton";
 
 const FormRowHeader = styled.div({
@@ -116,7 +117,7 @@ export function MockFormFrame<T>({
   onCancel,
   onSubmit
 }: {
-  form: FormNestInterface<T>;
+  form: FormNestInterface<T, AppValidationErrorType>;
   children: ReactNode;
   onCancel?: () => void;
   onSubmit: (v: T) => void;
@@ -154,9 +155,7 @@ function FormCommonRowWrapper({
         ) : null}
       </FormRowHeader>
       {children}
-      {error ? (
-        <ValidationErrorText>{error.message}</ValidationErrorText>
-      ) : null}
+      {error ? <ValidationErrorText>{error}</ValidationErrorText> : null}
     </div>
   );
 }
@@ -167,7 +166,7 @@ function StringFormInput({
   placeholder,
   autoComplete
 }: {
-  form: FormNestInterface<string>;
+  form: FormNestInterface<string, AppValidationErrorType>;
 } & Pick<
   InputHTMLAttributes<HTMLInputElement>,
   "readOnly" | "placeholder" | "autoComplete"
@@ -205,16 +204,18 @@ export function MockStringFormRow({
   };
 } & ComponentPropsWithoutRef<typeof StringFormInput>) {
   const counter = useMemo(() => {
-    const d = form.validator.find(v => v instanceof MaxLengthValidator);
+    const [d] = compact(
+      form.validator.map(({ type, message }) =>
+        type.type === "too-long-string" ? { type, message } : null
+      )
+    );
     if (!d) {
       return undefined;
     }
     return {
       value: form.value.length,
-      max: d.maxLength,
-      isError:
-        !!form.invalid &&
-        form.validator[form.invalid.index] instanceof MaxLengthValidator
+      max: d.type.maxLength,
+      isError: !!d.message
     };
   }, [form.value, form.invalid]);
   return (
@@ -250,19 +251,21 @@ export function MockTextFormRow({
   form
 }: {
   label: string;
-  form: FormNestInterface<string>;
+  form: FormNestInterface<string, AppValidationErrorType>;
 }) {
   const counter = useMemo(() => {
-    const d = form.validator.find(v => v instanceof MaxLengthValidator);
+    const [d] = compact(
+      form.validator.map(({ type, message }) =>
+        type.type === "too-long-string" ? { type, message } : null
+      )
+    );
     if (!d) {
       return undefined;
     }
     return {
       value: form.value.length,
-      max: d.maxLength,
-      isError:
-        !!form.invalid &&
-        form.validator[form.invalid.index] instanceof MaxLengthValidator
+      max: d.type.maxLength,
+      isError: !!d.message
     };
   }, [form.value, form.invalid]);
   return (
@@ -292,7 +295,7 @@ export function MockNumberFormRow({
   children
 }: {
   label: string;
-  form: FormNestInterface<number>;
+  form: FormNestInterface<number, AppValidationErrorType>;
   min?: number;
   max?: number;
   step?: number;
@@ -329,7 +332,7 @@ export function MockDateTimeFormRow({
 }: {
   label: string;
   round?: number;
-  form: FormNestInterface<number>;
+  form: FormNestInterface<number, AppValidationErrorType>;
 }) {
   const setter = (n: number) =>
     form.onChange(round ? Math.floor(n / round) * round : n);
@@ -378,7 +381,7 @@ export function MockClockFormRow({
   form
 }: {
   label: string;
-  form: FormNestInterface<string>;
+  form: FormNestInterface<string, AppValidationErrorType>;
 }) {
   return (
     <FormCommonRowWrapper label={label} error={form.invalid}>
@@ -428,7 +431,7 @@ export function MockCheckboxFormRow({
   form
 }: {
   children: ReactNode;
-  form: FormNestInterface<boolean>;
+  form: FormNestInterface<boolean, AppValidationErrorType>;
 }) {
   return (
     <label>
@@ -448,7 +451,7 @@ export function MockPulldownFormRow({
   options
 }: {
   label: string;
-  form: FormNestInterface<string>;
+  form: FormNestInterface<string, AppValidationErrorType>;
   options: { value: string; label: string }[];
 }) {
   return (
@@ -470,7 +473,7 @@ export function MockRadioSelectFormRow({
   options
 }: {
   label: string;
-  form: FormNestInterface<string>;
+  form: FormNestInterface<string, AppValidationErrorType>;
   options: { value: string; label: string }[];
 }) {
   return (
@@ -508,7 +511,7 @@ export function MockRangeFormRow({
   postfix
 }: {
   label: string;
-  form: FormNestInterface<number>;
+  form: FormNestInterface<number, AppValidationErrorType>;
   step?: number;
   min?: number;
   max?: number;
@@ -561,16 +564,19 @@ export function MockArrayFormRow<T, P, R>({
   Item,
   calcItemProps
 }: {
-  form: ReturnType<typeof useArrayNest<T, P>>;
+  form: ReturnType<typeof useArrayNest<T, P, AppValidationErrorType>>;
   label: string;
-  Item: FunctionComponent<{ form: FormNestParentInterface<T> } & R>;
+  Item: FunctionComponent<
+    { form: FormNestParentInterface<T, AppValidationErrorType> } & R
+  >;
   calcItemProps: (i: number) => R;
 }) {
   const { canPlus, canMinus } = useMemo(() => {
     const { length: l } = form.subForms;
-    const { minLength, maxLength } =
-      form.validator.find(v => v instanceof ArrayLengthValidator) ||
-      new ArrayLengthValidator({});
+    const [param] = form.validator.map(v =>
+      v.param.type === "invalid-array-length" ? v.param : null
+    );
+    const { minLength = 0, maxLength = -1 } = param || {};
     return {
       canPlus: maxLength >= 0 ? maxLength > l : true,
       canMinus: minLength < l
