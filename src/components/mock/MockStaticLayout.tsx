@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { ReactNode } from "react";
+import { type ReactNode } from "react";
 import { em } from "~/lib/css-util";
 
 const Wrapper = styled.div({

@@ -1,7 +1,10 @@
 import { type ComponentPropsWithoutRef } from "react";
 import {
-  emaiValidator,
+  type AppValidationErrorType,
+  arrayLengthValidator,
+  emailValidator,
   maxLengthValidator,
+  requiredValidator,
   urlValidator
 } from "~/lib/form-validator";
 import {
@@ -18,29 +21,21 @@ import {
   MockStringFormRow
 } from "~/components/mock/mock-form-ui";
 
-const NAME_MAX_LENGTH = 10;
-
 function ProfileLinkFormField({
   form
 }: {
-  form: FormNestParentInterface<DummyProfileLink>;
+  form: FormNestParentInterface<DummyProfileLink, AppValidationErrorType>;
 }) {
   const urlForm = useObjectKeyForm({
     parent: form,
     key: "url",
-    validator: {
-      required: true,
-      getError: v => urlValidator(v)
-    }
+    validator: [requiredValidator(), urlValidator()]
   });
   const labelForm = useObjectKeyForm({
     parent: form,
     key: "label",
-    validator: {
-      required: false
-    }
+    validator: [maxLengthValidator(10)]
   });
-
   return (
     <>
       <MockStringFormRow label="URL" form={urlForm} />
@@ -52,28 +47,22 @@ function ProfileLinkFormField({
 function ProfileFormField({
   parentForm
 }: {
-  parentForm: FormNestParentInterface<DummyProfile>;
+  parentForm: FormNestParentInterface<DummyProfile, AppValidationErrorType>;
 }) {
   const nameForm = useObjectKeyForm({
     parent: parentForm,
     key: "name",
-    validator: {
-      required: true,
-      getError: v => maxLengthValidator(v, NAME_MAX_LENGTH)
-    }
+    validator: [requiredValidator(), maxLengthValidator(10)]
   });
   const emailForm = useObjectKeyForm({
     parent: parentForm,
     key: "email",
-    validator: {
-      required: true,
-      getError: v => emaiValidator(v)
-    }
+    validator: [requiredValidator(), emailValidator()]
   });
   const profileLinkForm = useArrayNest({
     parent: parentForm,
     key: "profileLinks",
-    maxLength: 3,
+    validator: [arrayLengthValidator({ maxLength: 3 })],
     makeNew: () => ({ url: "", label: "" }),
     pull: p => p.profileLinks,
     push: (v, p) => ({ ...p, profileLinks: v })
@@ -81,12 +70,7 @@ function ProfileFormField({
 
   return (
     <>
-      <MockStringFormRow
-        label="名前"
-        form={nameForm}
-        counter={{ maxLength: NAME_MAX_LENGTH }}
-        autoComplete="name"
-      />
+      <MockStringFormRow label="名前" form={nameForm} autoComplete="name" />
       <MockStringFormRow
         label="メールアドレス"
         form={emailForm}
@@ -106,12 +90,15 @@ function DummyProfileForm({
   defaultValue,
   onSubmit,
   onCancel
-}: Pick<Parameters<typeof useFormNestRoot<DummyProfile>>[0], "defaultValue"> &
+}: Pick<
+  Parameters<typeof useFormNestRoot<DummyProfile, AppValidationErrorType>>[0],
+  "defaultValue"
+> &
   Pick<
     ComponentPropsWithoutRef<typeof MockFormFrame<DummyProfile>>,
     "onCancel" | "onSubmit"
   >) {
-  const form = useFormNestRoot<DummyProfile>({
+  const form = useFormNestRoot<DummyProfile, AppValidationErrorType>({
     defaultValue
   });
   return (
