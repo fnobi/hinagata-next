@@ -60,7 +60,7 @@ export const arrayLengthValidator = ({
   },
   validate: values => {
     if (
-      values.length > minLength &&
+      values.length >= minLength &&
       (maxLength < 0 || values.length <= maxLength)
     ) {
       return null;
