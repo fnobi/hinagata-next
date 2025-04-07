@@ -85,8 +85,12 @@ function ProfileFormField({
   });
   return (
     <>
-      <MockStringFormRow label="名前" form={nameForm} />
-      <MockStringFormRow label="メールアドレス" form={emailForm} />
+      <MockStringFormRow label="名前" form={nameForm} autoComplete="name" />
+      <MockStringFormRow
+        label="メールアドレス"
+        form={emailForm}
+        autoComplete="email"
+      />
       {/* <MockArrayFormRow
         label="リンク"
         form={profileLinkForm}

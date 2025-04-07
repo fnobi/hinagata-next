@@ -217,7 +217,7 @@ export function MockStringFormRow({
     };
   }, [form.value, form.validateResult]);
   const currentError = useMemo(() => {
-    const [e] = form.validateResult.filter(
+    const e = form.validateResult.find(
       v => v.errorMessage && v.param.type !== "required"
     );
     return e ? e.errorMessage : null;
@@ -257,12 +257,12 @@ export function MockTextFormRow({
   form
 }: {
   label: string;
-  form: FormNestInterface<string, AppValidationErrorType>;
+  form: ReturnType<typeof useFormBase<string, AppValidationErrorType>>;
 }) {
   const counter = useMemo(() => {
     const [d] = compact(
-      form.validator.map(({ param: type, message }) =>
-        type.type === "too-long-string" ? { type, message } : null
+      form.validateResult.map(({ param, errorMessage }) =>
+        param.type === "too-long-string" ? { param, errorMessage } : null
       )
     );
     if (!d) {
@@ -270,18 +270,24 @@ export function MockTextFormRow({
     }
     return {
       value: form.value.length,
-      max: d.type.maxLength,
-      isError: !!d.message
+      max: d.param.maxLength,
+      isError: !!d.errorMessage
     };
-  }, [form.value, form.invalid]);
+  }, [form.value, form.validateResult]);
+  const currentError = useMemo(() => {
+    const e = form.validateResult.find(
+      v => v.errorMessage && v.param.type !== "required"
+    );
+    return e ? e.errorMessage : null;
+  }, [form.validateResult]);
   return (
-    <FormCommonRowWrapper label={label} error={form.invalid} counter={counter}>
+    <FormCommonRowWrapper label={label} error={currentError} counter={counter}>
       <InputWrapper>
         <textarea
           value={form.value}
           onChange={e => form.onChange(e.target.value)}
           style={{
-            backgroundColor: form.invalid
+            backgroundColor: currentError
               ? THEME_COLOR.ERROR
               : THEME_COLOR.WHITE
           }}
