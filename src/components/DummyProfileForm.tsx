@@ -1,87 +1,164 @@
-import { type ComponentPropsWithoutRef } from "react";
+import { useEffect, useState, type ComponentPropsWithoutRef } from "react";
 import {
   type AppValidationErrorType,
-  arrayLengthValidator,
   emailValidator,
   maxLengthValidator,
   requiredValidator,
   urlValidator
 } from "~/lib/form-validator";
-import {
-  type FormNestParentInterface,
-  useArrayNest,
-  useFormNestRoot,
-  useObjectKeyForm
-} from "~/lib/react/form-nest";
+import { useFormNestRoot } from "~/lib/react/form-nest";
 import type DummyProfile from "~/scheme/DummyProfile";
 import { type DummyProfileLink } from "~/scheme/DummyProfile";
-import {
-  MockArrayFormRow,
-  MockFormFrame,
-  MockStringFormRow
-} from "~/components/mock/mock-form-ui";
+import { MockFormFrame } from "~/components/mock/mock-form-ui";
 
-function ProfileLinkFormField({
+const useFormBase = <T, E>({
+  defaultValue,
+  validators,
+  onUpdate
+}: {
+  defaultValue: T;
+  validators: {
+    param: E;
+    validate: (v: T) => string | null;
+  }[];
+  onUpdate?: (
+    value: T,
+    validateResult: {
+      param: E;
+      errorMessage: string | null;
+    }[]
+  ) => void;
+}) => {
+  const calcValidateResult = (v: T) =>
+    validators.map(d => ({
+      param: d.param,
+      errorMessage: d.validate(v)
+    }));
+
+  const [editing, setEditing] = useState(defaultValue);
+  const [validateResult, setValidateResult] = useState(
+    calcValidateResult(defaultValue)
+  );
+
+  useEffect(() => {
+    if (onUpdate) {
+      onUpdate(editing, validateResult);
+    }
+  }, [editing, validateResult]);
+
+  const onChange = (v: T) => {
+    const r = calcValidateResult(v);
+    setEditing(v);
+    setValidateResult(r);
+  };
+
+  return {
+    value: editing,
+    validateResult,
+    onChange
+  };
+};
+
+function StringFormRow({
+  label,
   form
 }: {
-  form: FormNestParentInterface<DummyProfileLink, AppValidationErrorType>;
+  label: string;
+  form: ReturnType<typeof useFormBase<string, AppValidationErrorType>>;
 }) {
-  const urlForm = useObjectKeyForm({
-    parent: form,
-    key: "url",
-    validator: [requiredValidator(), urlValidator()]
+  return (
+    <div>
+      <p>{label}</p>
+      <p>
+        <input
+          type="text"
+          value={form.value}
+          onChange={e => form.onChange(e.target.value)}
+        />
+      </p>
+      {form.validateResult
+        .filter(r => !!r.errorMessage)
+        .map(r => (
+          <p key={r.param.type}>{r.errorMessage}</p>
+        ))}
+    </div>
+  );
+}
+
+function ProfileLinkFormField({
+  defaultValue
+}: {
+  defaultValue: DummyProfileLink;
+}) {
+  const urlForm = useFormBase({
+    defaultValue: defaultValue.url,
+    validators: [requiredValidator(), urlValidator()]
   });
-  const labelForm = useObjectKeyForm({
-    parent: form,
-    key: "label",
-    validator: [maxLengthValidator(10)]
+  const labelForm = useFormBase({
+    defaultValue: defaultValue.label,
+    validators: [requiredValidator(), maxLengthValidator(10)]
   });
   return (
     <>
-      <MockStringFormRow label="URL" form={urlForm} />
-      <MockStringFormRow label="ラベル" form={labelForm} />
+      <StringFormRow label="URL" form={urlForm}></StringFormRow>
+      <StringFormRow label="ラベル" form={labelForm}></StringFormRow>
     </>
   );
 }
 
 function ProfileFormField({
-  parentForm
+  defaultValue,
+  onUpdate
 }: {
-  parentForm: FormNestParentInterface<DummyProfile, AppValidationErrorType>;
+  defaultValue: DummyProfile;
+  onUpdate: (
+    v: DummyProfile | ((p: DummyProfile) => DummyProfile),
+    s:
+      | Record<string, AppValidationErrorType | null>
+      | ((
+          o: Record<string, AppValidationErrorType | null>
+        ) => Record<string, AppValidationErrorType | null>)
+  ) => void;
 }) {
-  const nameForm = useObjectKeyForm({
-    parent: parentForm,
-    key: "name",
-    validator: [requiredValidator(), maxLengthValidator(10)]
+  const nameForm = useFormBase({
+    defaultValue: defaultValue.name,
+    validators: [requiredValidator(), maxLengthValidator(10)],
+    onUpdate: (v, r) => {
+      const currentError = r.find(rr => rr.errorMessage);
+      onUpdate(
+        p => ({ ...p, name: v }),
+        o => ({
+          ...o,
+          name: currentError ? currentError.param : null
+        })
+      );
+    }
   });
-  const emailForm = useObjectKeyForm({
-    parent: parentForm,
-    key: "email",
-    validator: [requiredValidator(), emailValidator()]
-  });
-  const profileLinkForm = useArrayNest({
-    parent: parentForm,
-    key: "profileLinks",
-    validator: [arrayLengthValidator({ maxLength: 3 })],
-    makeNew: () => ({ url: "", label: "" }),
-    pull: p => p.profileLinks,
-    push: (v, p) => ({ ...p, profileLinks: v })
+  const emailForm = useFormBase({
+    defaultValue: defaultValue.email,
+    validators: [requiredValidator(), emailValidator()],
+    onUpdate: (v, r) => {
+      const currentError = r.find(rr => rr.errorMessage);
+      onUpdate(
+        p => ({ ...p, email: v }),
+        o => ({
+          ...o,
+          email: currentError ? currentError.param : null
+        })
+      );
+    }
   });
 
   return (
     <>
-      <MockStringFormRow label="名前" form={nameForm} autoComplete="name" />
-      <MockStringFormRow
-        label="メールアドレス"
-        form={emailForm}
-        autoComplete="email"
-      />
-      <MockArrayFormRow
+      <StringFormRow label="名前" form={nameForm} />
+      <StringFormRow label="メールアドレス" form={emailForm} />
+      {/* <MockArrayFormRow
         label="リンク"
         form={profileLinkForm}
         Item={ProfileLinkFormField}
         calcItemProps={() => ({})}
-      />
+      /> */}
     </>
   );
 }
@@ -98,12 +175,26 @@ function DummyProfileForm({
     ComponentPropsWithoutRef<typeof MockFormFrame<DummyProfile>>,
     "onCancel" | "onSubmit"
   >) {
-  const form = useFormNestRoot<DummyProfile, AppValidationErrorType>({
-    defaultValue
-  });
+  const [profile, setProfile] = useState(defaultValue);
+  const [validationSummary, setValidationSummary] = useState<
+    Record<string, AppValidationErrorType | null>
+  >({});
+
   return (
-    <MockFormFrame form={form} onSubmit={onSubmit} onCancel={onCancel}>
-      <ProfileFormField parentForm={form} />
+    <MockFormFrame
+      value={profile}
+      invalid={Object.values(validationSummary).some(f => !!f)}
+      onSubmit={onSubmit}
+      onCancel={onCancel}
+    >
+      <ProfileFormField
+        defaultValue={defaultValue}
+        onUpdate={(fn1, fn2) => {
+          setProfile(fn1);
+          setValidationSummary(fn2);
+        }}
+      />
+      <div>{JSON.stringify(validationSummary)}</div>
     </MockFormFrame>
   );
 }

@@ -11,8 +11,7 @@ import { em, percent, px } from "~/lib/css-util";
 import {
   type useArrayNest,
   type FormNestParentInterface,
-  type FormNestInterface,
-  type ValidationErrorType
+  type FormNestInterface
 } from "~/lib/react/form-nest";
 import { formatDatetimeValue } from "~/lib/string-util";
 import { formatClock } from "~/lib/date-util";
@@ -112,20 +111,22 @@ function FormView({
 }
 
 export function MockFormFrame<T>({
-  form,
+  value,
+  invalid,
   children,
   onCancel,
   onSubmit
 }: {
-  form: FormNestInterface<T, AppValidationErrorType>;
+  value: T;
+  invalid: boolean;
   children: ReactNode;
   onCancel?: () => void;
   onSubmit: (v: T) => void;
 }) {
   return (
     <FormView
-      invalid={!!form.invalid}
-      onSubmit={() => onSubmit(form.value)}
+      invalid={invalid}
+      onSubmit={() => onSubmit(value)}
       onCancel={onCancel}
     >
       {children}
@@ -140,7 +141,7 @@ function FormCommonRowWrapper({
   children
 }: {
   label: string;
-  error: ValidationErrorType | null;
+  error: string | null;
   counter?: { value: number; max: number; isError: boolean };
   children: ReactNode;
 }) {
@@ -161,26 +162,26 @@ function FormCommonRowWrapper({
 }
 
 function StringFormInput({
-  form,
+  value,
+  onChange,
   readOnly,
   placeholder,
-  autoComplete
-}: {
-  form: FormNestInterface<string, AppValidationErrorType>;
-} & Pick<
+  autoComplete,
+  invalid = false
+}: Pick<
   InputHTMLAttributes<HTMLInputElement>,
-  "readOnly" | "placeholder" | "autoComplete"
->) {
+  "value" | "onChange" | "readOnly" | "placeholder" | "autoComplete"
+> & { invalid?: boolean }) {
   return (
     <input
       type="text"
-      value={form.value}
-      onChange={e => form.onChange(e.target.value)}
+      value={value}
+      onChange={onChange}
       readOnly={readOnly}
       placeholder={placeholder}
       autoComplete={autoComplete}
       style={{
-        backgroundColor: form.invalid ? THEME_COLOR.ERROR : THEME_COLOR.WHITE,
+        backgroundColor: invalid ? THEME_COLOR.ERROR : THEME_COLOR.WHITE,
         display: "block",
         width: percent(100)
       }}
@@ -196,16 +197,20 @@ export function MockStringFormRow({
   label,
   subAction
 }: {
+  form: FormNestInterface<string, AppValidationErrorType>;
   label: string;
   subAction?: {
     label: string;
     disabled?: boolean;
     onClick: () => void;
   };
-} & ComponentPropsWithoutRef<typeof StringFormInput>) {
+} & Omit<
+  ComponentPropsWithoutRef<typeof StringFormInput>,
+  "value" | "onChange" | "invalid"
+>) {
   const counter = useMemo(() => {
     const [d] = compact(
-      form.validator.map(({ type, message }) =>
+      form.validator.map(({ param: type, message }) =>
         type.type === "too-long-string" ? { type, message } : null
       )
     );
@@ -218,14 +223,22 @@ export function MockStringFormRow({
       isError: !!d.message
     };
   }, [form.value, form.invalid]);
+  const currentError = useMemo(() => {
+    const [e] = form.validator.filter(
+      v => v.message && v.param.type !== "required"
+    );
+    return e ? e.message : null;
+  }, [form.validator]);
   return (
-    <FormCommonRowWrapper label={label} error={form.invalid} counter={counter}>
+    <FormCommonRowWrapper label={label} error={currentError} counter={counter}>
       <InputWrapper>
         <StringFormInput
-          form={form}
+          value={form.value}
+          onChange={e => form.onChange(e.target.value)}
           readOnly={readOnly}
           autoComplete={autoComplete}
           placeholder={placeholder}
+          invalid={!!currentError}
         />
         {subAction ? (
           <>
@@ -255,7 +268,7 @@ export function MockTextFormRow({
 }) {
   const counter = useMemo(() => {
     const [d] = compact(
-      form.validator.map(({ type, message }) =>
+      form.validator.map(({ param: type, message }) =>
         type.type === "too-long-string" ? { type, message } : null
       )
     );
