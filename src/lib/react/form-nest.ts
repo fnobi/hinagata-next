@@ -167,15 +167,7 @@ export const useObjectKeyForm = <P, K extends keyof P, E>({
   validators
 }: {
   key: K;
-  parentForm: {
-    defaultValue: P;
-    onUpdate: (
-      v: P | ((p: P) => P),
-      s:
-        | Record<string, E | null>
-        | ((o: Record<string, E | null>) => Record<string, E | null>)
-    ) => void;
-  };
+  parentForm: FormParent<P, E>;
 } & Pick<Parameters<typeof useFormBase<P[K], E>>[0], "validators">) => {
   return useFormBase<P[K], E>({
     defaultValue: parentForm.defaultValue[key],
