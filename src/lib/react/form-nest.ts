@@ -31,30 +31,36 @@ const validateFormValue = <T, E>({
   return first || null;
 };
 
+export type FormParent<T, E> = {
+  defaultValue: T;
+  onUpdate: (
+    v: T | ((p: T) => T),
+    s:
+      | Record<string, E | null>
+      | ((o: Record<string, E | null>) => Record<string, E | null>)
+  ) => void;
+};
+
 export const useFormNestRoot = <T, E>({
   defaultValue
 }: {
   defaultValue: T;
-}): FormNestParentInterface<T, E> => {
-  const [editing, setEditing] = useState(defaultValue);
-  const [validMap, setValidMap] = useState<Record<string, string | null>>({});
-
-  const invalid = useMemo(() => {
-    const v = Object.values(validMap);
-    if (!v.length) {
-      return null;
+}) => {
+  const [value, setValue] = useState(defaultValue);
+  const [validationSummary, setValidationSummary] = useState<
+    Record<string, E | null>
+  >({});
+  const parentForm: FormParent<T, E> = {
+    defaultValue,
+    onUpdate: (v, s) => {
+      setValue(v);
+      setValidationSummary(s);
     }
-    const [first] = compact(v);
-    return first;
-  }, [validMap]);
-
+  };
   return {
-    value: editing,
-    onChange: setEditing,
-    invalid,
-    subValidationMap: validMap,
-    onSubValidation: (k, v) => setValidMap(o => ({ ...o, [k]: v })),
-    validator: []
+    value,
+    validationSummary,
+    parentForm
   };
 };
 

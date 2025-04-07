@@ -1,4 +1,4 @@
-import { useState, type ComponentPropsWithoutRef } from "react";
+import { type ComponentPropsWithoutRef } from "react";
 import {
   type AppValidationErrorType,
   emailValidator,
@@ -7,6 +7,7 @@ import {
   urlValidator
 } from "~/lib/form-validator";
 import {
+  FormParent,
   useFormBase,
   useFormNestRoot,
   useObjectKeyForm
@@ -14,7 +15,6 @@ import {
 import type DummyProfile from "~/scheme/DummyProfile";
 import { type DummyProfileLink } from "~/scheme/DummyProfile";
 import {
-  FormView,
   MockFormFrame,
   MockStringFormRow
 } from "~/components/mock/mock-form-ui";
@@ -39,34 +39,6 @@ function ProfileLinkFormField({
     </>
   );
 }
-
-type FormParent<T, E> = {
-  defaultValue: T;
-  onUpdate: (
-    v: T | ((p: T) => T),
-    s:
-      | Record<string, E | null>
-      | ((o: Record<string, E | null>) => Record<string, E | null>)
-  ) => void;
-};
-
-const useFormParent = <T, E>({ defaultValue }: { defaultValue: T }) => {
-  const [value, setValue] = useState(defaultValue);
-  const [validationSummary, setValidationSummary] = useState<
-    Record<string, E | null>
-  >({});
-  const invalid = Object.values(validationSummary).some(f => !!f);
-  const handleUpdate: FormParent<T, E>["onUpdate"] = (v, s) => {
-    setValue(v);
-    setValidationSummary(s);
-  };
-  return {
-    value,
-    invalid,
-    validationSummary,
-    handleUpdate
-  };
-};
 
 function ProfileFormField({
   parentForm
@@ -113,7 +85,7 @@ function DummyProfileForm({
     ComponentPropsWithoutRef<typeof MockFormFrame<DummyProfile>>,
     "onCancel"
   >) {
-  const { value, invalid, validationSummary, handleUpdate } = useFormParent<
+  const { value, validationSummary, parentForm } = useFormNestRoot<
     DummyProfile,
     AppValidationErrorType
   >({
@@ -121,19 +93,13 @@ function DummyProfileForm({
   });
 
   return (
-    <FormView
-      invalid={invalid}
+    <MockFormFrame
+      validationSummary={validationSummary}
       onSubmit={() => onSubmit(value)}
       onCancel={onCancel}
     >
-      <ProfileFormField
-        parentForm={{
-          defaultValue,
-          onUpdate: handleUpdate
-        }}
-      />
-      <div>{JSON.stringify(validationSummary)}</div>
-    </FormView>
+      <ProfileFormField parentForm={parentForm} />
+    </MockFormFrame>
   );
 }
 
