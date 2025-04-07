@@ -12,7 +12,7 @@ import {
   type useArrayNest,
   type FormNestParentInterface,
   type FormNestInterface,
-  type ValidationErrorType
+  type useFormBase
 } from "~/lib/react/form-nest";
 import { formatDatetimeValue } from "~/lib/string-util";
 import { formatClock } from "~/lib/date-util";
@@ -78,11 +78,13 @@ const NestSection = styled.div({
 
 function FormView({
   invalid = false,
+  summaryError,
   onSubmit,
   onCancel,
   children
 }: {
   invalid?: boolean;
+  summaryError?: string;
   onSubmit: () => void;
   onCancel?: () => void;
   children: ReactNode;
@@ -97,6 +99,7 @@ function FormView({
       }}
     >
       <FormLayoutGrid>{children}</FormLayoutGrid>
+      {summaryError ? <div>{summaryError}</div> : null}
       <Footer>
         {onCancel ? (
           <MockActionButton action={{ type: "button", onClick: onCancel }}>
@@ -112,20 +115,20 @@ function FormView({
 }
 
 export function MockFormFrame<T>({
-  form,
   children,
+  validationSummary,
   onCancel,
   onSubmit
 }: {
-  form: FormNestInterface<T, AppValidationErrorType>;
   children: ReactNode;
-  onCancel?: () => void;
-  onSubmit: (v: T) => void;
-}) {
+  validationSummary: Record<string, AppValidationErrorType | null>;
+} & Pick<ComponentPropsWithoutRef<typeof FormView>, "onCancel" | "onSubmit">) {
+  const invalid = Object.values(validationSummary).some(f => !!f);
   return (
     <FormView
-      invalid={!!form.invalid}
-      onSubmit={() => onSubmit(form.value)}
+      invalid={invalid}
+      summaryError={JSON.stringify(validationSummary)}
+      onSubmit={onSubmit}
       onCancel={onCancel}
     >
       {children}
@@ -140,7 +143,7 @@ function FormCommonRowWrapper({
   children
 }: {
   label: string;
-  error: ValidationErrorType | null;
+  error: string | null;
   counter?: { value: number; max: number; isError: boolean };
   children: ReactNode;
 }) {
@@ -161,26 +164,26 @@ function FormCommonRowWrapper({
 }
 
 function StringFormInput({
-  form,
+  value,
+  onChange,
   readOnly,
   placeholder,
-  autoComplete
-}: {
-  form: FormNestInterface<string, AppValidationErrorType>;
-} & Pick<
+  autoComplete,
+  invalid = false
+}: Pick<
   InputHTMLAttributes<HTMLInputElement>,
-  "readOnly" | "placeholder" | "autoComplete"
->) {
+  "value" | "onChange" | "readOnly" | "placeholder" | "autoComplete"
+> & { invalid?: boolean }) {
   return (
     <input
       type="text"
-      value={form.value}
-      onChange={e => form.onChange(e.target.value)}
+      value={value}
+      onChange={onChange}
       readOnly={readOnly}
       placeholder={placeholder}
       autoComplete={autoComplete}
       style={{
-        backgroundColor: form.invalid ? THEME_COLOR.ERROR : THEME_COLOR.WHITE,
+        backgroundColor: invalid ? THEME_COLOR.ERROR : THEME_COLOR.WHITE,
         display: "block",
         width: percent(100)
       }}
@@ -196,17 +199,21 @@ export function MockStringFormRow({
   label,
   subAction
 }: {
+  form: ReturnType<typeof useFormBase<string, AppValidationErrorType>>;
   label: string;
   subAction?: {
     label: string;
     disabled?: boolean;
     onClick: () => void;
   };
-} & ComponentPropsWithoutRef<typeof StringFormInput>) {
+} & Omit<
+  ComponentPropsWithoutRef<typeof StringFormInput>,
+  "value" | "onChange" | "invalid"
+>) {
   const counter = useMemo(() => {
     const [d] = compact(
-      form.validator.map(({ type, message }) =>
-        type.type === "too-long-string" ? { type, message } : null
+      form.validateResult.map(({ param, errorMessage }) =>
+        param.type === "too-long-string" ? { param, errorMessage } : null
       )
     );
     if (!d) {
@@ -214,18 +221,26 @@ export function MockStringFormRow({
     }
     return {
       value: form.value.length,
-      max: d.type.maxLength,
-      isError: !!d.message
+      max: d.param.maxLength,
+      isError: !!d.errorMessage
     };
-  }, [form.value, form.invalid]);
+  }, [form.value, form.validateResult]);
+  const currentError = useMemo(() => {
+    const e = form.validateResult.find(
+      v => v.errorMessage && v.param.type !== "required"
+    );
+    return e ? e.errorMessage : null;
+  }, [form.validateResult]);
   return (
-    <FormCommonRowWrapper label={label} error={form.invalid} counter={counter}>
+    <FormCommonRowWrapper label={label} error={currentError} counter={counter}>
       <InputWrapper>
         <StringFormInput
-          form={form}
+          value={form.value}
+          onChange={e => form.onChange(e.target.value)}
           readOnly={readOnly}
           autoComplete={autoComplete}
           placeholder={placeholder}
+          invalid={!!currentError}
         />
         {subAction ? (
           <>
@@ -251,12 +266,12 @@ export function MockTextFormRow({
   form
 }: {
   label: string;
-  form: FormNestInterface<string, AppValidationErrorType>;
+  form: ReturnType<typeof useFormBase<string, AppValidationErrorType>>;
 }) {
   const counter = useMemo(() => {
     const [d] = compact(
-      form.validator.map(({ type, message }) =>
-        type.type === "too-long-string" ? { type, message } : null
+      form.validateResult.map(({ param, errorMessage }) =>
+        param.type === "too-long-string" ? { param, errorMessage } : null
       )
     );
     if (!d) {
@@ -264,18 +279,24 @@ export function MockTextFormRow({
     }
     return {
       value: form.value.length,
-      max: d.type.maxLength,
-      isError: !!d.message
+      max: d.param.maxLength,
+      isError: !!d.errorMessage
     };
-  }, [form.value, form.invalid]);
+  }, [form.value, form.validateResult]);
+  const currentError = useMemo(() => {
+    const e = form.validateResult.find(
+      v => v.errorMessage && v.param.type !== "required"
+    );
+    return e ? e.errorMessage : null;
+  }, [form.validateResult]);
   return (
-    <FormCommonRowWrapper label={label} error={form.invalid} counter={counter}>
+    <FormCommonRowWrapper label={label} error={currentError} counter={counter}>
       <InputWrapper>
         <textarea
           value={form.value}
           onChange={e => form.onChange(e.target.value)}
           style={{
-            backgroundColor: form.invalid
+            backgroundColor: currentError
               ? THEME_COLOR.ERROR
               : THEME_COLOR.WHITE
           }}
