@@ -75,7 +75,7 @@ const NestSection = styled.div({
   borderLeft: `solid ${px(2)} #333`
 });
 
-function FormView({
+export function FormView({
   invalid = false,
   onSubmit,
   onCancel,
@@ -111,24 +111,16 @@ function FormView({
 }
 
 export function MockFormFrame<T>({
-  value,
   invalid,
   children,
   onCancel,
   onSubmit
 }: {
-  value: T;
   invalid: boolean;
   children: ReactNode;
-  onCancel?: () => void;
-  onSubmit: (v: T) => void;
-}) {
+} & Pick<ComponentPropsWithoutRef<typeof FormView>, "onCancel" | "onSubmit">) {
   return (
-    <FormView
-      invalid={invalid}
-      onSubmit={() => onSubmit(value)}
-      onCancel={onCancel}
-    >
+    <FormView invalid={invalid} onSubmit={onSubmit} onCancel={onCancel}>
       {children}
     </FormView>
   );
