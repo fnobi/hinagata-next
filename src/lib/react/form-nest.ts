@@ -107,21 +107,85 @@ export const useSubFormNest = <T, P, E>({
   };
 };
 
+export const useFormBase = <T, E>({
+  defaultValue,
+  validators,
+  onUpdate
+}: {
+  defaultValue: T;
+  validators: {
+    param: E;
+    validate: (v: T) => string | null;
+  }[];
+  onUpdate?: (
+    value: T,
+    validateResult: {
+      param: E;
+      errorMessage: string | null;
+    }[]
+  ) => void;
+}) => {
+  const calcValidateResult = (v: T) =>
+    validators.map(d => ({
+      param: d.param,
+      errorMessage: d.validate(v)
+    }));
+
+  const [editing, setEditing] = useState(defaultValue);
+  const [validateResult, setValidateResult] = useState(
+    calcValidateResult(defaultValue)
+  );
+
+  useEffect(() => {
+    if (onUpdate) {
+      onUpdate(editing, validateResult);
+    }
+  }, [editing, validateResult]);
+
+  const onChange = (v: T) => {
+    const r = calcValidateResult(v);
+    setEditing(v);
+    setValidateResult(r);
+  };
+
+  return {
+    value: editing,
+    validateResult,
+    onChange
+  };
+};
+
 export const useObjectKeyForm = <P, K extends keyof P, E>({
   key,
-  parent,
-  validator
-}: { key: K } & Pick<
-  Parameters<typeof useSubFormNest<P[K], P, E>>[0],
-  "parent" | "validator"
->) =>
-  useSubFormNest<P[K], P, E>({
-    key,
-    parent,
-    pull: o => o[key],
-    push: (v, o) => ({ ...o, [key]: v }),
-    validator
+  parentForm,
+  validators
+}: {
+  key: K;
+  parentForm: {
+    defaultValue: P;
+    onUpdate: (
+      v: P | ((p: P) => P),
+      s:
+        | Record<string, E | null>
+        | ((o: Record<string, E | null>) => Record<string, E | null>)
+    ) => void;
+  };
+} & Pick<Parameters<typeof useFormBase<P[K], E>>[0], "validators">) => {
+  return useFormBase<P[K], E>({
+    defaultValue: parentForm.defaultValue[key],
+    validators,
+    onUpdate: (v, r) => {
+      const currentError = r.find(rr => rr.errorMessage);
+      parentForm.onUpdate(
+        p => ({ ...p, [key]: v }),
+        o => ({
+          ...o,
+          [key]: currentError ? currentError.param : null
+        })
+      );
+    }
   });
+};
 
 const normalizeArrayLength = <T>(arr: T[], l: number, make: () => T) =>
   arr.length >= l ? arr : [...arr, ...makeArray(l - arr.length).map(make)];

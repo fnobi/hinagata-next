@@ -11,7 +11,8 @@ import { em, percent, px } from "~/lib/css-util";
 import {
   type useArrayNest,
   type FormNestParentInterface,
-  type FormNestInterface
+  type FormNestInterface,
+  type useFormBase
 } from "~/lib/react/form-nest";
 import { formatDatetimeValue } from "~/lib/string-util";
 import { formatClock } from "~/lib/date-util";
@@ -189,7 +190,7 @@ export function MockStringFormRow({
   label,
   subAction
 }: {
-  form: FormNestInterface<string, AppValidationErrorType>;
+  form: ReturnType<typeof useFormBase<string, AppValidationErrorType>>;
   label: string;
   subAction?: {
     label: string;
@@ -202,8 +203,8 @@ export function MockStringFormRow({
 >) {
   const counter = useMemo(() => {
     const [d] = compact(
-      form.validator.map(({ param: type, message }) =>
-        type.type === "too-long-string" ? { type, message } : null
+      form.validateResult.map(({ param, errorMessage }) =>
+        param.type === "too-long-string" ? { param, errorMessage } : null
       )
     );
     if (!d) {
@@ -211,16 +212,16 @@ export function MockStringFormRow({
     }
     return {
       value: form.value.length,
-      max: d.type.maxLength,
-      isError: !!d.message
+      max: d.param.maxLength,
+      isError: !!d.errorMessage
     };
-  }, [form.value, form.invalid]);
+  }, [form.value, form.validateResult]);
   const currentError = useMemo(() => {
-    const [e] = form.validator.filter(
-      v => v.message && v.param.type !== "required"
+    const [e] = form.validateResult.filter(
+      v => v.errorMessage && v.param.type !== "required"
     );
-    return e ? e.message : null;
-  }, [form.validator]);
+    return e ? e.errorMessage : null;
+  }, [form.validateResult]);
   return (
     <FormCommonRowWrapper label={label} error={currentError} counter={counter}>
       <InputWrapper>

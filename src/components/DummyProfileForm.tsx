@@ -1,4 +1,4 @@
-import { useEffect, useState, type ComponentPropsWithoutRef } from "react";
+import { useState, type ComponentPropsWithoutRef } from "react";
 import {
   type AppValidationErrorType,
   emailValidator,
@@ -6,116 +6,18 @@ import {
   requiredValidator,
   urlValidator
 } from "~/lib/form-validator";
-import { useFormNestRoot } from "~/lib/react/form-nest";
+import {
+  useFormBase,
+  useFormNestRoot,
+  useObjectKeyForm
+} from "~/lib/react/form-nest";
 import type DummyProfile from "~/scheme/DummyProfile";
 import { type DummyProfileLink } from "~/scheme/DummyProfile";
-import { FormView, MockFormFrame } from "~/components/mock/mock-form-ui";
-
-const useFormBase = <T, E>({
-  defaultValue,
-  validators,
-  onUpdate
-}: {
-  defaultValue: T;
-  validators: {
-    param: E;
-    validate: (v: T) => string | null;
-  }[];
-  onUpdate?: (
-    value: T,
-    validateResult: {
-      param: E;
-      errorMessage: string | null;
-    }[]
-  ) => void;
-}) => {
-  const calcValidateResult = (v: T) =>
-    validators.map(d => ({
-      param: d.param,
-      errorMessage: d.validate(v)
-    }));
-
-  const [editing, setEditing] = useState(defaultValue);
-  const [validateResult, setValidateResult] = useState(
-    calcValidateResult(defaultValue)
-  );
-
-  useEffect(() => {
-    if (onUpdate) {
-      onUpdate(editing, validateResult);
-    }
-  }, [editing, validateResult]);
-
-  const onChange = (v: T) => {
-    const r = calcValidateResult(v);
-    setEditing(v);
-    setValidateResult(r);
-  };
-
-  return {
-    value: editing,
-    validateResult,
-    onChange
-  };
-};
-
-const useObjectKeyForm = <P, K extends keyof P, E>({
-  key,
-  parentForm,
-  validators
-}: {
-  key: K;
-  parentForm: {
-    defaultValue: P;
-    onUpdate: (
-      v: P | ((p: P) => P),
-      s:
-        | Record<string, E | null>
-        | ((o: Record<string, E | null>) => Record<string, E | null>)
-    ) => void;
-  };
-} & Pick<Parameters<typeof useFormBase<P[K], E>>[0], "validators">) => {
-  return useFormBase<P[K], E>({
-    defaultValue: parentForm.defaultValue[key],
-    validators,
-    onUpdate: (v, r) => {
-      const currentError = r.find(rr => rr.errorMessage);
-      parentForm.onUpdate(
-        p => ({ ...p, [key]: v }),
-        o => ({
-          ...o,
-          [key]: currentError ? currentError.param : null
-        })
-      );
-    }
-  });
-};
-
-function StringFormRow({
-  label,
-  form
-}: {
-  label: string;
-  form: ReturnType<typeof useFormBase<string, AppValidationErrorType>>;
-}) {
-  return (
-    <div>
-      <p>{label}</p>
-      <p>
-        <input
-          type="text"
-          value={form.value}
-          onChange={e => form.onChange(e.target.value)}
-        />
-      </p>
-      {form.validateResult
-        .filter(r => !!r.errorMessage)
-        .map(r => (
-          <p key={r.param.type}>{r.errorMessage}</p>
-        ))}
-    </div>
-  );
-}
+import {
+  FormView,
+  MockFormFrame,
+  MockStringFormRow
+} from "~/components/mock/mock-form-ui";
 
 function ProfileLinkFormField({
   defaultValue
@@ -132,8 +34,8 @@ function ProfileLinkFormField({
   });
   return (
     <>
-      <StringFormRow label="URL" form={urlForm}></StringFormRow>
-      <StringFormRow label="ラベル" form={labelForm}></StringFormRow>
+      <MockStringFormRow label="URL" form={urlForm}></MockStringFormRow>
+      <MockStringFormRow label="ラベル" form={labelForm}></MockStringFormRow>
     </>
   );
 }
@@ -183,8 +85,8 @@ function ProfileFormField({
   });
   return (
     <>
-      <StringFormRow label="名前" form={nameForm} />
-      <StringFormRow label="メールアドレス" form={emailForm} />
+      <MockStringFormRow label="名前" form={nameForm} />
+      <MockStringFormRow label="メールアドレス" form={emailForm} />
       {/* <MockArrayFormRow
         label="リンク"
         form={profileLinkForm}
