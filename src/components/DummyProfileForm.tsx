@@ -8,29 +8,32 @@ import {
 } from "~/lib/form-validator";
 import {
   FormParent,
-  useFormBase,
+  useArrayNest,
   useFormNestRoot,
   useObjectKeyForm
 } from "~/lib/react/form-nest";
 import type DummyProfile from "~/scheme/DummyProfile";
 import { type DummyProfileLink } from "~/scheme/DummyProfile";
 import {
+  MockArrayFormRow,
   MockFormFrame,
   MockStringFormRow
 } from "~/components/mock/mock-form-ui";
 
 function ProfileLinkFormField({
-  defaultValue
+  parentForm
 }: {
-  defaultValue: DummyProfileLink;
+  parentForm: FormParent<DummyProfileLink, AppValidationErrorType>;
 }) {
-  const urlForm = useFormBase({
-    defaultValue: defaultValue.url,
-    validators: [requiredValidator(), urlValidator()]
+  const urlForm = useObjectKeyForm({
+    key: "url",
+    validators: [requiredValidator(), urlValidator()],
+    parentForm
   });
-  const labelForm = useFormBase({
-    defaultValue: defaultValue.label,
-    validators: [requiredValidator(), maxLengthValidator(10)]
+  const labelForm = useObjectKeyForm({
+    key: "label",
+    validators: [requiredValidator(), maxLengthValidator(10)],
+    parentForm
   });
   return (
     <>
@@ -55,6 +58,18 @@ function ProfileFormField({
     validators: [requiredValidator(), emailValidator()],
     parentForm
   });
+  const profileLinkForm = useArrayNest<
+    DummyProfileLink,
+    DummyProfile,
+    AppValidationErrorType
+  >({
+    parentForm,
+    pull: p => p.profileLinks,
+    push: (v, p) => ({ ...p, profileLinks: v }),
+    makeNew: () => ({ label: "", url: "" }),
+    errorKey: "profileLinks",
+    validators: []
+  });
   return (
     <>
       <MockStringFormRow label="名前" form={nameForm} autoComplete="name" />
@@ -63,12 +78,12 @@ function ProfileFormField({
         form={emailForm}
         autoComplete="email"
       />
-      {/* <MockArrayFormRow
+      <MockArrayFormRow
         label="リンク"
         form={profileLinkForm}
         Item={ProfileLinkFormField}
         calcItemProps={() => ({})}
-      /> */}
+      />
     </>
   );
 }

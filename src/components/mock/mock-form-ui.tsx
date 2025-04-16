@@ -10,9 +10,9 @@ import { THEME_COLOR } from "~/local/emotion-mixin";
 import { em, percent, px } from "~/lib/css-util";
 import {
   type useArrayNest,
-  type FormNestParentInterface,
   type FormNestInterface,
-  type useFormBase
+  type useFormBase,
+  FormParent
 } from "~/lib/react/form-nest";
 import { formatDatetimeValue } from "~/lib/string-util";
 import { formatClock } from "~/lib/date-util";
@@ -588,11 +588,16 @@ export function MockArrayFormRow<T, P, R>({
   form: ReturnType<typeof useArrayNest<T, P, AppValidationErrorType>>;
   label: string;
   Item: FunctionComponent<
-    { form: FormNestParentInterface<T, AppValidationErrorType> } & R
+    { parentForm: FormParent<T, AppValidationErrorType> } & R
   >;
   calcItemProps: (i: number) => R;
 }) {
   const { canPlus, canMinus } = useMemo(() => {
+    return {
+      canPlus: true,
+      canMinus: true
+    };
+    /*
     const { length: l } = form.subForms;
     const [param] = form.validator.map(v =>
       v.param.type === "invalid-array-length" ? v.param : null
@@ -602,6 +607,7 @@ export function MockArrayFormRow<T, P, R>({
       canPlus: maxLength >= 0 ? maxLength > l : true,
       canMinus: minLength < l
     };
+    */
   }, [form.subForms.length]);
 
   return (
@@ -610,7 +616,7 @@ export function MockArrayFormRow<T, P, R>({
         <NestSection key={i}>
           <FormLayoutGrid>
             {/* eslint-disable-next-line react/jsx-props-no-spreading */}
-            <Item form={f} {...calcItemProps(i)} />
+            <Item parentForm={f} {...calcItemProps(i)} />
           </FormLayoutGrid>
         </NestSection>
       ))}
