@@ -27,14 +27,14 @@ function ProfileLinkFormField({
   parentForm: FormParent<DummyProfileLink, AppValidationErrorType>;
 }) {
   const urlForm = useObjectKeyForm({
+    parentForm,
     key: "url",
-    validators: [requiredValidator(), urlValidator()],
-    parentForm
+    validators: [requiredValidator(), urlValidator()]
   });
   const labelForm = useObjectKeyForm({
+    parentForm,
     key: "label",
-    validators: [requiredValidator(), maxLengthValidator(10)],
-    parentForm
+    validators: [maxLengthValidator(10)]
   });
   return (
     <>
@@ -50,14 +50,14 @@ function ProfileFormField({
   parentForm: FormParent<DummyProfile, AppValidationErrorType>;
 }) {
   const nameForm = useObjectKeyForm({
+    parentForm,
     key: "name",
-    validators: [requiredValidator(), maxLengthValidator(10)],
-    parentForm
+    validators: [requiredValidator(), maxLengthValidator(10)]
   });
   const emailForm = useObjectKeyForm({
+    parentForm,
     key: "email",
-    validators: [requiredValidator(), emailValidator()],
-    parentForm
+    validators: [requiredValidator(), emailValidator()]
   });
   const profileLinkForm = useArrayNest<
     DummyProfileLink,
