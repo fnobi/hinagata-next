@@ -158,9 +158,7 @@ function FormCommonRowWrapper({
       </FormRowHeader>
       {children}
       {error ? (
-        <ValidationErrorText>
-          {error ? error.errorMessage : null}
-        </ValidationErrorText>
+        <ValidationErrorText>{error.errorMessage}</ValidationErrorText>
       ) : null}
     </div>
   );

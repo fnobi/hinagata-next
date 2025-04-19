@@ -59,11 +59,7 @@ function ProfileFormField({
     key: "email",
     validators: [requiredValidator(), emailValidator()]
   });
-  const profileLinkForm = useArrayNest<
-    DummyProfileLink,
-    DummyProfile,
-    AppValidationErrorType
-  >({
+  const profileLinkForm = useArrayNest({
     parentForm,
     pull: p => p.profileLinks,
     push: (v, p) => ({ ...p, profileLinks: v }),
