@@ -3,25 +3,29 @@ import { compact, flatten } from "~/lib/array-util";
 
 type FormValueKey = string | number | symbol;
 
+type FormValidationResult<E> = { param: E; errorMessage: string | null };
+
+type FormValidationSummary<E> = Record<string, E | null>;
+
 export interface FormNestValidator<T, E> {
   param: E;
-  validate: (v: T) => string | null;
+  validate: (v: T) => FormValidationResult<E>["errorMessage"];
 }
 
 export type FormNestInterface<T, E> = {
   value: T;
-  validateResult: { param: E; errorMessage: string | null }[];
-  currentError: { param: E; errorMessage: string | null } | null;
+  validateResult: FormValidationResult<E>[];
+  currentError: FormValidationResult<E> | null;
   onChange: (v: T) => void;
 };
 
-export type FormParent<T, E> = {
+export type FormNestParentInterface<T, E> = {
   defaultValue: T;
   onUpdate: (
     v: T | ((p: T) => T),
     s:
-      | Record<string, E | null>
-      | ((o: Record<string, E | null>) => Record<string, E | null>)
+      | FormValidationSummary<E>
+      | ((o: FormValidationSummary<E>) => FormValidationSummary<E>)
   ) => void;
 };
 
@@ -32,9 +36,9 @@ export const useFormNestRoot = <T, E>({
 }) => {
   const [value, setValue] = useState(defaultValue);
   const [validationSummary, setValidationSummary] = useState<
-    Record<string, E | null>
+    FormValidationSummary<E>
   >({});
-  const parentForm: FormParent<T, E> = {
+  const parentForm: FormNestParentInterface<T, E> = {
     defaultValue,
     onUpdate: (v, s) => {
       setValue(v);
@@ -58,13 +62,7 @@ export const useFormBase = <T, E>({
     param: E;
     validate: (v: T) => string | null;
   }[];
-  onUpdate?: (
-    value: T,
-    validateResult: {
-      param: E;
-      errorMessage: string | null;
-    }[]
-  ) => void;
+  onUpdate?: (value: T, validateResult: FormValidationResult<E>[]) => void;
 }): FormNestInterface<T, E> => {
   const calcValidateResult = (v: T) =>
     validators.map(d => ({
@@ -109,7 +107,7 @@ export const useSubFormNest = <T, P, E>({
   errorKey,
   validators
 }: {
-  parentForm: FormParent<P, E>;
+  parentForm: FormNestParentInterface<P, E>;
   pull: (p: P) => T;
   push: (v: T, p: P) => P;
   errorKey: FormValueKey;
@@ -136,7 +134,7 @@ export const useObjectKeyForm = <P, K extends keyof P, E>({
   validators
 }: {
   key: K;
-  parentForm: FormParent<P, E>;
+  parentForm: FormNestParentInterface<P, E>;
 } & Pick<Parameters<typeof useFormBase<P[K], E>>[0], "validators">) =>
   useSubFormNest<P[K], P, E>({
     parentForm,
@@ -163,7 +161,7 @@ export const useArrayNest = <T, P, E>({
     }));
 
   const [arr, setArr] = useState<T[]>(pull(parentForm.defaultValue));
-  const vrsRef = useRef<Record<string, E | null>[]>([]);
+  const vrsRef = useRef<FormValidationSummary<E>[]>([]);
   const [rootValidateResult, setRootValidateResult] = useState<
     ReturnType<typeof calcValidateResult>
   >(calcValidateResult(pull(parentForm.defaultValue)));
@@ -176,7 +174,7 @@ export const useArrayNest = <T, P, E>({
   const onChange = (
     fn: (v: T[]) => {
       value: T[];
-      validationResult?: { index: number; error: Record<string, E | null> };
+      validationResult?: { index: number; error: FormValidationSummary<E> };
     }
   ) => {
     const { value: v, validationResult } = fn(arr);
@@ -205,7 +203,7 @@ export const useArrayNest = <T, P, E>({
 
   return {
     subForms: arr.map(
-      (childValue, index): FormParent<T, E> => ({
+      (childValue, index): FormNestParentInterface<T, E> => ({
         defaultValue: childValue,
         onUpdate: (v, r) =>
           onChange(vv => ({

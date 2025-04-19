@@ -8,7 +8,7 @@ import {
   urlValidator
 } from "~/lib/form-validator";
 import {
-  type FormParent,
+  type FormNestParentInterface,
   useArrayNest,
   useFormNestRoot,
   useObjectKeyForm
@@ -24,7 +24,7 @@ import {
 function ProfileLinkFormField({
   parentForm
 }: {
-  parentForm: FormParent<DummyProfileLink, AppValidationErrorType>;
+  parentForm: FormNestParentInterface<DummyProfileLink, AppValidationErrorType>;
 }) {
   const urlForm = useObjectKeyForm({
     parentForm,
@@ -47,7 +47,7 @@ function ProfileLinkFormField({
 function ProfileFormField({
   parentForm
 }: {
-  parentForm: FormParent<DummyProfile, AppValidationErrorType>;
+  parentForm: FormNestParentInterface<DummyProfile, AppValidationErrorType>;
 }) {
   const nameForm = useObjectKeyForm({
     parentForm,

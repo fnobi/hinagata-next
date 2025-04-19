@@ -10,7 +10,7 @@ import { THEME_COLOR } from "~/local/emotion-mixin";
 import { em, percent, px } from "~/lib/css-util";
 import {
   type useArrayNest,
-  type FormParent,
+  type FormNestParentInterface,
   FormNestInterface
 } from "~/lib/react/form-nest";
 import { formatDatetimeValue } from "~/lib/string-util";
@@ -603,7 +603,7 @@ export function MockArrayFormRow<T, P, R>({
   form: ReturnType<typeof useArrayNest<T, P, AppValidationErrorType>>;
   label: string;
   Item: FunctionComponent<
-    { parentForm: FormParent<T, AppValidationErrorType> } & R
+    { parentForm: FormNestParentInterface<T, AppValidationErrorType> } & R
   >;
   calcItemProps: (i: number) => R;
 }) {
