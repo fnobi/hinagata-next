@@ -13,7 +13,7 @@ export interface FormNestValidator<T, E> {
 }
 
 export type FormNestInterface<T, E> = {
-  value: T;
+  defaultValue: T;
   validateResult: FormValidationResult<E>[];
   currentError: FormValidationResult<E> | null;
   onChange: (v: T) => void;
@@ -70,7 +70,6 @@ export const useFormBase = <T, E>({
       errorMessage: d.validate(v)
     }));
 
-  const [editing, setEditing] = useState(defaultValue);
   const [validateResult, setValidateResult] = useState(
     calcValidateResult(defaultValue)
   );
@@ -80,20 +79,20 @@ export const useFormBase = <T, E>({
     [validateResult]
   );
 
-  useEffect(() => {
-    if (onUpdate) {
-      onUpdate(editing, validateResult);
-    }
-  }, [editing, validateResult]);
-
   const onChange = (v: T) => {
     const r = calcValidateResult(v);
-    setEditing(v);
+    if (onUpdate) {
+      onUpdate(v, r);
+    }
     setValidateResult(r);
   };
 
+  useEffect(() => {
+    onChange(defaultValue);
+  }, []);
+
   return {
-    value: editing,
+    defaultValue,
     validateResult,
     currentError,
     onChange
