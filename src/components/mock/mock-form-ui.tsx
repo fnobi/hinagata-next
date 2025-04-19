@@ -592,14 +592,9 @@ export function MockArrayFormRow<T, P, R>({
   >;
   calcItemProps: (i: number) => R;
 }) {
-  const { canPlus, canMinus } = useMemo(
-    () => ({
-      canPlus: true,
-      canMinus: true
-    }),
-    /*
+  const { canPlus, canMinus } = useMemo(() => {
     const { length: l } = form.subForms;
-    const [param] = form.validator.map(v =>
+    const [param] = form.validateResult.map(v =>
       v.param.type === "invalid-array-length" ? v.param : null
     );
     const { minLength = 0, maxLength = -1 } = param || {};
@@ -607,9 +602,7 @@ export function MockArrayFormRow<T, P, R>({
       canPlus: maxLength >= 0 ? maxLength > l : true,
       canMinus: minLength < l
     };
-    */
-    [form.subForms.length]
-  );
+  }, [form.subForms.length]);
 
   const currentError = useMemo(() => {
     const e = form.validateResult.find(v => v.errorMessage);
