@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { compact, flatten } from "~/lib/array-util";
 
 type FormValueKey = string | number | symbol;
@@ -10,14 +10,9 @@ export interface FormNestValidator<T, E> {
 
 export type FormNestInterface<T, E> = {
   value: T;
-  validator: { param: E; message: string | null }[];
-  invalid: string | null;
-  onChange: (v: T | ((o: T) => T)) => void;
-};
-
-export type FormNestParentInterface<T, E> = FormNestInterface<T, E> & {
-  subValidationMap: Record<FormValueKey, string | null>;
-  onSubValidation: (id: FormValueKey, invalid: string | null) => void;
+  validateResult: { param: E; errorMessage: string | null }[];
+  currentError: { param: E; errorMessage: string | null } | null;
+  onChange: (v: T) => void;
 };
 
 export type FormParent<T, E> = {
@@ -70,7 +65,7 @@ export const useFormBase = <T, E>({
       errorMessage: string | null;
     }[]
   ) => void;
-}) => {
+}): FormNestInterface<T, E> => {
   const calcValidateResult = (v: T) =>
     validators.map(d => ({
       param: d.param,
@@ -80,6 +75,11 @@ export const useFormBase = <T, E>({
   const [editing, setEditing] = useState(defaultValue);
   const [validateResult, setValidateResult] = useState(
     calcValidateResult(defaultValue)
+  );
+
+  const currentError = useMemo(
+    () => validateResult.find(d => d.errorMessage) || null,
+    [validateResult]
   );
 
   useEffect(() => {
@@ -97,6 +97,7 @@ export const useFormBase = <T, E>({
   return {
     value: editing,
     validateResult,
+    currentError,
     onChange
   };
 };
@@ -167,6 +168,11 @@ export const useArrayNest = <T, P, E>({
     ReturnType<typeof calcValidateResult>
   >(calcValidateResult(pull(parentForm.defaultValue)));
 
+  const currentError = useMemo(
+    () => rootValidateResult.find(d => d.errorMessage) || null,
+    [rootValidateResult]
+  );
+
   const onChange = (
     fn: (v: T[]) => {
       value: T[];
@@ -203,19 +209,19 @@ export const useArrayNest = <T, P, E>({
         defaultValue: childValue,
         onUpdate: (v, r) =>
           onChange(vv => ({
-              value: vv.map((vvv, i) =>
-                // eslint-disable-next-line no-nested-ternary
-                i === index ? (v instanceof Function ? v(vvv) : v) : vvv
-              ),
-              validationResult: {
-                index,
-                error: r instanceof Function ? r(vrsRef.current[index]) : r
-              }
-            }))
+            value: vv.map((vvv, i) =>
+              // eslint-disable-next-line no-nested-ternary
+              i === index ? (v instanceof Function ? v(vvv) : v) : vvv
+            ),
+            validationResult: {
+              index,
+              error: r instanceof Function ? r(vrsRef.current[index]) : r
+            }
+          }))
       })
     ),
-    invalid: null,
     validateResult: rootValidateResult,
+    currentError,
     plusCount: () => onChange(v => ({ value: [...v, makeNew()] })),
     minusCount: () => onChange(v => ({ value: v.slice(0, -1) }))
   };

@@ -10,9 +10,8 @@ import { THEME_COLOR } from "~/local/emotion-mixin";
 import { em, percent, px } from "~/lib/css-util";
 import {
   type useArrayNest,
-  type FormNestInterface,
-  type useFormBase,
-  type FormParent
+  type FormParent,
+  FormNestInterface
 } from "~/lib/react/form-nest";
 import { formatDatetimeValue } from "~/lib/string-util";
 import { formatClock } from "~/lib/date-util";
@@ -143,7 +142,7 @@ function FormCommonRowWrapper({
   children
 }: {
   label: string;
-  error: string | null;
+  error: { param: AppValidationErrorType; errorMessage: string | null } | null;
   counter?: { value: number; max: number; isError: boolean };
   children: ReactNode;
 }) {
@@ -158,7 +157,11 @@ function FormCommonRowWrapper({
         ) : null}
       </FormRowHeader>
       {children}
-      {error ? <ValidationErrorText>{error}</ValidationErrorText> : null}
+      {error ? (
+        <ValidationErrorText>
+          {error ? error.errorMessage : null}
+        </ValidationErrorText>
+      ) : null}
     </div>
   );
 }
@@ -199,7 +202,7 @@ export function MockStringFormRow({
   label,
   subAction
 }: {
-  form: ReturnType<typeof useFormBase<string, AppValidationErrorType>>;
+  form: FormNestInterface<string, AppValidationErrorType>;
   label: string;
   subAction?: {
     label: string;
@@ -225,14 +228,19 @@ export function MockStringFormRow({
       isError: !!d.errorMessage
     };
   }, [form.value, form.validateResult]);
-  const currentError = useMemo(() => {
-    const e = form.validateResult.find(
-      v => v.errorMessage && v.param.type !== "required"
-    );
-    return e ? e.errorMessage : null;
-  }, [form.validateResult]);
+  const validCurrentError = useMemo(
+    () =>
+      form.currentError && form.currentError.param.type !== "required"
+        ? form.currentError
+        : null,
+    [form.currentError]
+  );
   return (
-    <FormCommonRowWrapper label={label} error={currentError} counter={counter}>
+    <FormCommonRowWrapper
+      label={label}
+      error={validCurrentError}
+      counter={counter}
+    >
       <InputWrapper>
         <StringFormInput
           value={form.value}
@@ -240,7 +248,7 @@ export function MockStringFormRow({
           readOnly={readOnly}
           autoComplete={autoComplete}
           placeholder={placeholder}
-          invalid={!!currentError}
+          invalid={!!validCurrentError}
         />
         {subAction ? (
           <>
@@ -266,7 +274,7 @@ export function MockTextFormRow({
   form
 }: {
   label: string;
-  form: ReturnType<typeof useFormBase<string, AppValidationErrorType>>;
+  form: FormNestInterface<string, AppValidationErrorType>;
 }) {
   const counter = useMemo(() => {
     const [d] = compact(
@@ -283,20 +291,27 @@ export function MockTextFormRow({
       isError: !!d.errorMessage
     };
   }, [form.value, form.validateResult]);
-  const currentError = useMemo(() => {
-    const e = form.validateResult.find(
-      v => v.errorMessage && v.param.type !== "required"
-    );
-    return e ? e.errorMessage : null;
-  }, [form.validateResult]);
+
+  const validCurrentError = useMemo(
+    () =>
+      form.currentError && form.currentError.param.type !== "required"
+        ? form.currentError
+        : null,
+    [form.currentError]
+  );
+
   return (
-    <FormCommonRowWrapper label={label} error={currentError} counter={counter}>
+    <FormCommonRowWrapper
+      label={label}
+      error={validCurrentError}
+      counter={counter}
+    >
       <InputWrapper>
         <textarea
           value={form.value}
           onChange={e => form.onChange(e.target.value)}
           style={{
-            backgroundColor: currentError
+            backgroundColor: validCurrentError
               ? THEME_COLOR.ERROR
               : THEME_COLOR.WHITE
           }}
@@ -324,7 +339,7 @@ export function MockNumberFormRow({
   children?: ReactNode;
 }) {
   return (
-    <FormCommonRowWrapper label={label} error={form.invalid}>
+    <FormCommonRowWrapper label={label} error={form.currentError}>
       <InputWrapper>
         <input
           type="number"
@@ -334,7 +349,7 @@ export function MockNumberFormRow({
           max={max}
           step={step}
           style={{
-            backgroundColor: form.invalid
+            backgroundColor: form.currentError
               ? THEME_COLOR.ERROR
               : THEME_COLOR.WHITE
           }}
@@ -358,7 +373,7 @@ export function MockDateTimeFormRow({
   const setter = (n: number) =>
     form.onChange(round ? Math.floor(n / round) * round : n);
   return (
-    <FormCommonRowWrapper label={label} error={form.invalid}>
+    <FormCommonRowWrapper label={label} error={form.currentError}>
       {form.value ? (
         <>
           <input
@@ -366,7 +381,7 @@ export function MockDateTimeFormRow({
             value={formatDatetimeValue(form.value)}
             onChange={e => setter(new Date(e.target.value).getTime())}
             style={{
-              backgroundColor: form.invalid
+              backgroundColor: form.currentError
                 ? THEME_COLOR.ERROR
                 : THEME_COLOR.WHITE
             }}
@@ -405,7 +420,7 @@ export function MockClockFormRow({
   form: FormNestInterface<string, AppValidationErrorType>;
 }) {
   return (
-    <FormCommonRowWrapper label={label} error={form.invalid}>
+    <FormCommonRowWrapper label={label} error={form.currentError}>
       {form.value ? (
         <>
           <input
@@ -416,7 +431,7 @@ export function MockClockFormRow({
               form.onChange(v);
             }}
             style={{
-              backgroundColor: form.invalid
+              backgroundColor: form.currentError
                 ? THEME_COLOR.ERROR
                 : THEME_COLOR.WHITE
             }}
@@ -476,7 +491,7 @@ export function MockPulldownFormRow({
   options: { value: string; label: string }[];
 }) {
   return (
-    <FormCommonRowWrapper label={label} error={form.invalid}>
+    <FormCommonRowWrapper label={label} error={form.currentError}>
       <select value={form.value} onChange={e => form.onChange(e.target.value)}>
         <option value="">-</option>
         {options.map(({ value: v, label: l }) => (
@@ -498,7 +513,7 @@ export function MockRadioSelectFormRow({
   options: { value: string; label: string }[];
 }) {
   return (
-    <FormCommonRowWrapper label={label} error={form.invalid}>
+    <FormCommonRowWrapper label={label} error={form.currentError}>
       <ul>
         {options.map(({ value: v, label: l }) => (
           <li key={v}>
@@ -544,10 +559,10 @@ export function MockRangeFormRow({
     [form.value, displayRate]
   );
   return (
-    <FormCommonRowWrapper label={label} error={form.invalid}>
+    <FormCommonRowWrapper label={label} error={form.currentError}>
       <p
         style={{
-          color: form.invalid ? THEME_COLOR.ERROR : "inherit"
+          color: form.currentError ? THEME_COLOR.ERROR : "inherit"
         }}
       >
         {displayValue}
@@ -604,13 +619,8 @@ export function MockArrayFormRow<T, P, R>({
     };
   }, [form.subForms.length]);
 
-  const currentError = useMemo(() => {
-    const e = form.validateResult.find(v => v.errorMessage);
-    return e ? e.errorMessage : null;
-  }, [form.validateResult]);
-
   return (
-    <FormCommonRowWrapper label={label} error={currentError}>
+    <FormCommonRowWrapper label={label} error={form.currentError}>
       {form.subForms.map((f, i) => (
         <NestSection key={i}>
           <FormLayoutGrid>
