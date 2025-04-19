@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { compact, flatten, makeArray } from "~/lib/array-util";
+import { compact, flatten } from "~/lib/array-util";
 
 type FormValueKey = string | number | symbol;
 
@@ -18,17 +18,6 @@ export type FormNestInterface<T, E> = {
 export type FormNestParentInterface<T, E> = FormNestInterface<T, E> & {
   subValidationMap: Record<FormValueKey, string | null>;
   onSubValidation: (id: FormValueKey, invalid: string | null) => void;
-};
-
-const validateFormValue = <T, E>({
-  value,
-  validator
-}: {
-  value: T;
-  validator: FormNestValidator<T, E>[];
-}): string | null => {
-  const [first] = compact(validator.map(v => v.validate(value)));
-  return first || null;
 };
 
 export type FormParent<T, E> = {
@@ -156,9 +145,6 @@ export const useObjectKeyForm = <P, K extends keyof P, E>({
     validators
   });
 
-const normalizeArrayLength = <T>(arr: T[], l: number, make: () => T) =>
-  arr.length >= l ? arr : [...arr, ...makeArray(l - arr.length).map(make)];
-
 export const useArrayNest = <T, P, E>({
   parentForm,
   validators,
@@ -220,15 +206,15 @@ export const useArrayNest = <T, P, E>({
     validateResult: rootValidateResult,
     plusCount: () =>
       onChange(v => {
-        const arr = [...v, makeNew()];
-        vrsRef.current = arr.map((_, i) => vrsRef.current[i] || null);
-        return arr;
+        const newValues = [...v, makeNew()];
+        vrsRef.current = newValues.map((_, i) => vrsRef.current[i] || null);
+        return newValues;
       }),
     minusCount: () =>
       onChange(v => {
-        const arr = v.slice(0, -1);
-        vrsRef.current = arr.map((_, i) => vrsRef.current[i] || null);
-        return arr;
+        const newValues = v.slice(0, -1);
+        vrsRef.current = newValues.map((_, i) => vrsRef.current[i] || null);
+        return newValues;
       })
   };
 };

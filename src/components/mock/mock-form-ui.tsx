@@ -12,7 +12,7 @@ import {
   type useArrayNest,
   type FormNestInterface,
   type useFormBase,
-  FormParent
+  type FormParent
 } from "~/lib/react/form-nest";
 import { formatDatetimeValue } from "~/lib/string-util";
 import { formatClock } from "~/lib/date-util";
@@ -114,7 +114,7 @@ function FormView({
   );
 }
 
-export function MockFormFrame<T>({
+export function MockFormFrame({
   children,
   validationSummary,
   onCancel,
@@ -592,11 +592,11 @@ export function MockArrayFormRow<T, P, R>({
   >;
   calcItemProps: (i: number) => R;
 }) {
-  const { canPlus, canMinus } = useMemo(() => {
-    return {
+  const { canPlus, canMinus } = useMemo(
+    () => ({
       canPlus: true,
       canMinus: true
-    };
+    }),
     /*
     const { length: l } = form.subForms;
     const [param] = form.validator.map(v =>
@@ -608,7 +608,8 @@ export function MockArrayFormRow<T, P, R>({
       canMinus: minLength < l
     };
     */
-  }, [form.subForms.length]);
+    [form.subForms.length]
+  );
 
   const currentError = useMemo(() => {
     const e = form.validateResult.find(v => v.errorMessage);

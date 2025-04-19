@@ -8,7 +8,7 @@ import {
   urlValidator
 } from "~/lib/form-validator";
 import {
-  FormParent,
+  type FormParent,
   useArrayNest,
   useFormNestRoot,
   useObjectKeyForm
@@ -38,8 +38,8 @@ function ProfileLinkFormField({
   });
   return (
     <>
-      <MockStringFormRow label="URL" form={urlForm}></MockStringFormRow>
-      <MockStringFormRow label="ラベル" form={labelForm}></MockStringFormRow>
+      <MockStringFormRow label="URL" form={urlForm} />
+      <MockStringFormRow label="ラベル" form={labelForm} />
     </>
   );
 }
