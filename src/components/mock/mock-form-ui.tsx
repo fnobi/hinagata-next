@@ -610,8 +610,13 @@ export function MockArrayFormRow<T, P, R>({
     */
   }, [form.subForms.length]);
 
+  const currentError = useMemo(() => {
+    const e = form.validateResult.find(v => v.errorMessage);
+    return e ? e.errorMessage : null;
+  }, [form.validateResult]);
+
   return (
-    <FormCommonRowWrapper label={label} error={form.invalid}>
+    <FormCommonRowWrapper label={label} error={currentError}>
       {form.subForms.map((f, i) => (
         <NestSection key={i}>
           <FormLayoutGrid>

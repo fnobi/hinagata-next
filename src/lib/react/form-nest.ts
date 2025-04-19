@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { compact, makeArray } from "~/lib/array-util";
+import { useEffect, useRef, useState } from "react";
+import { compact, flatten, makeArray } from "~/lib/array-util";
 
 type FormValueKey = string | number | symbol;
 
@@ -126,7 +126,7 @@ export const useSubFormNest = <T, P, E>({
 } & Pick<Parameters<typeof useFormBase<T, E>>[0], "validators">) =>
   useFormBase<T, E>({
     defaultValue: pull(parentForm.defaultValue),
-    validators: validators,
+    validators,
     onUpdate: (v, r) =>
       parentForm.onUpdate(
         p => push(v, p),
@@ -169,74 +169,66 @@ export const useArrayNest = <T, P, E>({
 }: {
   makeNew: () => T;
 } & Parameters<typeof useSubFormNest<T[], P, E>>[0]) => {
-  const { value, validateResult, onChange } = useSubFormNest<T[], P, E>({
-    parentForm,
-    pull,
-    push,
-    errorKey,
-    validators
-  });
+  const calcValidateResult = (v: T[]) =>
+    validators.map(d => ({
+      param: d.param,
+      errorMessage: d.validate(v)
+    }));
 
-  /*
-  const values = useMemo(() => pull(parent.value), [parent.value]);
+  const [arr, setArr] = useState<T[]>(pull(parentForm.defaultValue));
+  const vrsRef = useRef<Record<string, E | null>[]>([]);
+  const [rootValidateResult, setRootValidateResult] = useState<
+    ReturnType<typeof calcValidateResult>
+  >(calcValidateResult(pull(parentForm.defaultValue)));
 
-  const [validMap, setValidMap] = useState<Record<string, string | null>[]>([]);
+  const onChange = (fn: (v: T[]) => T[]) => {
+    const v = fn(arr);
+    setArr(v);
 
-  const invalid = useMemo(
-    (): string | null => validateFormValue({ value: values, validator }),
-    [values.length]
-  );
+    const rootValidation = calcValidateResult(v);
+    setRootValidateResult(rootValidation);
 
-  useEffect(() => {
-    setValidMap(l => l.slice(0, values.length));
-  }, [values.length]);
-
-  useEffect(() => {
-    const v = flatten(validMap.map(m => Object.values(m)));
-    const [first] = compact([invalid, ...v]);
-    parent.onSubValidation(key, first || null);
-  }, [validMap, invalid]);
-  */
+    const [firstError] = compact([
+      ...rootValidation.map(d => (d.errorMessage ? d.param : null)),
+      ...flatten(vrsRef.current.map(c => (c ? Object.values(c) : [])))
+    ]);
+    parentForm.onUpdate(
+      p => push(v, p),
+      o => ({ ...o, [errorKey]: firstError || null })
+    );
+  };
 
   return {
-    subForms: value.map(
+    subForms: arr.map(
       (childValue, index): FormParent<T, E> => ({
         defaultValue: childValue,
-        onUpdate: (v, r) => {
-          const tmp = value.map((vv, i) => {
-            if (i !== index) {
-              return vv;
-            }
-            return v instanceof Function ? v(vv) : vv;
-          });
-          onChange(tmp);
-        }
-        /*
-        value,
-        invalid: null,
-        onChange: arg =>
-          parent.onChange(o => {
-            const newValue = arg instanceof Function ? arg(values[index]) : arg;
-            return push(
-              values.map((vvv, i) => (i === index ? newValue : vvv)),
-              o
+        onUpdate: (v, r) =>
+          onChange(vv => {
+            const newValue = vv.map((vvv, i) =>
+              i !== index ? vvv : v instanceof Function ? v(vvv) : v
             );
-          }),
-        subValidationMap: validMap[index] || {},
-        onSubValidation: (k, f) =>
-          setValidMap(o => {
-            const normalized = normalizeArrayLength(o, index + 1, () => ({}));
-            return normalized.map((oo, i) =>
-              i === index ? { ...oo, [k]: f } : oo
-            );
-          }),
-        validator: []
-        */
+            vrsRef.current = newValue
+              .map((_, i) => vrsRef.current[i] || null)
+              .map((vr, i) =>
+                i !== index ? vr : r instanceof Function ? r(vr) : r
+              );
+            return newValue;
+          })
       })
     ),
     invalid: null,
-    validator: [],
-    plusCount: () => onChange([...value, makeNew()]),
-    minusCount: () => onChange(value.slice(0, -1))
+    validateResult: rootValidateResult,
+    plusCount: () =>
+      onChange(v => {
+        const arr = [...v, makeNew()];
+        vrsRef.current = arr.map((_, i) => vrsRef.current[i] || null);
+        return arr;
+      }),
+    minusCount: () =>
+      onChange(v => {
+        const arr = v.slice(0, -1);
+        vrsRef.current = arr.map((_, i) => vrsRef.current[i] || null);
+        return arr;
+      })
   };
 };

@@ -1,6 +1,7 @@
 import { type ComponentPropsWithoutRef } from "react";
 import {
   type AppValidationErrorType,
+  arrayLengthValidator,
   emailValidator,
   maxLengthValidator,
   requiredValidator,
@@ -68,7 +69,7 @@ function ProfileFormField({
     push: (v, p) => ({ ...p, profileLinks: v }),
     makeNew: () => ({ label: "", url: "" }),
     errorKey: "profileLinks",
-    validators: []
+    validators: [arrayLengthValidator({ maxLength: 3 })]
   });
   return (
     <>
