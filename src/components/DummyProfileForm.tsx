@@ -97,10 +97,7 @@ function DummyProfileForm({
   Parameters<typeof useFormNestRoot<DummyProfile, AppValidationErrorType>>[0],
   "defaultValue"
 > &
-  Pick<
-    ComponentPropsWithoutRef<typeof MockFormFrame<DummyProfile>>,
-    "onCancel"
-  >) {
+  Pick<ComponentPropsWithoutRef<typeof MockFormFrame>, "onCancel">) {
   const { value, validationSummary, parentForm } = useFormNestRoot<
     DummyProfile,
     AppValidationErrorType

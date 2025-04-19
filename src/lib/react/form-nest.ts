@@ -167,12 +167,25 @@ export const useArrayNest = <T, P, E>({
     ReturnType<typeof calcValidateResult>
   >(calcValidateResult(pull(parentForm.defaultValue)));
 
-  const onChange = (fn: (v: T[]) => T[]) => {
-    const v = fn(arr);
+  const onChange = (
+    fn: (v: T[]) => {
+      value: T[];
+      validationResult?: { index: number; error: Record<string, E | null> };
+    }
+  ) => {
+    const { value: v, validationResult } = fn(arr);
     setArr(v);
 
     const rootValidation = calcValidateResult(v);
     setRootValidateResult(rootValidation);
+
+    vrsRef.current = v
+      .map((_, i) => vrsRef.current[i] || null)
+      .map((vr, i) =>
+        validationResult && i === validationResult.index
+          ? validationResult.error
+          : vr
+      );
 
     const [firstError] = compact([
       ...rootValidation.map(d => (d.errorMessage ? d.param : null)),
@@ -189,32 +202,21 @@ export const useArrayNest = <T, P, E>({
       (childValue, index): FormParent<T, E> => ({
         defaultValue: childValue,
         onUpdate: (v, r) =>
-          onChange(vv => {
-            const newValue = vv.map((vvv, i) =>
-              i !== index ? vvv : v instanceof Function ? v(vvv) : v
-            );
-            vrsRef.current = newValue
-              .map((_, i) => vrsRef.current[i] || null)
-              .map((vr, i) =>
-                i !== index ? vr : r instanceof Function ? r(vr) : r
-              );
-            return newValue;
-          })
+          onChange(vv => ({
+              value: vv.map((vvv, i) =>
+                // eslint-disable-next-line no-nested-ternary
+                i === index ? (v instanceof Function ? v(vvv) : v) : vvv
+              ),
+              validationResult: {
+                index,
+                error: r instanceof Function ? r(vrsRef.current[index]) : r
+              }
+            }))
       })
     ),
     invalid: null,
     validateResult: rootValidateResult,
-    plusCount: () =>
-      onChange(v => {
-        const newValues = [...v, makeNew()];
-        vrsRef.current = newValues.map((_, i) => vrsRef.current[i] || null);
-        return newValues;
-      }),
-    minusCount: () =>
-      onChange(v => {
-        const newValues = v.slice(0, -1);
-        vrsRef.current = newValues.map((_, i) => vrsRef.current[i] || null);
-        return newValues;
-      })
+    plusCount: () => onChange(v => ({ value: [...v, makeNew()] })),
+    minusCount: () => onChange(v => ({ value: v.slice(0, -1) }))
   };
 };
