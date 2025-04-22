@@ -52,6 +52,18 @@ export const useFormNestRoot = <T, E>({
   };
 };
 
+const calcValidateResult = <T, E>(
+  v: T,
+  validators: {
+    param: E;
+    validate: (v: T) => string | null;
+  }[]
+) =>
+  validators.map(d => ({
+    param: d.param,
+    errorMessage: d.validate(v)
+  }));
+
 export const useFormBase = <T, E>({
   defaultValue,
   validators,
@@ -64,15 +76,9 @@ export const useFormBase = <T, E>({
   }[];
   onUpdate?: (value: T, validateResult: FormValidationResult<E>[]) => void;
 }): FormNestInterface<T, E> => {
-  const calcValidateResult = (v: T) =>
-    validators.map(d => ({
-      param: d.param,
-      errorMessage: d.validate(v)
-    }));
-
   const [editing, setEditing] = useState(defaultValue);
   const [validateResult, setValidateResult] = useState(
-    calcValidateResult(defaultValue)
+    calcValidateResult(defaultValue, validators)
   );
 
   const currentError = useMemo(
@@ -87,7 +93,7 @@ export const useFormBase = <T, E>({
   }, [editing, validateResult]);
 
   const onChange = (v: T) => {
-    const r = calcValidateResult(v);
+    const r = calcValidateResult(v, validators);
     setEditing(v);
     setValidateResult(r);
   };
@@ -119,10 +125,12 @@ export const useSubFormNest = <T, P, E>({
       parentForm.onUpdate(
         p => push(v, p),
         o => {
-          const currentError = r.find(rr => rr.errorMessage);
+          const [firstError] = compact(
+            r.map(d => (d.errorMessage ? d.param : null))
+          );
           return {
             ...o,
-            [errorKey]: currentError ? currentError.param : null
+            [errorKey]: firstError || null
           };
         }
       )
@@ -154,17 +162,11 @@ export const useArrayNest = <T, P, E>({
 }: {
   makeNew: () => T;
 } & Parameters<typeof useSubFormNest<T[], P, E>>[0]) => {
-  const calcValidateResult = (v: T[]) =>
-    validators.map(d => ({
-      param: d.param,
-      errorMessage: d.validate(v)
-    }));
-
   const [arr, setArr] = useState<T[]>(pull(parentForm.defaultValue));
   const vrsRef = useRef<FormValidationSummary<E>[]>([]);
   const [rootValidateResult, setRootValidateResult] = useState<
-    ReturnType<typeof calcValidateResult>
-  >(calcValidateResult(pull(parentForm.defaultValue)));
+    ReturnType<typeof calcValidateResult<T, E>>
+  >(calcValidateResult(pull(parentForm.defaultValue), validators));
 
   const currentError = useMemo(
     () => rootValidateResult.find(d => d.errorMessage) || null,
@@ -180,7 +182,7 @@ export const useArrayNest = <T, P, E>({
     const { value: v, validationResult } = fn(arr);
     setArr(v);
 
-    const rootValidation = calcValidateResult(v);
+    const rootValidation = calcValidateResult(v, validators);
     setRootValidateResult(rootValidation);
 
     vrsRef.current = v
