@@ -16,13 +16,13 @@ const ActionItemButton = styled.button(buttonReset, actionItemCommonStyle, {
   }
 });
 
-function MockActionButton({
+const MockActionButton = ({
   children,
   action
 }: {
   children: string;
   action: CommonActionParameter | null;
-}) {
+}) => {
   if (!action || action.type === "button" || action.type === "submit") {
     return (
       <ActionItemButton
@@ -88,6 +88,6 @@ function MockActionButton({
       {children}
     </ActionItemLink>
   );
-}
+};
 
 export default MockActionButton;

@@ -5,7 +5,7 @@ import MockActionButton from "~/components/mock/MockActionButton";
 import DummyProfileListView from "~/components/DummyProfileListView";
 import MockStaticLayout from "~/components/mock/MockStaticLayout";
 
-function TopScene() {
+const TopScene = () => {
   const [list, setList] = useState<{ id: number; data: DummyProfile }[]>([]);
   const [formId, setFormId] = useState(0);
 
@@ -56,6 +56,6 @@ function TopScene() {
       )}
     </MockStaticLayout>
   );
-}
+};
 
 export default TopScene;

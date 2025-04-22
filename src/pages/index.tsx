@@ -1,7 +1,5 @@
 import TopScene from "~/components/TopScene";
 
-function PageIndex() {
-  return <TopScene />;
-}
+const PageIndex = () => <TopScene />;
 
 export default PageIndex;

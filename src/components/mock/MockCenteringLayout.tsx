@@ -12,8 +12,8 @@ const Wrapper = styled.div({
   alignItems: "center"
 });
 
-function MockCenteringLayout({ children }: { children: string }) {
-  return <Wrapper>{children}</Wrapper>;
-}
+const MockCenteringLayout = ({ children }: { children: string }) => (
+  <Wrapper>{children}</Wrapper>
+);
 
 export default MockCenteringLayout;

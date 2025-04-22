@@ -44,18 +44,18 @@ type SendEventProps = {
   value?: number;
 };
 
-export function sendGAEvent({
+export const sendGAEvent = ({
   action,
   category,
   label,
   value
-}: SendEventProps) {
+}: SendEventProps) => {
   window.gtag("event", action, {
     event_category: category,
     event_label: label,
     event_value: value
   });
-}
+};
 
 type SendPageViewProps = {
   id: string;
@@ -64,20 +64,19 @@ type SendPageViewProps = {
   pagePath?: string;
 };
 
-export function sendPageView({
+export const sendPageView = ({
   id,
   pageTitle,
   pageLocation,
   pagePath
-}: SendPageViewProps) {
+}: SendPageViewProps) =>
   window.gtag("config", id, {
     page_title: pageTitle,
     page_location: pageLocation,
     page_path: pagePath
   });
-}
 
-function usePageView(id: string, basePath: string) {
+const usePageView = (id: string, basePath: string) => {
   const landingPathRef = useRef("");
   const route = useRouter();
   useEffect(() => {
@@ -92,15 +91,15 @@ function usePageView(id: string, basePath: string) {
       landingPathRef.current = pagePath;
     }
   }, [route.asPath, id, basePath]);
-}
+};
 
-export function GTagSnippet({
+export const GTagSnippet = ({
   trackingId,
   basePath
 }: {
   trackingId: string;
   basePath: string;
-}) {
+}) => {
   usePageView(trackingId, basePath);
 
   return React.createElement(
@@ -122,4 +121,4 @@ gtag("js", new Date());
 gtag("config", "${trackingId}");`
     )
   );
-}
+};

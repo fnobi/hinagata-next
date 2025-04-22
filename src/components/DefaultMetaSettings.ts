@@ -12,7 +12,7 @@ const DEFAULT_KEYWORDS = ["react", "typescript", "next.js"];
 export const makePageMetaTitle = (...pageTitle: string[]) =>
   [...pageTitle, DEFAULT_TITLE].join(" | ");
 
-function DefaultMetaSettings({ children }: { children?: ReactNode }) {
+const DefaultMetaSettings = ({ children }: { children?: ReactNode }) => {
   const options: MetaOptions = {
     page: PAGE_TOP,
     title: DEFAULT_TITLE,
@@ -23,6 +23,6 @@ function DefaultMetaSettings({ children }: { children?: ReactNode }) {
     viewport: "width=device-width"
   };
   return createElement(MetaSettings, options, children);
-}
+};
 
 export default DefaultMetaSettings;

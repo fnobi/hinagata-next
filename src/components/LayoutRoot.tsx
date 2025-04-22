@@ -1,7 +1,7 @@
 import { type ReactNode } from "react";
 
-function LayoutRoot({ children }: { children: ReactNode }) {
-  return <div>{children}</div>;
-}
+const LayoutRoot = ({ children }: { children: ReactNode }) => (
+  <div>{children}</div>
+);
 
 export default LayoutRoot;

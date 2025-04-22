@@ -59,7 +59,7 @@ const DataListImageCell = styled.div({
   backgroundPosition: "center"
 });
 
-function MockListView({ dataList }: { dataList: MockDataItemProps[] }) {
+const MockListView = ({ dataList }: { dataList: MockDataItemProps[] }) => {
   if (!dataList.length) {
     return <div>データがありません</div>;
   }
@@ -120,6 +120,6 @@ function MockListView({ dataList }: { dataList: MockDataItemProps[] }) {
       )}
     </ul>
   );
-}
+};
 
 export default MockListView;
