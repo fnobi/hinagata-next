@@ -76,12 +76,12 @@ const NestSection = styled.div({
 });
 
 function FormView({
-  invalid = false,
+  hasError = false,
   onSubmit,
   onCancel,
   children
 }: {
-  invalid?: boolean;
+  hasError?: boolean;
   onSubmit: () => void;
   onCancel?: () => void;
   children: ReactNode;
@@ -90,7 +90,7 @@ function FormView({
     <form
       onSubmit={e => {
         e.preventDefault();
-        if (!invalid) {
+        if (!hasError) {
           onSubmit();
         }
       }}
@@ -102,7 +102,7 @@ function FormView({
             キャンセル
           </MockActionButton>
         ) : null}
-        <MockActionButton action={invalid ? null : { type: "submit" }}>
+        <MockActionButton action={hasError ? null : { type: "submit" }}>
           OK
         </MockActionButton>
       </Footer>
@@ -119,9 +119,12 @@ export function MockFormFrame({
   children: ReactNode;
   validationSummary: Record<string, AppValidationErrorType | null>;
 } & Pick<ComponentPropsWithoutRef<typeof FormView>, "onCancel" | "onSubmit">) {
-  const invalid = Object.values(validationSummary).some(f => !!f);
   return (
-    <FormView invalid={invalid} onSubmit={onSubmit} onCancel={onCancel}>
+    <FormView
+      hasError={Object.values(validationSummary).some(f => !!f)}
+      onSubmit={onSubmit}
+      onCancel={onCancel}
+    >
       {children}
     </FormView>
   );
@@ -162,11 +165,11 @@ function StringFormInput({
   readOnly,
   placeholder,
   autoComplete,
-  invalid = false
+  hasError = false
 }: Pick<
   InputHTMLAttributes<HTMLInputElement>,
   "value" | "onChange" | "readOnly" | "placeholder" | "autoComplete"
-> & { invalid?: boolean }) {
+> & { hasError?: boolean }) {
   return (
     <input
       type="text"
@@ -176,7 +179,7 @@ function StringFormInput({
       placeholder={placeholder}
       autoComplete={autoComplete}
       style={{
-        backgroundColor: invalid ? THEME_COLOR.ERROR : THEME_COLOR.WHITE,
+        backgroundColor: hasError ? THEME_COLOR.ERROR : THEME_COLOR.WHITE,
         display: "block",
         width: percent(100)
       }}
@@ -201,7 +204,7 @@ export function MockStringFormRow({
   };
 } & Omit<
   ComponentPropsWithoutRef<typeof StringFormInput>,
-  "value" | "onChange" | "invalid"
+  "value" | "onChange" | "hasError"
 >) {
   const counter = useMemo(() => {
     const [d] = compact(
@@ -238,7 +241,7 @@ export function MockStringFormRow({
           readOnly={readOnly}
           autoComplete={autoComplete}
           placeholder={placeholder}
-          invalid={!!validCurrentError}
+          hasError={!!validCurrentError}
         />
         {subAction ? (
           <>
