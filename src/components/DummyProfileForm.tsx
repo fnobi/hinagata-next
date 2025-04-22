@@ -22,19 +22,19 @@ import {
 } from "~/components/mock/mock-form-ui";
 
 function ProfileLinkFormField({
-  form
+  parentForm
 }: {
-  form: FormNestParentInterface<DummyProfileLink, AppValidationErrorType>;
+  parentForm: FormNestParentInterface<DummyProfileLink, AppValidationErrorType>;
 }) {
   const urlForm = useObjectKeyForm({
-    parent: form,
+    parentForm,
     key: "url",
-    validator: [requiredValidator(), urlValidator()]
+    validators: [requiredValidator(), urlValidator()]
   });
   const labelForm = useObjectKeyForm({
-    parent: form,
+    parentForm,
     key: "label",
-    validator: [maxLengthValidator(10)]
+    validators: [maxLengthValidator(10)]
   });
   return (
     <>
@@ -50,24 +50,23 @@ function ProfileFormField({
   parentForm: FormNestParentInterface<DummyProfile, AppValidationErrorType>;
 }) {
   const nameForm = useObjectKeyForm({
-    parent: parentForm,
+    parentForm,
     key: "name",
-    validator: [requiredValidator(), maxLengthValidator(10)]
+    validators: [requiredValidator(), maxLengthValidator(10)]
   });
   const emailForm = useObjectKeyForm({
-    parent: parentForm,
+    parentForm,
     key: "email",
-    validator: [requiredValidator(), emailValidator()]
+    validators: [requiredValidator(), emailValidator()]
   });
   const profileLinkForm = useArrayNest({
-    parent: parentForm,
-    key: "profileLinks",
-    validator: [arrayLengthValidator({ maxLength: 3 })],
-    makeNew: () => ({ url: "", label: "" }),
+    parentForm,
     pull: p => p.profileLinks,
-    push: (v, p) => ({ ...p, profileLinks: v })
+    push: (v, p) => ({ ...p, profileLinks: v }),
+    makeNew: () => ({ label: "", url: "" }),
+    errorKey: "profileLinks",
+    validators: [arrayLengthValidator({ maxLength: 3 })]
   });
-
   return (
     <>
       <MockStringFormRow label="名前" form={nameForm} autoComplete="name" />
@@ -90,20 +89,25 @@ function DummyProfileForm({
   defaultValue,
   onSubmit,
   onCancel
-}: Pick<
+}: { onSubmit: (v: DummyProfile) => void } & Pick<
   Parameters<typeof useFormNestRoot<DummyProfile, AppValidationErrorType>>[0],
   "defaultValue"
 > &
-  Pick<
-    ComponentPropsWithoutRef<typeof MockFormFrame<DummyProfile>>,
-    "onCancel" | "onSubmit"
-  >) {
-  const form = useFormNestRoot<DummyProfile, AppValidationErrorType>({
+  Pick<ComponentPropsWithoutRef<typeof MockFormFrame>, "onCancel">) {
+  const { value, validationSummary, parentForm } = useFormNestRoot<
+    DummyProfile,
+    AppValidationErrorType
+  >({
     defaultValue
   });
+
   return (
-    <MockFormFrame form={form} onSubmit={onSubmit} onCancel={onCancel}>
-      <ProfileFormField parentForm={form} />
+    <MockFormFrame
+      validationSummary={validationSummary}
+      onSubmit={() => onSubmit(value)}
+      onCancel={onCancel}
+    >
+      <ProfileFormField parentForm={parentForm} />
     </MockFormFrame>
   );
 }

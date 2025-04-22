@@ -1,226 +1,221 @@
-import { useEffect, useMemo, useState } from "react";
-import { compact, flatten, makeArray } from "~/lib/array-util";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { compact, flatten } from "~/lib/array-util";
 
 type FormValueKey = string | number | symbol;
 
-export type ValidationErrorType = string;
+type FormValidationResult<E> = { param: E; errorMessage: string | null };
+
+type FormValidationSummary<E> = Record<string, E | null>;
 
 export interface FormNestValidator<T, E> {
   param: E;
-  validate: (v: T) => ValidationErrorType | null;
+  validate: (v: T) => FormValidationResult<E>["errorMessage"];
 }
 
 export type FormNestInterface<T, E> = {
   value: T;
-  validator: { type: E; message: string | null }[];
-  invalid: ValidationErrorType | null;
-  onChange: (v: T | ((o: T) => T)) => void;
+  validateResult: FormValidationResult<E>[];
+  currentError: FormValidationResult<E> | null;
+  onChange: (v: T, s?: E | null) => void;
 };
 
-export type FormNestParentInterface<T, E> = FormNestInterface<T, E> & {
-  subValidationMap: Record<FormValueKey, ValidationErrorType | null>;
-  onSubValidation: (
-    id: FormValueKey,
-    invalid: ValidationErrorType | null
+export type FormNestParentInterface<T, E> = {
+  defaultValue: T;
+  onUpdate: (
+    v: T | ((p: T) => T),
+    s:
+      | FormValidationSummary<E>
+      | ((o: FormValidationSummary<E>) => FormValidationSummary<E>)
   ) => void;
-};
-
-const validateFormValue = <T, E>({
-  value,
-  validator
-}: {
-  value: T;
-  validator: FormNestValidator<T, E>[];
-}): ValidationErrorType | null => {
-  const [first] = compact(validator.map(v => v.validate(value)));
-  return first || null;
 };
 
 export const useFormNestRoot = <T, E>({
   defaultValue
 }: {
   defaultValue: T;
-}): FormNestParentInterface<T, E> => {
-  const [editing, setEditing] = useState(defaultValue);
-  const [validMap, setValidMap] = useState<
-    Record<string, ValidationErrorType | null>
+}) => {
+  const [value, setValue] = useState(defaultValue);
+  const [validationSummary, setValidationSummary] = useState<
+    FormValidationSummary<E>
   >({});
-
-  const invalid = useMemo(() => {
-    const v = Object.values(validMap);
-    if (!v.length) {
-      return null;
+  const parentForm: FormNestParentInterface<T, E> = {
+    defaultValue,
+    onUpdate: (v, s) => {
+      setValue(v);
+      setValidationSummary(s);
     }
-    const [first] = compact(v);
-    return first;
-  }, [validMap]);
+  };
+  return {
+    value,
+    validationSummary,
+    parentForm
+  };
+};
+
+export const useFormBase = <T, E>({
+  defaultValue,
+  validators,
+  onUpdate
+}: {
+  defaultValue: T;
+  validators: {
+    param: E;
+    validate: (v: T) => string | null;
+  }[];
+  onUpdate?: (
+    value: T,
+    validateResult: FormValidationResult<E>[],
+    subError: E | null
+  ) => void;
+}): FormNestInterface<T, E> => {
+  const calcValidateResult = (v: T) =>
+    validators.map(d => ({
+      param: d.param,
+      errorMessage: d.validate(v)
+    }));
+
+  const [editing, setEditing] = useState(defaultValue);
+  const [validateResult, setValidateResult] = useState(
+    calcValidateResult(defaultValue)
+  );
+  const [subError, setSubError] = useState<E | null>(null);
+
+  const currentError = useMemo(
+    () => validateResult.find(d => d.errorMessage) || null,
+    [validateResult]
+  );
+
+  useEffect(() => {
+    if (onUpdate) {
+      onUpdate(editing, validateResult, subError);
+    }
+  }, [editing, validateResult, subError]);
+
+  const onChange = (v: T, s: E | null = null) => {
+    const r = calcValidateResult(v);
+    setEditing(v);
+    setValidateResult(r);
+    setSubError(s);
+  };
 
   return {
     value: editing,
-    onChange: setEditing,
-    invalid,
-    subValidationMap: validMap,
-    onSubValidation: (k, v) => setValidMap(o => ({ ...o, [k]: v })),
-    validator: []
+    validateResult,
+    currentError,
+    onChange
   };
 };
 
 export const useSubFormNest = <T, P, E>({
-  key,
-  parent,
+  parentForm,
   pull,
   push,
-  validator
+  errorKey,
+  validators
 }: {
-  key: FormValueKey;
-  parent: FormNestParentInterface<P, E>;
+  parentForm: FormNestParentInterface<P, E>;
   pull: (p: P) => T;
   push: (v: T, p: P) => P;
-  validator: FormNestValidator<T, E>[];
-}): FormNestInterface<T, E> => {
-  const value = useMemo(() => pull(parent.value), [parent.value]);
-
-  useEffect(() => {
-    const e = validateFormValue({ value, validator });
-    parent.onSubValidation(key, e);
-  }, []);
-
-  return {
-    value,
-    invalid: parent.subValidationMap[key],
-    onChange: arg => {
-      const v = arg instanceof Function ? arg(value) : arg;
-      const e = validateFormValue({ value: v, validator });
-      parent.onChange(o => push(v, o));
-      parent.onSubValidation(key, e);
-    },
-    validator: validator.map(v => {
-      const m = v.validate(value);
-      return {
-        key,
-        type: v.param,
-        message: m
-      };
-    })
-  };
-};
+  errorKey: FormValueKey;
+} & Pick<Parameters<typeof useFormBase<T, E>>[0], "validators">) =>
+  useFormBase<T, E>({
+    defaultValue: pull(parentForm.defaultValue),
+    validators,
+    onUpdate: (v, r, s) =>
+      parentForm.onUpdate(
+        p => push(v, p),
+        o => {
+          const [firstError] = compact(
+            r.map(d => (d.errorMessage ? d.param : null))
+          );
+          return {
+            ...o,
+            [errorKey]: firstError || s || null
+          };
+        }
+      )
+  });
 
 export const useObjectKeyForm = <P, K extends keyof P, E>({
   key,
-  parent,
-  validator
-}: { key: K } & Pick<
-  Parameters<typeof useSubFormNest<P[K], P, E>>[0],
-  "parent" | "validator"
->) =>
+  parentForm,
+  validators
+}: {
+  key: K;
+  parentForm: FormNestParentInterface<P, E>;
+} & Pick<Parameters<typeof useFormBase<P[K], E>>[0], "validators">) =>
   useSubFormNest<P[K], P, E>({
-    key,
-    parent,
-    pull: o => o[key],
-    push: (v, o) => ({ ...o, [key]: v }),
-    validator
+    parentForm,
+    pull: p => p[key],
+    push: (v, p) => ({ ...p, [key]: v }),
+    errorKey: key,
+    validators
   });
 
-export const useFormNestReducer = <T, P, E>({
-  key,
-  parent,
-  pull,
-  push
-}: {
-  key: FormValueKey;
-  parent: FormNestParentInterface<P, E>;
-  pull: (p: P) => T;
-  push: (v: T, p: P) => P;
-}): FormNestParentInterface<T, E> => {
-  const value = useMemo(() => pull(parent.value), [parent.value]);
-  const [validMap, setValidMap] = useState<
-    Record<string, ValidationErrorType | null>
-  >({});
-
-  useEffect(() => {
-    const v = Object.values(validMap);
-    const [first] = compact(v);
-    parent.onSubValidation(key, first || null);
-  }, [validMap]);
-
-  return {
-    value,
-    invalid: parent.subValidationMap[key],
-    onChange: arg =>
-      parent.onChange(o => push(arg instanceof Function ? arg(value) : arg, o)),
-    subValidationMap: validMap,
-    onSubValidation: (k, f) => setValidMap(o => ({ ...o, [k]: f })),
-    validator: []
-  };
-};
-
-const normalizeArrayLength = <T>(arr: T[], l: number, make: () => T) =>
-  arr.length >= l ? arr : [...arr, ...makeArray(l - arr.length).map(make)];
-
 export const useArrayNest = <T, P, E>({
-  key,
-  parent,
-  validator,
-  makeNew,
+  parentForm,
+  validators,
   pull,
-  push
+  push,
+  errorKey,
+  makeNew
 }: {
-  key: string;
-  parent: FormNestParentInterface<P, E>;
-  validator: FormNestValidator<unknown[], E>[];
   makeNew: () => T;
-  pull: (v: P) => T[];
-  push: (v: T[], p: P) => P;
-}) => {
-  const values = useMemo(() => pull(parent.value), [parent.value]);
+} & Parameters<typeof useSubFormNest<T[], P, E>>[0]) => {
+  const {
+    value,
+    onChange,
+    validateResult: rootValidateResult,
+    currentError
+  } = useSubFormNest<T[], P, E>({
+    parentForm,
+    validators,
+    pull,
+    push,
+    errorKey
+  });
 
-  const [validMap, setValidMap] = useState<
-    Record<string, ValidationErrorType | null>[]
-  >([]);
+  const vrsRef = useRef<FormValidationSummary<E>[]>([]);
 
-  const invalid = useMemo(
-    (): ValidationErrorType | null =>
-      validateFormValue({ value: values, validator }),
-    [values.length]
-  );
+  const handleChange = (
+    fn: (v: T[]) => {
+      value: T[];
+      validationResult?: { index: number; error: FormValidationSummary<E> };
+    }
+  ) => {
+    const { value: v, validationResult: r } = fn(value);
 
-  useEffect(() => {
-    setValidMap(l => l.slice(0, values.length));
-  }, [values.length]);
+    vrsRef.current = v
+      .map((_, i) => vrsRef.current[i] || null)
+      .map((vr, i) => (r && i === r.index ? r.error : vr));
 
-  useEffect(() => {
-    const v = flatten(validMap.map(m => Object.values(m)));
-    const [first] = compact([invalid, ...v]);
-    parent.onSubValidation(key, first || null);
-  }, [validMap, invalid]);
+    const [subError] = compact(
+      flatten(vrsRef.current.map(c => (c ? Object.values(c) : [])))
+    );
+
+    onChange(v, subError || null);
+  };
 
   return {
-    subForms: values.map(
-      (value, index): FormNestParentInterface<T, E> => ({
-        value,
-        invalid: null,
-        onChange: arg =>
-          parent.onChange(o => {
-            const newValue = arg instanceof Function ? arg(values[index]) : arg;
-            return push(
-              values.map((vvv, i) => (i === index ? newValue : vvv)),
-              o
-            );
-          }),
-        subValidationMap: validMap[index] || {},
-        onSubValidation: (k, f) =>
-          setValidMap(o => {
-            const normalized = normalizeArrayLength(o, index + 1, () => ({}));
-            return normalized.map((oo, i) =>
-              i === index ? { ...oo, [k]: f } : oo
-            );
-          }),
-        validator: []
+    subForms: value.map(
+      (childValue, index): FormNestParentInterface<T, E> => ({
+        defaultValue: childValue,
+        onUpdate: (v, r) =>
+          handleChange(vv => ({
+            value: vv.map((vvv, i) =>
+              // eslint-disable-next-line no-nested-ternary
+              i === index ? (v instanceof Function ? v(vvv) : v) : vvv
+            ),
+            validationResult: {
+              index,
+              error: r instanceof Function ? r(vrsRef.current[index]) : r
+            }
+          }))
       })
     ),
-    invalid,
-    validator,
-    plusCount: () => parent.onChange(o => push([...values, makeNew()], o)),
-    minusCount: () => parent.onChange(o => push(values.slice(0, -1), o))
+    validateResult: rootValidateResult,
+    currentError,
+    plusCount: () => handleChange(v => ({ value: [...v, makeNew()] })),
+    minusCount: () => handleChange(v => ({ value: v.slice(0, -1) }))
   };
 };
