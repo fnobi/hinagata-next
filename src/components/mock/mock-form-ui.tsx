@@ -15,7 +15,7 @@ import {
 } from "~/lib/react/form-nest";
 import { formatDatetimeValue } from "~/lib/string-util";
 import { formatClock } from "~/lib/date-util";
-import { type AppValidationErrorType } from "~/lib/form-validator";
+import { type AppValidationErrorType } from "~/local/form-validator";
 import { compact } from "~/lib/array-util";
 import MockActionButton from "~/components/mock/MockActionButton";
 
