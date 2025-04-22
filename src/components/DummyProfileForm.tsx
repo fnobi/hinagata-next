@@ -1,4 +1,3 @@
-import { type ComponentPropsWithoutRef } from "react";
 import {
   type AppValidationErrorType,
   arrayLengthValidator,
@@ -89,11 +88,11 @@ function DummyProfileForm({
   defaultValue,
   onSubmit,
   onCancel
-}: { onSubmit: (v: DummyProfile) => void } & Pick<
-  Parameters<typeof useFormNestRoot<DummyProfile, AppValidationErrorType>>[0],
-  "defaultValue"
-> &
-  Pick<ComponentPropsWithoutRef<typeof MockFormFrame>, "onCancel">) {
+}: {
+  defaultValue: DummyProfile;
+  onSubmit: (v: DummyProfile) => void;
+  onCancel: () => void;
+}) {
   const { value, validationSummary, parentForm } = useFormNestRoot<
     DummyProfile,
     AppValidationErrorType
