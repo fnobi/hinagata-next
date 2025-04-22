@@ -8,10 +8,10 @@ import {
   urlValidator
 } from "~/lib/form-validator";
 import {
-  type FormNestParentInterface,
-  useArrayNest,
+  type ParentFormNestInterface,
+  useArrayFormNest,
   useFormNestRoot,
-  useObjectKeyForm
+  useFormNestField
 } from "~/lib/react/form-nest";
 import type DummyProfile from "~/scheme/DummyProfile";
 import { type DummyProfileLink } from "~/scheme/DummyProfile";
@@ -24,14 +24,14 @@ import {
 function ProfileLinkFormField({
   parentForm
 }: {
-  parentForm: FormNestParentInterface<DummyProfileLink, AppValidationErrorType>;
+  parentForm: ParentFormNestInterface<DummyProfileLink, AppValidationErrorType>;
 }) {
-  const urlForm = useObjectKeyForm({
+  const urlForm = useFormNestField({
     parentForm,
     key: "url",
     validators: [requiredValidator(), urlValidator()]
   });
-  const labelForm = useObjectKeyForm({
+  const labelForm = useFormNestField({
     parentForm,
     key: "label",
     validators: [maxLengthValidator(10)]
@@ -47,19 +47,19 @@ function ProfileLinkFormField({
 function ProfileFormField({
   parentForm
 }: {
-  parentForm: FormNestParentInterface<DummyProfile, AppValidationErrorType>;
+  parentForm: ParentFormNestInterface<DummyProfile, AppValidationErrorType>;
 }) {
-  const nameForm = useObjectKeyForm({
+  const nameForm = useFormNestField({
     parentForm,
     key: "name",
     validators: [requiredValidator(), maxLengthValidator(10)]
   });
-  const emailForm = useObjectKeyForm({
+  const emailForm = useFormNestField({
     parentForm,
     key: "email",
     validators: [requiredValidator(), emailValidator()]
   });
-  const profileLinkForm = useArrayNest({
+  const profileLinkForm = useArrayFormNest({
     parentForm,
     pull: p => p.profileLinks,
     push: (v, p) => ({ ...p, profileLinks: v }),

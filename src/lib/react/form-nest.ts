@@ -19,7 +19,7 @@ export type FormNestInterface<T, E> = {
   onChange: (v: T, s?: E | null) => void;
 };
 
-export type FormNestParentInterface<T, E> = {
+export type ParentFormNestInterface<T, E> = {
   defaultValue: T;
   onUpdate: (
     v: T | ((p: T) => T),
@@ -38,7 +38,7 @@ export const useFormNestRoot = <T, E>({
   const [validationSummary, setValidationSummary] = useState<
     FormValidationSummary<E>
   >({});
-  const parentForm: FormNestParentInterface<T, E> = {
+  const parentForm: ParentFormNestInterface<T, E> = {
     defaultValue,
     onUpdate: (v, s) => {
       setValue(v);
@@ -52,7 +52,7 @@ export const useFormNestRoot = <T, E>({
   };
 };
 
-export const useFormBase = <T, E>({
+const useFormNestBase = <T, E>({
   defaultValue,
   validators,
   onUpdate
@@ -106,19 +106,19 @@ export const useFormBase = <T, E>({
   };
 };
 
-export const useSubFormNest = <T, P, E>({
+const useFormNestReducer = <T, P, E>({
   parentForm,
   pull,
   push,
   errorKey,
   validators
 }: {
-  parentForm: FormNestParentInterface<P, E>;
+  parentForm: ParentFormNestInterface<P, E>;
   pull: (p: P) => T;
   push: (v: T, p: P) => P;
   errorKey: FormValueKey;
-} & Pick<Parameters<typeof useFormBase<T, E>>[0], "validators">) =>
-  useFormBase<T, E>({
+} & Pick<Parameters<typeof useFormNestBase<T, E>>[0], "validators">) =>
+  useFormNestBase<T, E>({
     defaultValue: pull(parentForm.defaultValue),
     validators,
     onUpdate: (v, r, s) =>
@@ -136,15 +136,15 @@ export const useSubFormNest = <T, P, E>({
       )
   });
 
-export const useObjectKeyForm = <P, K extends keyof P, E>({
+export const useFormNestField = <P, K extends keyof P, E>({
   key,
   parentForm,
   validators
 }: {
   key: K;
-  parentForm: FormNestParentInterface<P, E>;
-} & Pick<Parameters<typeof useFormBase<P[K], E>>[0], "validators">) =>
-  useSubFormNest<P[K], P, E>({
+  parentForm: ParentFormNestInterface<P, E>;
+} & Pick<Parameters<typeof useFormNestReducer<P[K], P, E>>[0], "validators">) =>
+  useFormNestReducer<P[K], P, E>({
     parentForm,
     pull: p => p[key],
     push: (v, p) => ({ ...p, [key]: v }),
@@ -152,7 +152,7 @@ export const useObjectKeyForm = <P, K extends keyof P, E>({
     validators
   });
 
-export const useArrayNest = <T, P, E>({
+export const useArrayFormNest = <T, P, E>({
   parentForm,
   validators,
   pull,
@@ -161,13 +161,13 @@ export const useArrayNest = <T, P, E>({
   makeNew
 }: {
   makeNew: () => T;
-} & Parameters<typeof useSubFormNest<T[], P, E>>[0]) => {
+} & Parameters<typeof useFormNestReducer<T[], P, E>>[0]) => {
   const {
     value,
     onChange,
     validateResult: rootValidateResult,
     currentError
-  } = useSubFormNest<T[], P, E>({
+  } = useFormNestReducer<T[], P, E>({
     parentForm,
     validators,
     pull,
@@ -198,7 +198,7 @@ export const useArrayNest = <T, P, E>({
 
   return {
     subForms: value.map(
-      (childValue, index): FormNestParentInterface<T, E> => ({
+      (childValue, index): ParentFormNestInterface<T, E> => ({
         defaultValue: childValue,
         onUpdate: (v, r) =>
           handleChange(vv => ({
