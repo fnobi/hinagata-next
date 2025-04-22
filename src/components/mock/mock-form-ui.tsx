@@ -4,8 +4,7 @@ import {
   type FunctionComponent,
   type InputHTMLAttributes,
   type ReactNode,
-  useMemo,
-  useState
+  useMemo
 } from "react";
 import { THEME_COLOR } from "~/local/emotion-mixin";
 import { em, percent, px } from "~/lib/css-util";
@@ -166,7 +165,7 @@ function FormCommonRowWrapper({
 }
 
 function StringFormInput({
-  defaultValue,
+  value,
   onChange,
   readOnly,
   placeholder,
@@ -174,12 +173,12 @@ function StringFormInput({
   invalid = false
 }: Pick<
   InputHTMLAttributes<HTMLInputElement>,
-  "defaultValue" | "onChange" | "readOnly" | "placeholder" | "autoComplete"
+  "value" | "onChange" | "readOnly" | "placeholder" | "autoComplete"
 > & { invalid?: boolean }) {
   return (
     <input
       type="text"
-      defaultValue={defaultValue}
+      value={value}
       onChange={onChange}
       readOnly={readOnly}
       placeholder={placeholder}
@@ -212,7 +211,6 @@ export function MockStringFormRow({
   ComponentPropsWithoutRef<typeof StringFormInput>,
   "value" | "onChange" | "invalid"
 >) {
-  const [value, setValue] = useState(form.defaultValue);
   const counter = useMemo(() => {
     const [d] = compact(
       form.validateResult.map(({ param, errorMessage }) =>
@@ -223,15 +221,11 @@ export function MockStringFormRow({
       return undefined;
     }
     return {
-      value: value.length,
+      value: form.value.length,
       max: d.param.maxLength,
       isError: !!d.errorMessage
     };
-  }, [value, form.validateResult]);
-  const handleChange = (v: string) => {
-    setValue(v);
-    form.onChange(v);
-  };
+  }, [form.value, form.validateResult]);
   const validCurrentError = useMemo(
     () =>
       form.currentError && form.currentError.param.type !== "required"
@@ -247,8 +241,8 @@ export function MockStringFormRow({
     >
       <InputWrapper>
         <StringFormInput
-          defaultValue={form.defaultValue}
-          onChange={e => handleChange(e.target.value)}
+          value={form.value}
+          onChange={e => form.onChange(e.target.value)}
           readOnly={readOnly}
           autoComplete={autoComplete}
           placeholder={placeholder}
@@ -280,7 +274,6 @@ export function MockTextFormRow({
   label: string;
   form: FormNestInterface<string, AppValidationErrorType>;
 }) {
-  const [value, setValue] = useState(form.defaultValue);
   const counter = useMemo(() => {
     const [d] = compact(
       form.validateResult.map(({ param, errorMessage }) =>
@@ -291,15 +284,12 @@ export function MockTextFormRow({
       return undefined;
     }
     return {
-      value: value.length,
+      value: form.value.length,
       max: d.param.maxLength,
       isError: !!d.errorMessage
     };
-  }, [value, form.validateResult]);
-  const handleChange = (v: string) => {
-    setValue(v);
-    form.onChange(v);
-  };
+  }, [form.value, form.validateResult]);
+
   const validCurrentError = useMemo(
     () =>
       form.currentError && form.currentError.param.type !== "required"
@@ -307,6 +297,7 @@ export function MockTextFormRow({
         : null,
     [form.currentError]
   );
+
   return (
     <FormCommonRowWrapper
       label={label}
@@ -315,8 +306,8 @@ export function MockTextFormRow({
     >
       <InputWrapper>
         <textarea
-          defaultValue={form.defaultValue}
-          onChange={e => handleChange(e.target.value)}
+          value={form.value}
+          onChange={e => form.onChange(e.target.value)}
           style={{
             backgroundColor: validCurrentError
               ? THEME_COLOR.ERROR
@@ -350,7 +341,7 @@ export function MockNumberFormRow({
       <InputWrapper>
         <input
           type="number"
-          defaultValue={form.defaultValue}
+          value={form.value}
           onChange={e => form.onChange(Number(e.target.value))}
           min={min}
           max={max}
@@ -377,19 +368,15 @@ export function MockDateTimeFormRow({
   round?: number;
   form: FormNestInterface<number, AppValidationErrorType>;
 }) {
-  const [value, setValue] = useState(form.defaultValue);
-  const setter = (n: number) => {
-    const v = round ? Math.floor(n / round) * round : n;
-    setValue(v);
-    form.onChange(v);
-  };
+  const setter = (n: number) =>
+    form.onChange(round ? Math.floor(n / round) * round : n);
   return (
     <FormCommonRowWrapper label={label} error={form.currentError}>
-      {value ? (
+      {form.value ? (
         <>
           <input
             type="datetime-local"
-            defaultValue={formatDatetimeValue(value)}
+            value={formatDatetimeValue(form.value)}
             onChange={e => setter(new Date(e.target.value).getTime())}
             style={{
               backgroundColor: form.currentError
@@ -430,19 +417,17 @@ export function MockClockFormRow({
   label: string;
   form: FormNestInterface<string, AppValidationErrorType>;
 }) {
-  const [value, setValue] = useState(form.defaultValue);
-  const handleChange = (v: string) => {
-    setValue(v);
-    form.onChange(v);
-  };
   return (
     <FormCommonRowWrapper label={label} error={form.currentError}>
-      {value ? (
+      {form.value ? (
         <>
           <input
             type="time"
-            value={value}
-            onChange={e => handleChange(e.target.value)}
+            value={form.value}
+            onChange={e => {
+              const v = e.target.value;
+              form.onChange(v);
+            }}
             style={{
               backgroundColor: form.currentError
                 ? THEME_COLOR.ERROR
@@ -453,7 +438,7 @@ export function MockClockFormRow({
           <MockActionButton
             action={{
               type: "button",
-              onClick: () => handleChange("")
+              onClick: () => form.onChange("")
             }}
           >
             クリア
@@ -486,7 +471,7 @@ export function MockCheckboxFormRow({
     <label>
       <input
         type="checkbox"
-        defaultChecked={form.defaultValue}
+        checked={form.value}
         onChange={e => form.onChange(e.target.checked)}
       />
       &nbsp;{children}
@@ -505,10 +490,7 @@ export function MockPulldownFormRow({
 }) {
   return (
     <FormCommonRowWrapper label={label} error={form.currentError}>
-      <select
-        defaultValue={form.defaultValue}
-        onChange={e => form.onChange(e.target.value)}
-      >
+      <select value={form.value} onChange={e => form.onChange(e.target.value)}>
         <option value="">-</option>
         {options.map(({ value: v, label: l }) => (
           <option key={v} value={v}>
@@ -536,7 +518,7 @@ export function MockRadioSelectFormRow({
             <label>
               <input
                 type="radio"
-                defaultChecked={form.defaultValue === v}
+                checked={form.value === v}
                 onChange={e => {
                   if (e.target.checked) {
                     form.onChange(v);
@@ -570,12 +552,10 @@ export function MockRangeFormRow({
   displayRate?: number;
   postfix?: string;
 }) {
-  const [value, setValue] = useState(form.defaultValue);
-  const displayValue = useMemo(() => value * displayRate, [value, displayRate]);
-  const handleChange = (v: number) => {
-    setValue(v);
-    form.onChange(v);
-  };
+  const displayValue = useMemo(
+    () => form.value * displayRate,
+    [form.value, displayRate]
+  );
   return (
     <FormCommonRowWrapper label={label} error={form.currentError}>
       <p
@@ -588,8 +568,8 @@ export function MockRangeFormRow({
       </p>
       <input
         type="range"
-        defaultValue={form.defaultValue}
-        onChange={e => handleChange(Number(e.target.value))}
+        value={form.value}
+        onChange={e => form.onChange(Number(e.target.value))}
         step={step}
         min={min}
         max={max}
