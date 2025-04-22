@@ -1,9 +1,9 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { compact, flatten } from "~/lib/array-util";
 
 type FormValueKey = string | number | symbol;
 
-type FormValidationResult<E> = { param: E; errorMessage: string | null };
+export type FormValidationResult<E> = { param: E; errorMessage: string | null };
 
 type FormValidationSummary<E> = Record<string, E | null>;
 
@@ -15,7 +15,6 @@ export interface FormNestValidator<T, E> {
 export type FormNestInterface<T, E> = {
   defaultValue: T;
   validateResult: FormValidationResult<E>[];
-  currentError: FormValidationResult<E> | null;
   onChange: (v: T) => void;
 };
 
@@ -74,11 +73,6 @@ export const useFormBase = <T, E>({
     calcValidateResult(defaultValue)
   );
 
-  const currentError = useMemo(
-    () => validateResult.find(d => d.errorMessage) || null,
-    [validateResult]
-  );
-
   const onChange = (v: T) => {
     const r = calcValidateResult(v);
     if (onUpdate) {
@@ -94,7 +88,6 @@ export const useFormBase = <T, E>({
   return {
     defaultValue,
     validateResult,
-    currentError,
     onChange
   };
 };
@@ -165,11 +158,8 @@ export const useArrayNest = <T, P, E>({
     ReturnType<typeof calcValidateResult>
   >(calcValidateResult(pull(parentForm.defaultValue)));
 
-  const currentError = useMemo(
-    () => rootValidateResult.find(d => d.errorMessage) || null,
-    [rootValidateResult]
-  );
-
+  // NOTE: このonChangeがそのまま外に出せない問題（ふつうのinterfaceのonChangeと違う）
+  // stateを前提にしてるのって崩せないか？
   const onChange = (
     fn: (v: T[]) => {
       value: T[];
@@ -201,6 +191,8 @@ export const useArrayNest = <T, P, E>({
   };
 
   return {
+    defaultValue: pull(parentForm.defaultValue),
+    onChange,
     subForms: arr.map(
       (childValue, index): FormNestParentInterface<T, E> => ({
         defaultValue: childValue,
@@ -218,7 +210,6 @@ export const useArrayNest = <T, P, E>({
       })
     ),
     validateResult: rootValidateResult,
-    currentError,
     plusCount: () => onChange(v => ({ value: [...v, makeNew()] })),
     minusCount: () => onChange(v => ({ value: v.slice(0, -1) }))
   };
