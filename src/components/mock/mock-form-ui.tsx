@@ -77,13 +77,11 @@ const NestSection = styled.div({
 
 function FormView({
   invalid = false,
-  summaryError,
   onSubmit,
   onCancel,
   children
 }: {
   invalid?: boolean;
-  summaryError?: string;
   onSubmit: () => void;
   onCancel?: () => void;
   children: ReactNode;
@@ -98,7 +96,6 @@ function FormView({
       }}
     >
       <FormLayoutGrid>{children}</FormLayoutGrid>
-      {summaryError ? <div>{summaryError}</div> : null}
       <Footer>
         {onCancel ? (
           <MockActionButton action={{ type: "button", onClick: onCancel }}>
@@ -124,12 +121,7 @@ export function MockFormFrame({
 } & Pick<ComponentPropsWithoutRef<typeof FormView>, "onCancel" | "onSubmit">) {
   const invalid = Object.values(validationSummary).some(f => !!f);
   return (
-    <FormView
-      invalid={invalid}
-      summaryError={JSON.stringify(validationSummary)}
-      onSubmit={onSubmit}
-      onCancel={onCancel}
-    >
+    <FormView invalid={invalid} onSubmit={onSubmit} onCancel={onCancel}>
       {children}
     </FormView>
   );
