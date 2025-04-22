@@ -2,6 +2,7 @@ import styled from "@emotion/styled";
 import { type ComponentPropsWithoutRef, type ReactNode } from "react";
 import { THEME_COLOR } from "~/local/emotion-mixin";
 import { em, percent, px } from "~/lib/css-util";
+import type CommonActionParameter from "~/scheme/CommonActionParameter";
 import MockActionButton from "~/components/mock/MockActionButton";
 
 type TagParameter = {
@@ -18,7 +19,8 @@ export type MockDataItemProps = {
   thumbnail?: {
     src?: string;
   };
-  actions?: ComponentPropsWithoutRef<typeof MockActionButton>[];
+  mainAction?: CommonActionParameter;
+  actions?: ComponentPropsWithoutRef<typeof MockActionButton<string>>[];
 };
 
 const ActionFooterWrapper = styled.ul({
@@ -66,7 +68,16 @@ const MockListView = ({ dataList }: { dataList: MockDataItemProps[] }) => {
   return (
     <ul>
       {dataList.map(
-        ({ key, statusTag, title, subTitle, tags, thumbnail, actions }) => (
+        ({
+          key,
+          statusTag,
+          title,
+          subTitle,
+          tags,
+          thumbnail,
+          mainAction,
+          actions
+        }) => (
           <DataListItem key={key}>
             {statusTag ? (
               <span style={{ backgroundColor: statusTag.color }}>
@@ -83,7 +94,11 @@ const MockListView = ({ dataList }: { dataList: MockDataItemProps[] }) => {
               />
             ) : null}
             <DataListMainCell>
-              {title}
+              {mainAction ? (
+                <MockActionButton action={mainAction}>{title}</MockActionButton>
+              ) : (
+                title
+              )}
               {subTitle ? (
                 <DataListSubTitle>{subTitle}</DataListSubTitle>
               ) : null}

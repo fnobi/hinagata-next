@@ -1,6 +1,7 @@
 import { css } from "@emotion/react";
 import styled from "@emotion/styled";
 import Link from "next/link";
+import { type ReactNode } from "react";
 import { buttonReset, percent } from "~/lib/css-util";
 import type CommonActionParameter from "~/scheme/CommonActionParameter";
 
@@ -16,11 +17,11 @@ const ActionItemButton = styled.button(buttonReset, actionItemCommonStyle, {
   }
 });
 
-const MockActionButton = ({
+const MockActionButton = <T extends ReactNode>({
   children,
   action
 }: {
-  children: string;
+  children: T;
   action: CommonActionParameter | null;
 }) => {
   if (!action || action.type === "button" || action.type === "submit") {
