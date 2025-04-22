@@ -1,5 +1,6 @@
 import styled from "@emotion/styled";
 import { type ComponentPropsWithoutRef, type ReactNode } from "react";
+import { THEME_COLOR } from "~/local/emotion-mixin";
 import { em, percent, px } from "~/lib/css-util";
 import MockActionButton from "~/components/mock/MockActionButton";
 
@@ -51,7 +52,7 @@ const DataListImageCell = styled.div({
   position: "relative",
   width: em(5),
   paddingBottom: em((9 / 16) * 5),
-  backgroundColor: "#888",
+  backgroundColor: THEME_COLOR.DARK,
   overflow: "hidden",
   backgroundRepeat: "no-repeat",
   backgroundSize: "cover",

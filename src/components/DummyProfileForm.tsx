@@ -1,14 +1,16 @@
-import { type ComponentPropsWithoutRef } from "react";
 import {
-  emaiValidator,
+  type AppValidationErrorType,
+  arrayLengthValidator,
+  emailValidator,
   maxLengthValidator,
+  requiredValidator,
   urlValidator
-} from "~/lib/form-validator";
+} from "~/local/form-validator";
 import {
-  type FormNestParentInterface,
-  useArrayNest,
+  type ParentFormNestInterface,
+  useArrayFormNest,
   useFormNestRoot,
-  useObjectKeyForm
+  useFormNestField
 } from "~/lib/react/form-nest";
 import type DummyProfile from "~/scheme/DummyProfile";
 import { type DummyProfileLink } from "~/scheme/DummyProfile";
@@ -18,29 +20,21 @@ import {
   MockStringFormRow
 } from "~/components/mock/mock-form-ui";
 
-const NAME_MAX_LENGTH = 10;
-
 function ProfileLinkFormField({
-  form
+  parentForm
 }: {
-  form: FormNestParentInterface<DummyProfileLink>;
+  parentForm: ParentFormNestInterface<DummyProfileLink, AppValidationErrorType>;
 }) {
-  const urlForm = useObjectKeyForm({
-    parent: form,
+  const urlForm = useFormNestField({
+    parentForm,
     key: "url",
-    validator: {
-      required: true,
-      getError: v => urlValidator(v)
-    }
+    validators: [requiredValidator(), urlValidator()]
   });
-  const labelForm = useObjectKeyForm({
-    parent: form,
+  const labelForm = useFormNestField({
+    parentForm,
     key: "label",
-    validator: {
-      required: false
-    }
+    validators: [maxLengthValidator(10)]
   });
-
   return (
     <>
       <MockStringFormRow label="URL" form={urlForm} />
@@ -52,41 +46,29 @@ function ProfileLinkFormField({
 function ProfileFormField({
   parentForm
 }: {
-  parentForm: FormNestParentInterface<DummyProfile>;
+  parentForm: ParentFormNestInterface<DummyProfile, AppValidationErrorType>;
 }) {
-  const nameForm = useObjectKeyForm({
-    parent: parentForm,
+  const nameForm = useFormNestField({
+    parentForm,
     key: "name",
-    validator: {
-      required: true,
-      getError: v => maxLengthValidator(v, NAME_MAX_LENGTH)
-    }
+    validators: [requiredValidator(), maxLengthValidator(10)]
   });
-  const emailForm = useObjectKeyForm({
-    parent: parentForm,
+  const emailForm = useFormNestField({
+    parentForm,
     key: "email",
-    validator: {
-      required: true,
-      getError: v => emaiValidator(v)
-    }
+    validators: [requiredValidator(), emailValidator()]
   });
-  const profileLinkForm = useArrayNest({
-    parent: parentForm,
-    key: "profileLinks",
-    maxLength: 3,
-    makeNew: () => ({ url: "", label: "" }),
+  const profileLinkForm = useArrayFormNest({
+    parentForm,
     pull: p => p.profileLinks,
-    push: (v, p) => ({ ...p, profileLinks: v })
+    push: (v, p) => ({ ...p, profileLinks: v }),
+    makeNew: () => ({ label: "", url: "" }),
+    errorKey: "profileLinks",
+    validators: [arrayLengthValidator({ maxLength: 3 })]
   });
-
   return (
     <>
-      <MockStringFormRow
-        label="名前"
-        form={nameForm}
-        counter={{ maxLength: NAME_MAX_LENGTH }}
-        autoComplete="name"
-      />
+      <MockStringFormRow label="名前" form={nameForm} autoComplete="name" />
       <MockStringFormRow
         label="メールアドレス"
         form={emailForm}
@@ -106,17 +88,25 @@ function DummyProfileForm({
   defaultValue,
   onSubmit,
   onCancel
-}: Pick<Parameters<typeof useFormNestRoot<DummyProfile>>[0], "defaultValue"> &
-  Pick<
-    ComponentPropsWithoutRef<typeof MockFormFrame<DummyProfile>>,
-    "onCancel" | "onSubmit"
-  >) {
-  const form = useFormNestRoot<DummyProfile>({
+}: {
+  defaultValue: DummyProfile;
+  onSubmit: (v: DummyProfile) => void;
+  onCancel: () => void;
+}) {
+  const { value, validationSummary, parentForm } = useFormNestRoot<
+    DummyProfile,
+    AppValidationErrorType
+  >({
     defaultValue
   });
+
   return (
-    <MockFormFrame form={form} onSubmit={onSubmit} onCancel={onCancel}>
-      <ProfileFormField parentForm={form} />
+    <MockFormFrame
+      validationSummary={validationSummary}
+      onSubmit={() => onSubmit(value)}
+      onCancel={onCancel}
+    >
+      <ProfileFormField parentForm={parentForm} />
     </MockFormFrame>
   );
 }
