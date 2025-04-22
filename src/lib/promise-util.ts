@@ -3,18 +3,16 @@ export const delay = (ms: number = 0) =>
     setTimeout(resolve, ms);
   });
 
-export function promiseParallel<T, TT>(
+export const promiseParallel = <T, TT>(
   arr: T[],
   fn: (item: T) => Promise<TT>
-): Promise<TT[]> {
-  return Promise.all(arr.map(item => fn(item)));
-}
+): Promise<TT[]> => Promise.all(arr.map(item => fn(item)));
 
-export async function promiseSeries<T, TT>(
+export const promiseSeries = async <T, TT>(
   arr: T[],
   fn: (item: T) => Promise<TT>,
   parallel: number = 1
-): Promise<TT[]> {
+): Promise<TT[]> => {
   if (!arr.length) {
     return [];
   }
@@ -24,4 +22,4 @@ export async function promiseSeries<T, TT>(
     ...(await Promise.all(head.map(item => fn(item)))),
     ...(await promiseSeries(rest, fn, parallel))
   ];
-}
+};

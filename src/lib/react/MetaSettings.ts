@@ -152,13 +152,13 @@ const convertMetaOptions = ({
   return params;
 };
 
-function MetaSettings({
+const MetaSettings = ({
   children,
   ...options
 }: MetaOptions & {
   children?: ReactNode;
-}) {
-  return createElement(
+}) =>
+  createElement(
     Fragment,
     null,
     createElement(
@@ -175,6 +175,5 @@ function MetaSettings({
     ),
     children
   );
-}
 
 export default MetaSettings;

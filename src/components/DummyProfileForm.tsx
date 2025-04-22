@@ -20,11 +20,11 @@ import {
   MockStringFormRow
 } from "~/components/mock/mock-form-ui";
 
-function ProfileLinkFormField({
+const ProfileLinkFormField = ({
   parentForm
 }: {
   parentForm: ParentFormNestInterface<DummyProfileLink, AppValidationErrorType>;
-}) {
+}) => {
   const urlForm = useFormNestField({
     parentForm,
     key: "url",
@@ -41,13 +41,13 @@ function ProfileLinkFormField({
       <MockStringFormRow label="ラベル" form={labelForm} />
     </>
   );
-}
+};
 
-function ProfileFormField({
+const ProfileFormField = ({
   parentForm
 }: {
   parentForm: ParentFormNestInterface<DummyProfile, AppValidationErrorType>;
-}) {
+}) => {
   const nameForm = useFormNestField({
     parentForm,
     key: "name",
@@ -82,9 +82,9 @@ function ProfileFormField({
       />
     </>
   );
-}
+};
 
-function DummyProfileForm({
+const DummyProfileForm = ({
   defaultValue,
   onSubmit,
   onCancel
@@ -92,7 +92,7 @@ function DummyProfileForm({
   defaultValue: DummyProfile;
   onSubmit: (v: DummyProfile) => void;
   onCancel: () => void;
-}) {
+}) => {
   const { value, validationSummary, parentForm } = useFormNestRoot<
     DummyProfile,
     AppValidationErrorType
@@ -109,6 +109,6 @@ function DummyProfileForm({
       <ProfileFormField parentForm={parentForm} />
     </MockFormFrame>
   );
-}
+};
 
 export default DummyProfileForm;
