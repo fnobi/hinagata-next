@@ -11,7 +11,8 @@ export type AppValidationErrorType =
   | { type: "too-long-string"; maxLength: number }
   | { type: "invalid-email" }
   | { type: "invalid-url" }
-  | { type: "invalid-array-length"; minLength: number; maxLength: number };
+  | { type: "invalid-array-length"; minLength: number; maxLength: number }
+  | { type: "invalid-number-range"; min: number; max: number };
 
 export const maxLengthValidator = (
   maxLength: number
@@ -44,6 +45,25 @@ export const requiredValidator = (): FormNestValidator<
 > => ({
   param: { type: "required" },
   validate: v => (!v ? "入力必須です" : null)
+});
+
+export const numberRangeValidator = ({
+  min = 0,
+  max = Infinity
+}: {
+  min?: number;
+  max?: number;
+}): FormNestValidator<number, AppValidationErrorType> => ({
+  param: { type: "invalid-number-range", min, max },
+  validate: v => {
+    if (v > max) {
+      return `${max}以下で設定してください`;
+    }
+    if (v < min) {
+      return `${min}以上で設定してください`;
+    }
+    return null;
+  }
 });
 
 export const arrayLengthValidator = ({

@@ -6,16 +6,16 @@ import {
   type ReactNode,
   useMemo
 } from "react";
-import { THEME_COLOR } from "~/local/emotion-mixin";
+import { ALPHA_COLOR, THEME_COLOR } from "~/local/emotion-mixin";
+import { type AppValidationErrorType } from "~/local/form-validator";
 import { em, percent, px } from "~/lib/css-util";
 import {
   type useArrayFormNest,
   type ParentFormNestInterface,
-  FormNestInterface
+  type FormNestInterface
 } from "~/lib/react/form-nest";
 import { formatDatetimeValue } from "~/lib/string-util";
 import { formatClock } from "~/lib/date-util";
-import { type AppValidationErrorType } from "~/local/form-validator";
 import { compact } from "~/lib/array-util";
 import MockActionButton from "~/components/mock/MockActionButton";
 
@@ -166,21 +166,32 @@ const StringFormInput = ({
 }: Pick<
   InputHTMLAttributes<HTMLInputElement>,
   "value" | "onChange" | "readOnly" | "placeholder" | "autoComplete"
-> & { hasError?: boolean }) => (
-  <input
-    type="text"
-    value={value}
-    onChange={onChange}
-    readOnly={readOnly}
-    placeholder={placeholder}
-    autoComplete={autoComplete}
-    style={{
-      backgroundColor: hasError ? THEME_COLOR.ERROR : THEME_COLOR.WHITE,
-      display: "block",
-      width: percent(100)
-    }}
-  />
-);
+> & { hasError?: boolean }) => {
+  const bgColor = useMemo(() => {
+    if (hasError) {
+      return THEME_COLOR.ERROR;
+    }
+    if (readOnly) {
+      return ALPHA_COLOR("BLACK", 0.3);
+    }
+    return THEME_COLOR.WHITE;
+  }, [hasError, readOnly]);
+  return (
+    <input
+      type="text"
+      value={value}
+      onChange={onChange}
+      readOnly={readOnly}
+      placeholder={placeholder}
+      autoComplete={autoComplete}
+      style={{
+        backgroundColor: bgColor,
+        display: "block",
+        width: percent(100)
+      }}
+    />
+  );
+};
 
 export const MockStringFormRow = ({
   form,
