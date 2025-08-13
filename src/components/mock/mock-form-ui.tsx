@@ -474,17 +474,20 @@ export const MockCheckboxFormRow = ({
   </label>
 );
 
-export const MockPulldownFormRow = ({
+export const MockPulldownFormRow = <T extends string>({
   label,
   form,
   options
 }: {
   label: string;
-  form: FormNestInterface<string, AppValidationErrorType>;
-  options: { value: string; label: string }[];
+  form: FormNestInterface<T | null, AppValidationErrorType>;
+  options: { value: T; label: string }[];
 }) => (
   <FormCommonRowWrapper label={label} error={form.currentError}>
-    <select value={form.value} onChange={e => form.onChange(e.target.value)}>
+    <select
+      value={form.value || ""}
+      onChange={e => form.onChange(e.target.value as T)}
+    >
       <option value="">-</option>
       {options.map(({ value: v, label: l }) => (
         <option key={v} value={v}>
@@ -605,7 +608,7 @@ export const MockArrayFormRow = <T, P, R>({
       canPlus: maxLength >= 0 ? maxLength > l : true,
       canMinus: minLength < l
     };
-  }, [form.subForms.length]);
+  }, [form.subForms, form.validateResult]);
 
   return (
     <FormCommonRowWrapper label={label} error={form.currentError}>

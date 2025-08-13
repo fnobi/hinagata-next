@@ -40,7 +40,7 @@ export const urlValidator = (): FormNestValidator<
 });
 
 export const requiredValidator = (): FormNestValidator<
-  string,
+  string | number | null,
   AppValidationErrorType
 > => ({
   param: { type: "required" },

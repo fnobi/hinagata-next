@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "next",
     "build": "next build && node scripts/make-dist-dir",
-    "lint": "eslint --ext .ts,.tsx,.js --fix .",
+    "lint": "eslint --ext .ts,.tsx,.js --fix src",
     "test": "jest",
     "find-deadcode": "ts-prune | grep -v src/pages | grep -v src/lib"
   },

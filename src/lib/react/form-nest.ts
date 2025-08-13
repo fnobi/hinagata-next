@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { compact, flatten } from "~/lib/array-util";
 
 type FormValueKey = string | number | symbol;
@@ -89,7 +89,7 @@ const useFormNestBase = <T, E>({
     if (onUpdate) {
       onUpdate(editing, validateResult, subError);
     }
-  }, [editing, validateResult, subError]);
+  }, [editing, validateResult, subError, onUpdate]);
 
   const onChange = (v: T, s: E | null = null) => {
     const r = calcValidateResult(v);
@@ -117,11 +117,9 @@ const useFormNestReducer = <T, P, E>({
   pull: (p: P) => T;
   push: (v: T, p: P) => P;
   errorKey: FormValueKey;
-} & Pick<Parameters<typeof useFormNestBase<T, E>>[0], "validators">) =>
-  useFormNestBase<T, E>({
-    defaultValue: pull(parentForm.defaultValue),
-    validators,
-    onUpdate: (v, r, s) =>
+} & Pick<Parameters<typeof useFormNestBase<T, E>>[0], "validators">) => {
+  const onUpdate = useCallback(
+    (v: T, r: FormValidationResult<E>[], s: E | null) =>
       parentForm.onUpdate(
         p => push(v, p),
         o => {
@@ -133,8 +131,15 @@ const useFormNestReducer = <T, P, E>({
             [errorKey]: firstError || s || null
           };
         }
-      )
+      ),
+    [errorKey, parentForm, push]
+  );
+  return useFormNestBase<T, E>({
+    defaultValue: pull(parentForm.defaultValue),
+    validators,
+    onUpdate
   });
+};
 
 export const useFormNestField = <P, K extends keyof P, E>({
   key,
