@@ -1,5 +1,5 @@
-import { BASE_URL } from "~/local/constants";
-import PageEntry from "~/lib/PageEntry";
+import PageEntry from "~/common/lib/PageEntry";
+import { BASE_URL } from "~/common/lib/constants";
 
 const PAGE_ROOT = new PageEntry(BASE_URL);
 

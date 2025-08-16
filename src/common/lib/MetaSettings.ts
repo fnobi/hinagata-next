@@ -6,7 +6,7 @@ import {
   createElement
 } from "react";
 import Head from "next/head";
-import type PageEntry from "~/lib/PageEntry";
+import type PageEntry from "~/common/lib/PageEntry";
 
 export type MetaOptions = {
   page: PageEntry;

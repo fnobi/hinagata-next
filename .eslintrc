@@ -78,12 +78,7 @@
             "position": "after"
           },
           {
-            "pattern": "~/hooks/**",
-            "group": "internal",
-            "position": "after"
-          },
-          {
-            "pattern": "~/components/**",
+            "pattern": "~/app/**",
             "group": "internal",
             "position": "after"
           },
@@ -109,12 +104,8 @@
       {
         "zones": [
           {
-            "from": "src/!(lib)/**/*",
-            "target": "src/lib/**/*"
-          },
-          {
-            "from": "src/!(scheme|lib)/**/*",
-            "target": "src/scheme/**/*"
+            "from": "src/app/**/*",
+            "target": "src/common/**/*"
           }
         ]
       }
@@ -125,31 +116,38 @@
         {
           "module": "@emotion/styled",
           "allowReferenceFrom": [
-            "src/components/*",
-            "src/components/!(provider)/**/*"
+            "src/(app|common)/components/*",
+            "src/app/components/**/!(_provider)/*"
           ],
           "allowSameModule": false
         },
         {
           "module": "react",
           "allowReferenceFrom": [
-            "src/!(scheme|lib)/**/*",
-            "src/lib/react/**/*"
+            "src/**/!(scheme)/**/*"
           ],
           "allowSameModule": false
         },
         {
-          "module": "src/hooks/database",
+          "module": "src/assets",
+          "allowReferenceFrom": [
+            "src/app/!(scheme)/**/*",
+            "src/pages/**/*"
+          ],
+          "allowSameModule": false
+        },
+        {
+          "module": "src/app/lib/database",
           "allowReferenceFrom": [
             "src/pages/**/*",
-            "src/components/provider/**/*"
+            "src/app/components/**/_provider/*"
           ],
           "allowSameModule": true
         },
         {
-          "module": "src/scheme/app-firestore-scheme",
+          "module": "src/app/scheme/app-firestore-scheme",
           "allowReferenceFrom": [
-            "src/hooks/database/**/*"
+            "src/app/lib/database/**/*"
           ],
           "allowSameModule": false
         }

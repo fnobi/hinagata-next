@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { percent } from "~/lib/css-util";
+import { percent } from "~/common/lib/css-util";
 
 const Wrapper = styled.div({
   position: "fixed",

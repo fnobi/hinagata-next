@@ -1,5 +1,5 @@
-import { padLeft } from "~/lib/string-util";
-import { parseNumber } from "~/lib/parser-helper";
+import { padLeft } from "~/common/lib/string-util";
+import { parseNumber } from "~/common/lib/parser-helper";
 
 export const formatDateLabel = (src: number | Date) => {
   const d = typeof src === "object" ? src : new Date(src);

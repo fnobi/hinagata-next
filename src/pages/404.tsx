@@ -1,4 +1,4 @@
-import MockCenteringLayout from "~/components/mock/MockCenteringLayout";
+import MockCenteringLayout from "~/common/components/MockCenteringLayout";
 
 const Page404 = () => <MockCenteringLayout>not found</MockCenteringLayout>;
 

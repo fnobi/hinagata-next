@@ -6,19 +6,24 @@ import {
   type ReactNode,
   useMemo
 } from "react";
-import { ALPHA_COLOR, THEME_COLOR } from "~/local/emotion-mixin";
-import { type ValidationErrorType } from "~/lib/form-validator";
-import { em, percent, px } from "~/lib/css-util";
-import { formatDatetimeValue } from "~/lib/string-util";
-import { formatClock } from "~/lib/date-util";
-import { parseNumber } from "~/lib/parser-helper";
-import type CommonActionParameter from "~/scheme/CommonActionParameter";
-import MockActionButton from "~/components/mock/MockActionButton";
+import MockActionButton from "~/common/components/MockActionButton";
+import { type ValidationErrorType } from "~/common/lib/form-validator";
+import {
+  alphaColor,
+  em,
+  percent,
+  PRIMITIVE_COLOR,
+  px
+} from "~/common/lib/css-util";
+import { formatClock } from "~/common/lib/date-util";
+import { formatDatetimeValue } from "~/common/lib/string-util";
+import { parseNumber } from "~/common/lib/parser-helper";
+import type CommonActionParameter from "~/common/scheme/CommonActionParameter";
 
 const SILENT_ERROR_TYPES: ValidationErrorType["type"][] = ["required"];
 
 const errorBgColor = (e: ValidationErrorType | null) =>
-  e && !SILENT_ERROR_TYPES.includes(e.type) ? THEME_COLOR.ERROR : "inherit";
+  e && !SILENT_ERROR_TYPES.includes(e.type) ? PRIMITIVE_COLOR.ERROR : "inherit";
 
 const useTextCounter = ({
   value,
@@ -78,7 +83,7 @@ const FlexUnitCell = styled.div({
 });
 
 const ValidationErrorText = styled.div({
-  color: THEME_COLOR.ERROR,
+  color: PRIMITIVE_COLOR.ERROR,
   fontWeight: "bold",
   textAlign: "right",
   fontSize: px(15)
@@ -197,7 +202,7 @@ const StringFormInput = ({
 > & { type?: "text" | "password"; error: ValidationErrorType | null }) => {
   const bgColor = useMemo(() => {
     if (readOnly) {
-      return ALPHA_COLOR("BLACK", 0.3);
+      return alphaColor(PRIMITIVE_COLOR.BLACK, 0.3);
     }
     return errorBgColor(error);
   }, [error, readOnly]);

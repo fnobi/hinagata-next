@@ -2,9 +2,9 @@ import { type AppProps } from "next/app";
 import { Global, css } from "@emotion/react";
 import emotionReset from "emotion-reset";
 import { RecoilRoot } from "recoil";
-import { globalStyle } from "~/local/emotion-mixin";
-import DefaultMetaSettings from "~/components/DefaultMetaSettings";
-import LayoutRoot from "~/components/LayoutRoot";
+import { globalStyle } from "~/app/lib/emotion-mixin";
+import DefaultMetaSettings from "~/app/components/DefaultMetaSettings";
+import LayoutRoot from "~/app/components/LayoutRoot";
 
 const MyApp = ({ Component, pageProps }: AppProps) => (
   <RecoilRoot>

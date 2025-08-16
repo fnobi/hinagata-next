@@ -1,4 +1,4 @@
-import type PageEntry from "~/lib/PageEntry";
+import type PageEntry from "~/common/lib/PageEntry";
 
 type PageLinkParameter = {
   type: "page-link";

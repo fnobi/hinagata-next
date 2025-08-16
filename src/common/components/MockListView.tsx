@@ -1,9 +1,14 @@
 import styled from "@emotion/styled";
 import { type ComponentPropsWithoutRef, type ReactNode } from "react";
-import { THEME_COLOR } from "~/local/emotion-mixin";
-import { em, percent, px } from "~/lib/css-util";
-import type CommonActionParameter from "~/scheme/CommonActionParameter";
-import MockActionButton from "~/components/mock/MockActionButton";
+import MockActionButton from "~/common/components/MockActionButton";
+import {
+  alphaColor,
+  em,
+  percent,
+  PRIMITIVE_COLOR,
+  px
+} from "~/common/lib/css-util";
+import type CommonActionParameter from "~/common/scheme/CommonActionParameter";
 
 type TagParameter = {
   label: string;
@@ -54,7 +59,7 @@ const DataListImageCell = styled.div({
   position: "relative",
   width: em(5),
   paddingBottom: em((9 / 16) * 5),
-  backgroundColor: THEME_COLOR.DARK,
+  backgroundColor: alphaColor(PRIMITIVE_COLOR.BLACK, 0.5),
   overflow: "hidden",
   backgroundRepeat: "no-repeat",
   backgroundSize: "cover",

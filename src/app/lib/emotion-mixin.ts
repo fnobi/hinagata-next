@@ -1,6 +1,6 @@
 import { css } from "@emotion/react";
 import { type CSSInterpolation } from "@emotion/serialize";
-import { type CSSSizeKeyword, px, vw } from "~/lib/css-util";
+import { type CSSSizeKeyword, px, vw } from "~/common/lib/css-util";
 
 // NOTE: デザインファイルのサイズに合わせる
 const SP_VIEWPORT_SIZE = 1125;

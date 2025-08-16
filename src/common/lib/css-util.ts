@@ -28,6 +28,15 @@ export const buildLinearGradient = (
     pairs.map(([p1, p2]) => [p1, percent(p2)].join(" ")).join()
   ].join()})`;
 
+export const PRIMITIVE_COLOR = {
+  BLACK: "#000000",
+  WHITE: "#ffffff",
+  ERROR: "#ffaaaa"
+} satisfies Record<string, `#${string}`>;
+
+export const alphaColor = (c: `#${string}`, alpha: number) =>
+  c + Math.floor(alpha * 256).toString(16);
+
 export const linkReset: CSSInterpolation = {
   display: "inline-block",
   textDecoration: "none",

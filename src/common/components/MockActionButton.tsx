@@ -2,8 +2,8 @@ import { css } from "@emotion/react";
 import styled from "@emotion/styled";
 import Link from "next/link";
 import { type ReactNode } from "react";
-import { buttonReset, percent } from "~/lib/css-util";
-import type CommonActionParameter from "~/scheme/CommonActionParameter";
+import { buttonReset, percent } from "~/common/lib/css-util";
+import type CommonActionParameter from "~/common/scheme/CommonActionParameter";
 
 const actionItemCommonStyle = css({
   color: "inherit",

@@ -1,6 +1,6 @@
 import styled from "@emotion/styled";
 import { type ReactNode } from "react";
-import { em } from "~/lib/css-util";
+import { em } from "~/common/lib/css-util";
 
 const Wrapper = styled.div({
   margin: "auto",

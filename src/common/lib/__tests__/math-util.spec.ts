@@ -1,4 +1,4 @@
-import { clampPeriod } from "~/lib/math-util";
+import { clampPeriod } from "~/common/lib/math-util";
 
 describe("math util: clamp period", () => {
   it("plus arguments", () => {

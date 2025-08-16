@@ -1,9 +1,9 @@
 import { useMemo, useState } from "react";
-import type DummyProfile from "~/scheme/DummyProfile";
-import DummyProfileForm from "~/components/DummyProfileForm";
-import MockActionButton from "~/components/mock/MockActionButton";
-import DummyProfileListView from "~/components/DummyProfileListView";
-import MockStaticLayout from "~/components/mock/MockStaticLayout";
+import MockActionButton from "~/common/components/MockActionButton";
+import MockStaticLayout from "~/common/components/MockStaticLayout";
+import type DummyProfile from "~/app/scheme/DummyProfile";
+import DummyProfileForm from "~/app/components/DummyProfileForm";
+import DummyProfileListView from "~/app/components/DummyProfileListView";
 
 const TopScene = () => {
   const [list, setList] = useState<{ id: number; data: DummyProfile }[]>([]);

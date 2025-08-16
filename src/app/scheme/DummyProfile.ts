@@ -1,4 +1,4 @@
-import { parseObject, parseString } from "~/lib/parser-helper";
+import { parseObject, parseString } from "~/common/lib/parser-helper";
 
 export type DummyProfileLink = { label: string; url: string };
 

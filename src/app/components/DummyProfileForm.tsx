@@ -1,24 +1,24 @@
 import { useMemo, useState } from "react";
 import {
+  MockArrayFormRow,
+  type CommonFormFieldProps,
+  MockFormFrame,
+  MockStringFormRow
+} from "~/common/components/mock-form-ui";
+import {
   arrayLengthValidator,
   emailFormatValidator,
   requiredValidator,
   stringMaxLengthValidator,
   subArrayFieldValidator,
   urlFormatValidator
-} from "~/lib/form-validator";
-import FormOrganizer from "~/lib/FormOrganizer";
-import type DummyProfile from "~/scheme/DummyProfile";
+} from "~/common/lib/form-validator";
+import FormOrganizer from "~/common/lib/FormOrganizer";
 import {
   parseDummyProfileLink,
   type DummyProfileLink
-} from "~/scheme/DummyProfile";
-import {
-  MockArrayFormRow,
-  type CommonFormFieldProps,
-  MockFormFrame,
-  MockStringFormRow
-} from "~/components/mock/mock-form-ui";
+} from "~/app/scheme/DummyProfile";
+import type DummyProfile from "~/app/scheme/DummyProfile";
 
 const dummyProfileLinkFormOrganizer = new FormOrganizer<DummyProfileLink>()
   .fieldValidator("url", requiredValidator())
