@@ -1,6 +1,11 @@
 import { css } from "@emotion/react";
 import { type CSSInterpolation } from "@emotion/serialize";
-import { type CSSSizeKeyword, px, vw } from "~/common/lib/css-util";
+import {
+  type CSSSizeKeyword,
+  PRIMITIVE_COLOR,
+  px,
+  vw
+} from "~/common/lib/css-util";
 
 // NOTE: デザインファイルのサイズに合わせる
 const SP_VIEWPORT_SIZE = 1125;
@@ -38,11 +43,10 @@ export const spp = (...nums: CSSSizeKeyword[]) =>
   );
 
 export const THEME_COLOR = {
-  BLACK: "#000000",
+  ...PRIMITIVE_COLOR,
   DARK: "#333333",
-  WHITE: "#ffffff",
-  ERROR: "#ffaaaa"
+  BROWN: "#712636",
+  BG_YELLOW: "#FFFABA",
+  WAVE_YELLOW: "#ffeb3c",
+  PINK: "#E4007F"
 } satisfies Record<string, `#${string}`>;
-
-export const ALPHA_COLOR = (c: keyof typeof THEME_COLOR, alpha: number) =>
-  THEME_COLOR[c] + Math.floor(alpha * 256).toString(16);
