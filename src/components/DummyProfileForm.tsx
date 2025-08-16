@@ -1,4 +1,12 @@
 import { useMemo, useState } from "react";
+import {
+  arrayLengthValidator,
+  emailFormatValidator,
+  requiredValidator,
+  stringMaxLengthValidator,
+  subArrayFieldValidator,
+  urlFormatValidator
+} from "~/lib/form-validator";
 import FormOrganizer from "~/lib/FormOrganizer";
 import type DummyProfile from "~/scheme/DummyProfile";
 import {
@@ -13,24 +21,19 @@ import {
 } from "~/components/mock/mock-form-ui";
 
 const dummyProfileLinkFormOrganizer = new FormOrganizer<DummyProfileLink>()
-  .validator("url", { type: "required" })
-  .validator("url", { type: "url-format" })
-  .validator("label", { type: "string-max-length", maxLength: 10 });
+  .fieldValidator("url", requiredValidator())
+  .fieldValidator("url", urlFormatValidator())
+  .fieldValidator("label", stringMaxLengthValidator(10));
 
 const dummyProfileFormOrganizer = new FormOrganizer<DummyProfile>()
-  .validator("name", { type: "required" })
-  .validator("name", { type: "string-max-length", maxLength: 10 })
-  .validator("email", { type: "required" })
-  .validator("email", { type: "email-format" })
-  .validator("profileLinks", {
-    type: "array-length",
-    minLength: 0,
-    maxLength: 3
-  })
-  .customValidator("profileLinks", { type: "required" }, ({ profileLinks }) =>
-    profileLinks.every(
-      v => dummyProfileLinkFormOrganizer.getValidValue(v).validValue
-    )
+  .fieldValidator("name", requiredValidator())
+  .fieldValidator("name", stringMaxLengthValidator(10))
+  .fieldValidator("email", requiredValidator())
+  .fieldValidator("email", emailFormatValidator())
+  .fieldValidator("profileLinks", arrayLengthValidator(0, 3))
+  .fieldValidator(
+    "profileLinks",
+    subArrayFieldValidator(dummyProfileLinkFormOrganizer)
   );
 
 const ProfileLinkFormField = ({

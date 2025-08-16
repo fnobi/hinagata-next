@@ -7,7 +7,7 @@ import {
   useMemo
 } from "react";
 import { ALPHA_COLOR, THEME_COLOR } from "~/local/emotion-mixin";
-import { type ValidationErrorType } from "~/lib/FormOrganizer";
+import { type ValidationErrorType } from "~/lib/form-validator";
 import { em, percent, px } from "~/lib/css-util";
 import { formatDatetimeValue } from "~/lib/string-util";
 import { formatClock } from "~/lib/date-util";

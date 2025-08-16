@@ -1,70 +1,60 @@
-import FormOrganizerBase from "~/lib/FormOrganizerBase";
+import {
+  type FormOrganizerValidator,
+  type ValidationErrorType
+} from "~/lib/form-validator";
 
-const EMAIL_REGEXP =
-  /^[a-zA-Z0-9_.+-]+@([a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]*\.)+[a-zA-Z]{2,}$/;
+class FormOrganizer<T> {
+  protected validatorList: {
+    key: keyof T;
+    validator: FormOrganizerValidator<T>;
+  }[] = [];
 
-const URL_REGEXP = /^https?:\/\//;
-
-export type ValidationErrorType =
-  | { type: "required" }
-  | { type: "string-max-length"; maxLength: number }
-  | { type: "string-min-length"; minLength: number }
-  | { type: "email-format" }
-  | { type: "url-format" }
-  | { type: "array-length"; minLength: number; maxLength: number }
-  | { type: "password-confirmation" };
-
-class FormOrganizer<T> extends FormOrganizerBase<T, ValidationErrorType> {
-  // eslint-disable-next-line class-methods-use-this
-  protected testFunctions(v: unknown, param: ValidationErrorType) {
-    switch (param.type) {
-      case "string-max-length":
-        return typeof v === "string" && v.length <= param.maxLength;
-      case "string-min-length":
-        return typeof v === "string" && v.length >= param.minLength;
-      case "email-format":
-        return typeof v === "string" && EMAIL_REGEXP.test(v);
-      case "url-format":
-        return typeof v === "string" && URL_REGEXP.test(v);
-      case "array-length":
-        return (
-          Array.isArray(v) &&
-          v.length >= param.minLength &&
-          (param.maxLength < 0 || v.length <= param.maxLength)
-        );
-      case "password-confirmation": // NOTE: 少々特殊なので具体処理はcustomValidatorで書く
-      case "required":
-      default:
-        return !!v;
-    }
+  public formValidator(c: FormOrganizer<T>["validatorList"][number]) {
+    this.validatorList.push(c);
+    return this;
   }
 
-  public get maxLengthes() {
-    return this.validators.reduce(
-      (prev, { key, param }) =>
-        param.type === "string-max-length"
-          ? {
+  public fieldValidator<K extends keyof T>(
+    key: K,
+    { param, test }: FormOrganizerValidator<T[K]>
+  ) {
+    return this.formValidator({
+      key,
+      validator: {
+        param,
+        test: v => test(v[key])
+      }
+    });
+  }
+
+  public getErrors(v: T) {
+    return this.validatorList.reduce(
+      (prev, { key, validator: vvvv }) =>
+        prev[key] || vvvv.test(v)
+          ? prev
+          : {
               ...prev,
-              [key]: prev[key] || param.maxLength
-            }
-          : prev,
-      {} as Record<keyof T, number | undefined>
+              [key]: vvvv.param
+            },
+      {} as Record<keyof T, ValidationErrorType | null>
     );
   }
 
-  public get arrayRanges() {
-    return this.validators.reduce(
-      (prev, { key, param }) =>
-        param.type === "array-length"
+  public getValidValue(v: T) {
+    const errors = this.getErrors(v);
+    return { errors, validValue: Object.values(errors).length ? null : v };
+  }
+
+  public get maxLengthes() {
+    return this.validatorList.reduce(
+      (prev, { key, validator }) =>
+        validator.param.type === "string-max-length"
           ? {
               ...prev,
-              [key]: prev[key] || param
+              [key]: prev[key] || validator.param.maxLength
             }
           : prev,
-      {} as Record<
-        keyof T,
-        { maxLength: number; minLength: number } | undefined
-      >
+      {} as Record<keyof T, number | undefined>
     );
   }
 }
