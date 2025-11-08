@@ -1,4 +1,4 @@
-import EditorScene from "~/app/components/EditorScene";
+import EditorScene from "~/app/components/SampleThreeScene";
 
 const PageIndex = () => <EditorScene />;
 

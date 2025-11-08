@@ -37,15 +37,15 @@ const useThreeRenderer = <T extends AbstractThreeController>() => {
 
   const handleResize = useCallback(() => {
     const { current: container } = containerRef;
+    const { current: renderer } = rendererRef;
+    const { current: controller } = controllerRef;
     if (!container) {
       return;
     }
     const { offsetWidth: w, offsetHeight: h } = container;
-    const { current: renderer } = rendererRef;
     if (renderer) {
       renderer.setSize(w, h);
     }
-    const { current: controller } = controllerRef;
     if (controller) {
       controller.setSize(w, h);
     }
@@ -62,7 +62,7 @@ const useThreeRenderer = <T extends AbstractThreeController>() => {
 
   useEffect(() => {
     window.addEventListener("resize", handleResize);
-    handleResize();
+    window.setTimeout(handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, [handleResize]);
 

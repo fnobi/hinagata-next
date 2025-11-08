@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { em, percent } from "~/common/lib/css-util";
 import useThreeRenderer from "~/common/lib/useThreeRenderer";
 import MockActionButton from "~/common/components/MockActionButton";
@@ -39,6 +39,8 @@ const Footer = styled.div({
 });
 
 const EditorScene = () => {
+  const [modelIndex, setModelIndex] = useState(0);
+  const [controlsFlag, setControlsFlag] = useState(true);
   const { controllerRef, containerRef } =
     useThreeRenderer<SampleThreeController>();
 
@@ -50,20 +52,36 @@ const EditorScene = () => {
     };
   }, [controllerRef]);
 
+  useEffect(() => {
+    const { current: container } = containerRef;
+    const { current: controller } = controllerRef;
+    if (!controlsFlag || !container || !controller) {
+      return () => {};
+    }
+    return controller.activateOrbitControls(container);
+  }, [containerRef, controllerRef, controlsFlag]);
+
   const handleClick = useCallback(() => {
     const { current: controller } = controllerRef;
     if (!controller) {
       return;
     }
-    controller.toggleMode();
+    const i = controller.toggleModel();
+    setModelIndex(i);
   }, [controllerRef]);
 
   return (
     <Wrapper>
       <Container ref={containerRef} />
       <Footer>
+        <MockActionButton
+          action={{ type: "button", onClick: () => setControlsFlag(f => !f) }}
+        >
+          controls:&nbsp;{controlsFlag ? "ON" : "OFF"}
+        </MockActionButton>
+        ・
         <MockActionButton action={{ type: "button", onClick: handleClick }}>
-          toggle
+          model:&nbsp;{modelIndex + 1}
         </MockActionButton>
       </Footer>
     </Wrapper>

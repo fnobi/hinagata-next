@@ -11,7 +11,7 @@ import { makeArray } from "~/common/lib/array-util";
 class SampleThreeController extends AbstractThreeController {
   private meshes: Mesh[];
 
-  private mode = 0;
+  private modelIndex = 0;
 
   public constructor() {
     super();
@@ -41,16 +41,18 @@ class SampleThreeController extends AbstractThreeController {
 
   private switchVisible() {
     makeArray(this.meshes.length).forEach((_, i) => {
-      this.meshes[i].visible = this.mode === i;
+      this.meshes[i].visible = this.modelIndex === i;
     });
   }
 
-  public toggleMode() {
-    this.mode = (this.mode + 1) % this.meshes.length;
+  public toggleModel() {
+    this.modelIndex = (this.modelIndex + 1) % this.meshes.length;
     this.switchVisible();
+    return this.modelIndex;
   }
 
   public update(t: number) {
+    super.update(t);
     const r = t / 1000;
     this.meshes.forEach(m => {
       m.rotation.set(r, r, r);
