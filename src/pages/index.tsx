@@ -1,5 +1,5 @@
-import EditorScene from "~/app/components/SampleThreeScene";
+import SampleThreeScene from "~/app/components/SampleThreeScene";
 
-const PageIndex = () => <EditorScene />;
+const PageIndex = () => <SampleThreeScene />;
 
 export default PageIndex;
