@@ -1,5 +1,5 @@
-import TopScene from "~/app/components/TopScene";
+import EditorScene from "~/app/components/EditorScene";
 
-const PageIndex = () => <TopScene />;
+const PageIndex = () => <EditorScene />;
 
 export default PageIndex;
