@@ -7,7 +7,7 @@ export const parseString = (src: unknown, d: string = ""): string =>
   String(src || d);
 
 export const parseArray = <T>(src: unknown, fn: (item: unknown) => T): T[] =>
-  Array.isArray(src) ? src.map(fn) : [];
+  Array.isArray(src) ? src.map(v => fn(v)) : [];
 
 export const parseObject = <T>(
   src: unknown,
