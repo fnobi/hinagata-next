@@ -6,7 +6,7 @@
       "esnext",
       "dom"
     ],
-    "jsx": "preserve",
+    "jsx": "react-jsx",
     "moduleResolution": "node",
     "rootDirs": [
       "./src"
@@ -42,6 +42,7 @@
     "next-env.d.ts",
     "src/**/*",
     "typings/**/*.d.ts",
-    ".next/types/**/*.ts"
+    ".next/types/**/*.ts",
+    ".next/dev/types/**/*.ts"
   ]
 }
