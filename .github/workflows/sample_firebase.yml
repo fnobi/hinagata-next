@@ -5,30 +5,35 @@ on:
     branches:
       - sample
 
+env:
+  ACTIONS_INSTALL_COMMAND: pnpm install
+  ACTIONS_BUILD_COMMAND: pnpm run build
+  ACTIONS_BUILD_DIST: dist
+  ACTIONS_LOCK_FILE: pnpm-lock.yaml
+
+  NEXT_PUBLIC_SITE_ORIGIN: https://example.com
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v1
+      - uses: actions/setup-node@v4
         with:
-          node-version: 15.x
+          node-version-file: .node-version
 
-      - uses: actions/cache@v2
+      - uses: actions/cache@v4
         with:
-          path: ~/.next
-          key: node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            node-
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles(format('**/{0}',env.ACTIONS_LOCK_FILE)) }}
+          restore-keys: ${{ runner.os }}-node-
 
-      - name: npm install
-        run: npm install
+      - name: install dependencies
+        run: ${{ env.ACTIONS_INSTALL_COMMAND }}
 
-      - name: npm build
-        env:
-          NEXT_PUBLIC_SITE_ORIGIN: https://example.com
-        run: npm run build
+      - name: build
+        run: ${{ env.ACTIONS_BUILD_COMMAND }}
 
       - name: firebase deploy
-        run: ./node_modules/.bin/firebase deploy --only hosting --token ${{ secrets.FIREBASE_TOKEN }}
+        run: npx firebase deploy --only hosting

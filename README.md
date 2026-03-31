@@ -9,13 +9,14 @@ hinagata-next
 - AltJS: [TypeScript](https://www.typescriptlang.org/)
 - CSS-in-JS: [emotion](https://github.com/emotion-js/emotion)
 - Linter: [ESLint](https://eslint.org/)
+- Package Management: [pnpm](https://pnpm.io/ja/)
 
 ## 開発手順
 
 開発に使うnpmパッケージをインストール。
 
 ```bash
-$ npm install
+$ pnpm install
 ```
 
 以降、shellから以下のコマンドを呼び出しつつ、開発を行います。
