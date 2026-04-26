@@ -152,7 +152,8 @@ export default [
       "react/prop-types": 0,
       "react/react-in-jsx-scope": 0,
       "no-shadow": 1,
-      "no-param-reassign": 1
+      "no-param-reassign": 1,
+      "import/no-anonymous-default-export": 0
     }
   }
 ];
