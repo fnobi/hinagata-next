@@ -8,9 +8,8 @@ export const metadata = defaultMetadata;
 const RootLayout = ({ children }: { children: ReactNode }) => (
   <html lang="ja">
     <body>
-      <GlobalStyles>
-        <LayoutRoot>{children}</LayoutRoot>
-      </GlobalStyles>
+      <GlobalStyles />
+      <LayoutRoot>{children}</LayoutRoot>
     </body>
   </html>
 );
