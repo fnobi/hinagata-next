@@ -1,6 +1,6 @@
 import { type ReactNode } from "react";
 import { defaultMetadata } from "~/features/components/DefaultMetaSettings";
-import EmotionProvider from "~/features/components/EmotionProvider";
+import GlobalStyles from "~/features/components/GlobalStyles";
 import LayoutRoot from "~/features/components/LayoutRoot";
 
 export const metadata = defaultMetadata;
@@ -8,9 +8,9 @@ export const metadata = defaultMetadata;
 const RootLayout = ({ children }: { children: ReactNode }) => (
   <html lang="ja">
     <body>
-      <EmotionProvider>
+      <GlobalStyles>
         <LayoutRoot>{children}</LayoutRoot>
-      </EmotionProvider>
+      </GlobalStyles>
     </body>
   </html>
 );
