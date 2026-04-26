@@ -6,22 +6,16 @@ type GTagMethod = {
   event: [
     string,
     {
-       
       event_category: string;
-       
       event_label?: string;
-       
       event_value?: number;
     }
   ];
   config: [
     string,
     {
-       
       page_title?: string;
-       
       page_location?: string;
-       
       page_path?: string;
     }
   ];

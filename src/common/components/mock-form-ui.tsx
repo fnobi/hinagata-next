@@ -597,7 +597,6 @@ export const MockArrayFormRow = <T,>({
         {rows.map((r, i) => (
           <NestSection key={i}>
             <FormLayoutGrid>
-              { }
               <Item {...r} />
             </FormLayoutGrid>
           </NestSection>

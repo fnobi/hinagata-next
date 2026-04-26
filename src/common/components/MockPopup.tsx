@@ -13,7 +13,6 @@ const MockPopup = ({
   children,
   ...props
 }: ComponentPropsWithoutRef<typeof PopupBase>) => (
-   
   <PopupBase {...props}>
     <PopupBody>{children}</PopupBody>
   </PopupBase>
