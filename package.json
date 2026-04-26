@@ -47,6 +47,7 @@
     "typescript": "^6.0.3"
   },
   "dependencies": {
+    "@emotion/cache": "^11.14.0",
     "@emotion/react": "^11.11.1",
     "@emotion/serialize": "^1.1.2",
     "@emotion/styled": "^11.11.0",

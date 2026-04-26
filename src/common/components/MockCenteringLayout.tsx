@@ -1,3 +1,5 @@
+"use client";
+
 import styled from "@emotion/styled";
 import { percent } from "~/common/lib/css-util";
 

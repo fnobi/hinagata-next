@@ -1,3 +1,5 @@
+"use client";
+
 import styled from "@emotion/styled";
 import { type ComponentPropsWithoutRef, type ReactNode } from "react";
 import MockActionButton from "~/common/components/MockActionButton";

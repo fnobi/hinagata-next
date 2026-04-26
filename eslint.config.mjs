@@ -118,14 +118,14 @@ export default [
             module: "src/assets",
             allowReferenceFrom: [
               "src/features/!(schema)/**/*",
-              "src/pages/**/*"
+              "src/app/**/*"
             ],
             allowSameModule: false
           },
           {
             module: "src/features/lib/database",
             allowReferenceFrom: [
-              "src/pages/**/*",
+              "src/app/**/*",
               "src/features/components/**/_provider/*"
             ],
             allowSameModule: true

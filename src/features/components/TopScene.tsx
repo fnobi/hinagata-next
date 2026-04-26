@@ -1,3 +1,5 @@
+"use client";
+
 import { useMemo, useState } from "react";
 import MockActionButton from "~/common/components/MockActionButton";
 import MockStaticLayout from "~/common/components/MockStaticLayout";

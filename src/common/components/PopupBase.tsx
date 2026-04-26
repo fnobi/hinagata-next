@@ -1,3 +1,5 @@
+"use client";
+
 import styled from "@emotion/styled";
 import { type ReactNode, useRef } from "react";
 import { alphaColor, percent, PRIMITIVE_COLOR } from "~/common/lib/css-util";
