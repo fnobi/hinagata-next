@@ -1,5 +1,5 @@
 import MockListView from "~/common/components/MockListView";
-import type DummyProfile from "~/app/scheme/DummyProfile";
+import type DummyProfile from "~/features/scheme/DummyProfile";
 
 const DummyProfileListView = ({
   list,

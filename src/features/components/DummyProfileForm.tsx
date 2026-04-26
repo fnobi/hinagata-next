@@ -17,8 +17,8 @@ import FormOrganizer from "~/common/lib/FormOrganizer";
 import {
   parseDummyProfileLink,
   type DummyProfileLink
-} from "~/app/scheme/DummyProfile";
-import type DummyProfile from "~/app/scheme/DummyProfile";
+} from "~/features/scheme/DummyProfile";
+import type DummyProfile from "~/features/scheme/DummyProfile";
 
 const dummyProfileLinkFormOrganizer = new FormOrganizer<DummyProfileLink>()
   .fieldValidator("url", requiredValidator())

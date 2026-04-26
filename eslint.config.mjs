@@ -83,7 +83,7 @@ export default [
           pathGroupsExcludedImportTypes: [],
           pathGroups: [
             { pattern: "~/common/**", group: "internal", position: "after" },
-            { pattern: "~/app/**", group: "internal", position: "after" },
+            { pattern: "~/features/**", group: "internal", position: "after" },
             { pattern: "~/assets/**", group: "internal", position: "after" }
           ]
         }
@@ -92,7 +92,7 @@ export default [
       "import/no-restricted-paths": [
         "error",
         {
-          zones: [{ from: "src/app/**/*", target: "src/common/**/*" }]
+          zones: [{ from: "src/features/**/*", target: "src/common/**/*" }]
         }
       ],
       "strict-dependencies/strict-dependencies": [
@@ -101,8 +101,8 @@ export default [
           {
             module: "@emotion/styled",
             allowReferenceFrom: [
-              "src/(app|common)/components/*",
-              "src/app/components/**/!(_provider)/*"
+              "src/(features|common)/components/*",
+              "src/features/components/**/!(_provider)/*"
             ],
             allowSameModule: false
           },
@@ -114,22 +114,22 @@ export default [
           {
             module: "src/assets",
             allowReferenceFrom: [
-              "src/app/!(scheme)/**/*",
+              "src/features/!(scheme)/**/*",
               "src/pages/**/*"
             ],
             allowSameModule: false
           },
           {
-            module: "src/app/lib/database",
+            module: "src/features/lib/database",
             allowReferenceFrom: [
               "src/pages/**/*",
-              "src/app/components/**/_provider/*"
+              "src/features/components/**/_provider/*"
             ],
             allowSameModule: true
           },
           {
             module: "src/lib/ClientDataStoreAgent",
-            allowReferenceFrom: ["src/app/lib/database/**/*"],
+            allowReferenceFrom: ["src/features/lib/database/**/*"],
             allowSameModule: false
           }
         ]
