@@ -83,7 +83,7 @@ export default [
           pathGroupsExcludedImportTypes: [],
           pathGroups: [
             { pattern: "~/common/**", group: "internal", position: "after" },
-            { pattern: "~/app/**", group: "internal", position: "after" },
+            { pattern: "~/features/**", group: "internal", position: "after" },
             { pattern: "~/assets/**", group: "internal", position: "after" }
           ]
         }
@@ -92,7 +92,10 @@ export default [
       "import/no-restricted-paths": [
         "error",
         {
-          zones: [{ from: "src/app/**/*", target: "src/common/**/*" }]
+          zones: [
+            { from: "src/features/**/*", target: "src/common/**/*" },
+            { from: "src/**/components/**/*", target: "src/**/schema/**/*" }
+          ]
         }
       ],
       "strict-dependencies/strict-dependencies": [
@@ -101,35 +104,35 @@ export default [
           {
             module: "@emotion/styled",
             allowReferenceFrom: [
-              "src/(app|common)/components/*",
-              "src/app/components/**/!(_provider)/*"
+              "src/(features|common)/components/*",
+              "src/features/components/**/!(_provider)/*"
             ],
             allowSameModule: false
           },
           {
             module: "react",
-            allowReferenceFrom: ["src/**/!(scheme)/**/*"],
+            allowReferenceFrom: ["src/**/!(schema)/**/*"],
             allowSameModule: false
           },
           {
             module: "src/assets",
             allowReferenceFrom: [
-              "src/app/!(scheme)/**/*",
+              "src/features/!(schema)/**/*",
               "src/pages/**/*"
             ],
             allowSameModule: false
           },
           {
-            module: "src/app/lib/database",
+            module: "src/features/lib/database",
             allowReferenceFrom: [
               "src/pages/**/*",
-              "src/app/components/**/_provider/*"
+              "src/features/components/**/_provider/*"
             ],
             allowSameModule: true
           },
           {
             module: "src/lib/ClientDataStoreAgent",
-            allowReferenceFrom: ["src/app/lib/database/**/*"],
+            allowReferenceFrom: ["src/features/lib/database/**/*"],
             allowSameModule: false
           }
         ]
@@ -154,6 +157,32 @@ export default [
       "no-shadow": 1,
       "no-param-reassign": 1,
       "import/no-anonymous-default-export": 0
+    }
+  },
+
+  // schema: 型定義とそのユーティリティのみ。サーバー・クライアント両環境で動くコードに限定する
+  {
+    files: ["src/**/schema/**/*.ts"],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            {
+              group: ["react", "react-dom", "react/*"],
+              message: "schema files must be runtime-agnostic (no React)"
+            },
+            {
+              group: ["@emotion/*"],
+              message: "schema files must be runtime-agnostic (no emotion)"
+            },
+            {
+              group: ["next", "next/*"],
+              message: "schema files must be runtime-agnostic (no Next.js)"
+            }
+          ]
+        }
+      ]
     }
   }
 ];

@@ -1,9 +1,9 @@
 import { type AppProps } from "next/app";
 import { Global, css } from "@emotion/react";
 import emotionReset from "emotion-reset";
-import { globalStyle } from "~/app/lib/emotion-mixin";
-import DefaultMetaSettings from "~/app/components/DefaultMetaSettings";
-import LayoutRoot from "~/app/components/LayoutRoot";
+import { globalStyle } from "~/features/lib/emotion-mixin";
+import DefaultMetaSettings from "~/features/components/DefaultMetaSettings";
+import LayoutRoot from "~/features/components/LayoutRoot";
 
 const MyApp = ({ Component, pageProps }: AppProps) => (
   <>

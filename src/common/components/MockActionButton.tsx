@@ -3,7 +3,7 @@ import styled from "@emotion/styled";
 import Link from "next/link";
 import { type ReactNode } from "react";
 import { buttonReset, percent } from "~/common/lib/css-util";
-import type CommonActionParameter from "~/common/scheme/CommonActionParameter";
+import type CommonActionParameter from "~/common/schema/CommonActionParameter";
 
 const actionItemCommonStyle = css({
   color: "inherit",

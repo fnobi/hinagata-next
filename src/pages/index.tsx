@@ -1,4 +1,4 @@
-import TopScene from "~/app/components/TopScene";
+import TopScene from "~/features/components/TopScene";
 
 const PageIndex = () => <TopScene />;
 
