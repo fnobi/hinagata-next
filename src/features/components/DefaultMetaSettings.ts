@@ -21,14 +21,14 @@ export const defaultMetadata: Metadata = makeMetadata({
 });
 
 export const makeSubPageMetadata = ({
-  page,
+  subPageTitle,
   title,
-  subPageTitle
+  ...rest
 }: Parameters<typeof makeMetadata>[0] & {
   subPageTitle?: string;
 }) => {
   return makeMetadata({
-    page,
+    ...rest,
     title: subPageTitle ? makePageMetaTitle(subPageTitle) : title
   });
 };
