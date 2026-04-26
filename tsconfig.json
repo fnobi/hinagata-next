@@ -7,7 +7,7 @@
       "dom"
     ],
     "jsx": "react-jsx",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "rootDirs": [
       "./src"
     ],
@@ -27,7 +27,7 @@
     "esModuleInterop": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "jsxImportSource": "@emotion/react",
+    "jsxImportSource": "react",
     "incremental": true,
     "plugins": [
       {
