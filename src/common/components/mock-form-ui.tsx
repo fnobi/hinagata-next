@@ -18,7 +18,7 @@ import {
 import { formatClock } from "~/common/lib/date-util";
 import { formatDatetimeValue } from "~/common/lib/string-util";
 import { parseNumber } from "~/common/lib/parser-helper";
-import type CommonActionParameter from "~/common/scheme/CommonActionParameter";
+import type CommonActionParameter from "~/common/schema/CommonActionParameter";
 
 const SILENT_ERROR_TYPES: ValidationErrorType["type"][] = ["required"];
 

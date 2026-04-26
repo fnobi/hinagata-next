@@ -8,7 +8,7 @@ import {
   PRIMITIVE_COLOR,
   px
 } from "~/common/lib/css-util";
-import type CommonActionParameter from "~/common/scheme/CommonActionParameter";
+import type CommonActionParameter from "~/common/schema/CommonActionParameter";
 
 type TagParameter = {
   label: string;

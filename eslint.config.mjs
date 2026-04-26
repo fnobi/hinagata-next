@@ -92,7 +92,10 @@ export default [
       "import/no-restricted-paths": [
         "error",
         {
-          zones: [{ from: "src/features/**/*", target: "src/common/**/*" }]
+          zones: [
+            { from: "src/features/**/*", target: "src/common/**/*" },
+            { from: "src/**/components/**/*", target: "src/**/schema/**/*" }
+          ]
         }
       ],
       "strict-dependencies/strict-dependencies": [
@@ -108,13 +111,13 @@ export default [
           },
           {
             module: "react",
-            allowReferenceFrom: ["src/**/!(scheme)/**/*"],
+            allowReferenceFrom: ["src/**/!(schema)/**/*"],
             allowSameModule: false
           },
           {
             module: "src/assets",
             allowReferenceFrom: [
-              "src/features/!(scheme)/**/*",
+              "src/features/!(schema)/**/*",
               "src/pages/**/*"
             ],
             allowSameModule: false
@@ -154,6 +157,32 @@ export default [
       "no-shadow": 1,
       "no-param-reassign": 1,
       "import/no-anonymous-default-export": 0
+    }
+  },
+
+  // schema: 型定義とそのユーティリティのみ。サーバー・クライアント両環境で動くコードに限定する
+  {
+    files: ["src/**/schema/**/*.ts"],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            {
+              group: ["react", "react-dom", "react/*"],
+              message: "schema files must be runtime-agnostic (no React)"
+            },
+            {
+              group: ["@emotion/*"],
+              message: "schema files must be runtime-agnostic (no emotion)"
+            },
+            {
+              group: ["next", "next/*"],
+              message: "schema files must be runtime-agnostic (no Next.js)"
+            }
+          ]
+        }
+      ]
     }
   }
 ];

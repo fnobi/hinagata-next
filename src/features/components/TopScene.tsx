@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import MockActionButton from "~/common/components/MockActionButton";
 import MockStaticLayout from "~/common/components/MockStaticLayout";
-import type DummyProfile from "~/features/scheme/DummyProfile";
+import type DummyProfile from "~/features/schema/DummyProfile";
 import DummyProfileForm from "~/features/components/DummyProfileForm";
 import DummyProfileListView from "~/features/components/DummyProfileListView";
 
