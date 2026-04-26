@@ -11,7 +11,6 @@ const MyApp = ({ Component, pageProps }: AppProps) => (
     <DefaultMetaSettings />
     <Global styles={css(emotionReset, globalStyle)} />
     <LayoutRoot>
-      { }
       <Component {...pageProps} />
     </LayoutRoot>
     {/* <GTagSnippet trackingId="XX-XXXXXXXXX-XX" basePath={BASE_PATH} /> */}
