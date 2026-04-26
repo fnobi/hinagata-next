@@ -1,11 +1,14 @@
 import { type Metadata } from "next";
+import { type StaticImageData } from "next/image";
+import { SITE_ORIGIN } from "~/common/lib/constants";
 import type PageEntry from "~/common/lib/PageEntry";
 
-export type MetaOptions = {
+type MetaOptions = {
   page: PageEntry;
   title?: string;
   description?: string;
   shareImageUrl?: string;
+  shareImageAsset?: StaticImageData;
   keywords?: string[];
   faviconUrl?: string;
 };
@@ -15,10 +18,14 @@ export const makeMetadata = ({
   title,
   description,
   shareImageUrl,
+  shareImageAsset,
   keywords,
   faviconUrl
 }: MetaOptions): Metadata => {
   const canonicalUrl = page.url;
+  const shareImage = shareImageAsset
+    ? SITE_ORIGIN + shareImageAsset.src
+    : shareImageUrl;
   return {
     title,
     description,
@@ -31,13 +38,13 @@ export const makeMetadata = ({
       url: canonicalUrl,
       title,
       description,
-      images: shareImageUrl ? [{ url: shareImageUrl }] : undefined
+      images: shareImage ? [{ url: shareImage }] : undefined
     },
     twitter: {
       card: "summary_large_image",
       title,
       description,
-      images: shareImageUrl ? [shareImageUrl] : undefined
+      images: shareImage ? [shareImage] : undefined
     }
   };
 };
