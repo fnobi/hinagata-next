@@ -6,22 +6,22 @@ type GTagMethod = {
   event: [
     string,
     {
-      // eslint-disable-next-line camelcase
+       
       event_category: string;
-      // eslint-disable-next-line camelcase
+       
       event_label?: string;
-      // eslint-disable-next-line camelcase
+       
       event_value?: number;
     }
   ];
   config: [
     string,
     {
-      // eslint-disable-next-line camelcase
+       
       page_title?: string;
-      // eslint-disable-next-line camelcase
+       
       page_location?: string;
-      // eslint-disable-next-line camelcase
+       
       page_path?: string;
     }
   ];

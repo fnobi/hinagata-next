@@ -15,6 +15,7 @@ export const usePeriodLoop = (period: number, flag: boolean = true) => {
   const [time, setTime] = useState(0);
   useEffect(() => {
     if (!flag) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setTime(0);
       return () => {};
     }

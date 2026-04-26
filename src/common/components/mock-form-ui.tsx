@@ -597,7 +597,7 @@ export const MockArrayFormRow = <T,>({
         {rows.map((r, i) => (
           <NestSection key={i}>
             <FormLayoutGrid>
-              {/* eslint-disable-next-line react/jsx-props-no-spreading */}
+              { }
               <Item {...r} />
             </FormLayoutGrid>
           </NestSection>
