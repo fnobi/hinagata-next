@@ -1,5 +1,5 @@
 import { type Metadata } from "next";
-import { makeMetadata } from "~/common/lib/makeMetadata";
+import makeMetadata from "~/common/lib/makeMetadata";
 import { PAGE_TOP } from "~/features/lib/page-path";
 import ASSETS_OGP from "~/assets/meta/ogp.png";
 import ASSETS_FAVICON from "~/assets/meta/favicon.ico";

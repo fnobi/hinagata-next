@@ -13,7 +13,7 @@ type MetaOptions = {
   faviconUrl?: string;
 };
 
-export const makeMetadata = ({
+const makeMetadata = ({
   page,
   title,
   description,
@@ -48,3 +48,5 @@ export const makeMetadata = ({
     }
   };
 };
+
+export default makeMetadata;

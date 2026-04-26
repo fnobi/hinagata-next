@@ -1,5 +1,5 @@
 import MockCenteringLayout from "~/common/components/MockCenteringLayout";
-import { makeSubPageMetadata } from "~/features/components/DefaultMetaSettings";
+import { makeSubPageMetadata } from "~/features/lib/defaultMetadata";
 import { PAGE_ABOUT } from "~/features/lib/page-path";
 import ASSETS_OGP_ABOUT from "~/assets/meta/ogp-about.png";
 

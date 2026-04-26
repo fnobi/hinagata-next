@@ -1,5 +1,5 @@
 import { type ReactNode } from "react";
-import { defaultMetadata } from "~/features/components/DefaultMetaSettings";
+import { defaultMetadata } from "~/features/lib/defaultMetadata";
 import GlobalStyles from "~/features/components/GlobalStyles";
 import LayoutRoot from "~/features/components/LayoutRoot";
 
