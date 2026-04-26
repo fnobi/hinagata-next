@@ -13,7 +13,6 @@ const MockPopup = ({
   children,
   ...props
 }: ComponentPropsWithoutRef<typeof PopupBase>) => (
-  // eslint-disable-next-line react/jsx-props-no-spreading
   <PopupBase {...props}>
     <PopupBody>{children}</PopupBody>
   </PopupBase>

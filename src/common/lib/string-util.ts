@@ -2,7 +2,6 @@ export const padLeft = (num: number, count: number) =>
   (new Array(count).join("0") + num.toString()).slice(-count);
 
 export const trim = (str: string) =>
-  // eslint-disable-next-line no-irregular-whitespace
   str.replace(/^[ 　]+/g, "").replace(/[ 　]+$/g, "");
 
 export const formatTime = (time: number | Date) => {
