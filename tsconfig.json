@@ -15,10 +15,9 @@
     "noImplicitReturns": true,
     "strict": true,
     "noUnusedLocals": true,
-    "baseUrl": ".",
     "paths": {
       "~/*": [
-        "src/*"
+        "./src/*"
       ]
     },
     "allowJs": true,
@@ -28,6 +27,7 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsxImportSource": "react",
+    "types": ["jest", "node"],
     "incremental": true,
     "plugins": [
       {
