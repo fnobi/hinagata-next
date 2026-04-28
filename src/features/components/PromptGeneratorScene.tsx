@@ -182,7 +182,11 @@ const SubjectLabel = styled.label({
   letterSpacing: "0.08em"
 });
 
-const SubjectTextarea = styled.textarea({
+const SubjectTagsGrid = styled(TagsGrid)({
+  marginBottom: px(12)
+});
+
+const SubjectInput = styled.input({
   width: "100%",
   boxSizing: "border-box",
   border: `1.5px solid ${BORDER}`,
@@ -190,9 +194,7 @@ const SubjectTextarea = styled.textarea({
   padding: px(10, 12),
   fontSize: px(13),
   fontFamily: "inherit",
-  lineHeight: 1.6,
   color: TEXT_MAIN,
-  resize: "vertical",
   outline: "none",
   transition: "border-color 0.15s ease",
   "&:focus": {
@@ -385,14 +387,48 @@ const TooltipItem = ({ item, selected, onToggle }: TooltipItemProps) => {
   );
 };
 
+type SubjectItem = {
+  id: string;
+  label: string;
+  value: string;
+};
+
+type SubjectTagItemProps = {
+  item: SubjectItem;
+  selected: boolean;
+  onToggle: (id: string) => void;
+};
+
+const SubjectTagItem = ({ item, selected, onToggle }: SubjectTagItemProps) => {
+  const [visible, setVisible] = useState(false);
+  return (
+    <TooltipWrapper
+      onMouseEnter={() => setVisible(true)}
+      onMouseLeave={() => setVisible(false)}
+    >
+      {visible && (
+        <Tooltip>
+          <TooltipValue>{item.value}</TooltipValue>
+        </Tooltip>
+      )}
+      <Tag selected={selected} onClick={() => onToggle(item.id)} type="button">
+        {item.label}
+      </Tag>
+    </TooltipWrapper>
+  );
+};
+
 const buildPrompt = (
-  subject: string,
+  subjectItems: SubjectItem[],
+  subjectSelectedIds: Set<string>,
   selectedIds: Set<string>,
   categories: PromptCategory[]
 ): string => {
   const parts: string[] = [];
-  if (subject.trim()) {
-    parts.push(subject.trim());
+  for (const item of subjectItems) {
+    if (subjectSelectedIds.has(item.id)) {
+      parts.push(item.value);
+    }
   }
   for (const category of categories) {
     for (const item of category.items) {
@@ -418,7 +454,11 @@ const findItem = (
 };
 
 const PromptGeneratorScene = () => {
-  const [subject, setSubject] = useState("");
+  const [subjectInput, setSubjectInput] = useState("");
+  const [subjectItems, setSubjectItems] = useState<SubjectItem[]>([]);
+  const [subjectSelectedIds, setSubjectSelectedIds] = useState<Set<string>>(
+    new Set()
+  );
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [copied, setCopied] = useState(false);
   const [translating, setTranslating] = useState(false);
@@ -436,34 +476,70 @@ const PromptGeneratorScene = () => {
     });
   }, []);
 
+  const toggleSubjectItem = useCallback((id: string) => {
+    setSubjectSelectedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  }, []);
+
+  const removeSubjectItem = useCallback((id: string) => {
+    setSubjectItems(prev => prev.filter(item => item.id !== id));
+    setSubjectSelectedIds(prev => {
+      const next = new Set(prev);
+      next.delete(id);
+      return next;
+    });
+  }, []);
+
   const clearAll = useCallback(() => {
     setSelectedIds(new Set());
-    setSubject("");
+    setSubjectItems([]);
+    setSubjectSelectedIds(new Set());
+    setSubjectInput("");
     setCopied(false);
   }, []);
 
-  const handleTranslate = useCallback(async () => {
-    if (!subject.trim()) {
+  const handleAddSubject = useCallback(async () => {
+    const trimmed = subjectInput.trim();
+    if (!trimmed) {
       return;
     }
     setTranslating(true);
     setTranslateError("");
     try {
       const res = await requestAppCallable("translateWithApi", {
-        jaWord: subject
+        jaWord: trimmed
       });
       if (res.case !== "ok") {
         throw new Error(`HTTP ${res.error}`);
       }
-      setSubject(res.data.enWord);
+      const newItem: SubjectItem = {
+        id: `subject-${Date.now()}`,
+        label: trimmed,
+        value: res.data.enWord
+      };
+      setSubjectItems(prev => [...prev, newItem]);
+      setSubjectSelectedIds(prev => new Set([...prev, newItem.id]));
+      setSubjectInput("");
     } catch {
       setTranslateError("翻訳に失敗しました");
     } finally {
       setTranslating(false);
     }
-  }, [subject]);
+  }, [subjectInput]);
 
-  const prompt = buildPrompt(subject, selectedIds, PROMPT_CATEGORIES);
+  const prompt = buildPrompt(
+    subjectItems,
+    subjectSelectedIds,
+    selectedIds,
+    PROMPT_CATEGORIES
+  );
 
   const handleCopy = useCallback(() => {
     if (!prompt) {
@@ -475,7 +551,7 @@ const PromptGeneratorScene = () => {
     });
   }, [prompt]);
 
-  const selectedCount = selectedIds.size + (subject.trim() ? 1 : 0);
+  const selectedCount = selectedIds.size + subjectSelectedIds.size;
 
   return (
     <Root>
@@ -490,26 +566,44 @@ const PromptGeneratorScene = () => {
         <LeftCol>
           <SubjectCard>
             <SubjectLabel htmlFor="subject-input">主題・被写体</SubjectLabel>
-            <SubjectTextarea
-              id="subject-input"
-              rows={3}
-              placeholder="例: a young woman standing in a field of flowers, holding a lantern"
-              value={subject}
-              onChange={e => setSubject(e.target.value)}
-            />
-            <TranslateRow>
-              {translateError && (
-                <TranslateError>{translateError}</TranslateError>
-              )}
-              <TranslateButton
-                type="button"
-                isLoading={translating}
-                disabled={translating || !subject.trim()}
-                onClick={handleTranslate}
-              >
-                {translating ? "翻訳中..." : "英語に翻訳"}
-              </TranslateButton>
-            </TranslateRow>
+            {subjectItems.length > 0 && (
+              <SubjectTagsGrid>
+                {subjectItems.map(item => (
+                  <SubjectTagItem
+                    key={item.id}
+                    item={item}
+                    selected={subjectSelectedIds.has(item.id)}
+                    onToggle={toggleSubjectItem}
+                  />
+                ))}
+              </SubjectTagsGrid>
+            )}
+            <form
+              onSubmit={e => {
+                e.preventDefault();
+                handleAddSubject();
+              }}
+            >
+              <SubjectInput
+                id="subject-input"
+                type="text"
+                placeholder="例: 花畑に立つ若い女性"
+                value={subjectInput}
+                onChange={e => setSubjectInput(e.target.value)}
+              />
+              <TranslateRow>
+                {translateError && (
+                  <TranslateError>{translateError}</TranslateError>
+                )}
+                <TranslateButton
+                  type="submit"
+                  isLoading={translating}
+                  disabled={translating || !subjectInput.trim()}
+                >
+                  {translating ? "追加中..." : "追加"}
+                </TranslateButton>
+              </TranslateRow>
+            </form>
           </SubjectCard>
 
           {PROMPT_CATEGORIES.map(category => (
@@ -559,8 +653,20 @@ const PromptGeneratorScene = () => {
               すべてクリア
             </ClearButton>
 
-            {selectedIds.size > 0 && (
+            {(subjectItems.length > 0 || selectedIds.size > 0) && (
               <SelectedBadges>
+                {subjectItems.map(item => (
+                  <SelectedBadge key={item.id}>
+                    {item.label}
+                    <BadgeRemove
+                      onClick={() => removeSubjectItem(item.id)}
+                      type="button"
+                      aria-label={`${item.label}を削除`}
+                    >
+                      ×
+                    </BadgeRemove>
+                  </SelectedBadge>
+                ))}
                 {Array.from(selectedIds).map(id => {
                   const item = findItem(id, PROMPT_CATEGORIES);
                   if (!item) {
