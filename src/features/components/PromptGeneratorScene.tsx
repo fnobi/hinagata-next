@@ -273,6 +273,38 @@ const CopyButton = styled.button<{ copied: boolean }>(
         }
 );
 
+const TranslateRow = styled.div({
+  display: "flex",
+  justifyContent: "flex-end",
+  alignItems: "center",
+  gap: px(8),
+  marginTop: px(6)
+});
+
+const TranslateError = styled.span({
+  fontSize: px(11),
+  color: "#ef4444"
+});
+
+const TranslateButton = styled.button<{ loading: boolean }>(buttonReset, {
+  padding: px(5, 12),
+  borderRadius: px(6),
+  fontSize: px(12),
+  fontWeight: 500,
+  border: `1.5px solid ${BORDER}`,
+  color: TEXT_SUB,
+  transition: "all 0.15s ease",
+  "&:not(:disabled):hover": {
+    borderColor: ACCENT,
+    color: ACCENT,
+    background: ACCENT_LIGHT
+  },
+  "&:disabled": {
+    opacity: 0.5,
+    cursor: "default"
+  }
+});
+
 const ClearButton = styled.button(buttonReset, {
   width: "100%",
   padding: px(9),
@@ -388,6 +420,8 @@ const PromptGeneratorScene = () => {
   const [subject, setSubject] = useState("");
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [copied, setCopied] = useState(false);
+  const [translating, setTranslating] = useState(false);
+  const [translateError, setTranslateError] = useState("");
 
   const toggleItem = useCallback((id: string) => {
     setSelectedIds(prev => {
@@ -406,6 +440,31 @@ const PromptGeneratorScene = () => {
     setSubject("");
     setCopied(false);
   }, []);
+
+  const handleTranslate = useCallback(async () => {
+    if (!subject.trim()) return;
+    const apiKey = process.env.NEXT_PUBLIC_DEEPL_API_KEY;
+    if (!apiKey) return;
+    setTranslating(true);
+    setTranslateError("");
+    try {
+      const res = await fetch("https://api-free.deepl.com/v2/translate", {
+        method: "POST",
+        headers: {
+          Authorization: `DeepL-Auth-Key ${apiKey}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ text: [subject], target_lang: "EN" })
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      setSubject(data.translations[0].text);
+    } catch {
+      setTranslateError("翻訳に失敗しました");
+    } finally {
+      setTranslating(false);
+    }
+  }, [subject]);
 
   const prompt = buildPrompt(subject, selectedIds, PROMPT_CATEGORIES);
 
@@ -441,6 +500,19 @@ const PromptGeneratorScene = () => {
               value={subject}
               onChange={e => setSubject(e.target.value)}
             />
+            <TranslateRow>
+              {translateError && (
+                <TranslateError>{translateError}</TranslateError>
+              )}
+              <TranslateButton
+                type="button"
+                loading={translating}
+                disabled={translating || !subject.trim()}
+                onClick={handleTranslate}
+              >
+                {translating ? "翻訳中..." : "英語に翻訳"}
+              </TranslateButton>
+            </TranslateRow>
           </SubjectCard>
 
           {PROMPT_CATEGORIES.map(category => (
