@@ -4,6 +4,7 @@ import { useState, useCallback } from "react";
 import styled from "@emotion/styled";
 import { css } from "@emotion/react";
 import { buttonReset, px, alphaColor } from "~/common/lib/css-util";
+import requestAppCallable from "~/features/lib/requestAppCallable";
 import { THEME_COLOR } from "~/features/lib/emotion-mixin";
 import {
   type PromptItem,
@@ -286,7 +287,7 @@ const TranslateError = styled.span({
   color: "#ef4444"
 });
 
-const TranslateButton = styled.button<{ loading: boolean }>(buttonReset, {
+const TranslateButton = styled.button<{ isLoading: boolean }>(buttonReset, {
   padding: px(5, 12),
   borderRadius: px(6),
   fontSize: px(12),
@@ -442,23 +443,19 @@ const PromptGeneratorScene = () => {
   }, []);
 
   const handleTranslate = useCallback(async () => {
-    if (!subject.trim()) return;
-    const apiKey = process.env.NEXT_PUBLIC_DEEPL_API_KEY;
-    if (!apiKey) return;
+    if (!subject.trim()) {
+      return;
+    }
     setTranslating(true);
     setTranslateError("");
     try {
-      const res = await fetch("https://api-free.deepl.com/v2/translate", {
-        method: "POST",
-        headers: {
-          Authorization: `DeepL-Auth-Key ${apiKey}`,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ text: [subject], target_lang: "EN" })
+      const res = await requestAppCallable("translateWithApi", {
+        jaWord: subject
       });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = await res.json();
-      setSubject(data.translations[0].text);
+      if (res.case !== "ok") {
+        throw new Error(`HTTP ${res.error}`);
+      }
+      setSubject(res.data.enWord);
     } catch {
       setTranslateError("翻訳に失敗しました");
     } finally {
@@ -506,7 +503,7 @@ const PromptGeneratorScene = () => {
               )}
               <TranslateButton
                 type="button"
-                loading={translating}
+                isLoading={translating}
                 disabled={translating || !subject.trim()}
                 onClick={handleTranslate}
               >
