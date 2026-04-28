@@ -1,4 +1,4 @@
-import type { PromptCategory } from "~/features/schema/PromptItem";
+import { type PromptCategory } from "~/features/schema/PromptItem";
 
 const PROMPT_CATEGORIES: PromptCategory[] = [
   {

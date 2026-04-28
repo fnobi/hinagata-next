@@ -5,7 +5,10 @@ import styled from "@emotion/styled";
 import { css } from "@emotion/react";
 import { buttonReset, px, alphaColor } from "~/common/lib/css-util";
 import { THEME_COLOR } from "~/features/lib/emotion-mixin";
-import type { PromptItem, PromptCategory } from "~/features/schema/PromptItem";
+import {
+  type PromptItem,
+  type PromptCategory
+} from "~/features/schema/PromptItem";
 import PROMPT_CATEGORIES from "~/features/lib/promptData";
 
 const ACCENT = "#6366f1";
@@ -244,27 +247,30 @@ const EmptyOutput = styled.div({
   fontSize: px(13)
 });
 
-const CopyButton = styled.button<{ copied: boolean }>(buttonReset, {
-  width: "100%",
-  padding: px(11),
-  borderRadius: px(8),
-  fontSize: px(14),
-  fontWeight: 600,
-  textAlign: "center",
-  transition: "all 0.15s ease"
-}, ({ copied }) =>
-  copied
-    ? {
-        background: "#10b981",
-        color: THEME_COLOR.WHITE,
-        cursor: "default"
-      }
-    : {
-        background: ACCENT,
-        color: THEME_COLOR.WHITE,
-        "&:hover": { background: "#4f46e5" },
-        "&:active": { background: "#4338ca" }
-      }
+const CopyButton = styled.button<{ copied: boolean }>(
+  buttonReset,
+  {
+    width: "100%",
+    padding: px(11),
+    borderRadius: px(8),
+    fontSize: px(14),
+    fontWeight: 600,
+    textAlign: "center",
+    transition: "all 0.15s ease"
+  },
+  ({ copied }) =>
+    copied
+      ? {
+          background: "#10b981",
+          color: THEME_COLOR.WHITE,
+          cursor: "default"
+        }
+      : {
+          background: ACCENT,
+          color: THEME_COLOR.WHITE,
+          "&:hover": { background: "#4f46e5" },
+          "&:active": { background: "#4338ca" }
+        }
 );
 
 const ClearButton = styled.button(buttonReset, {
@@ -339,11 +345,7 @@ const TooltipItem = ({ item, selected, onToggle }: TooltipItemProps) => {
           <TooltipDesc>{item.description}</TooltipDesc>
         </Tooltip>
       )}
-      <Tag
-        selected={selected}
-        onClick={() => onToggle(item.id)}
-        type="button"
-      >
+      <Tag selected={selected} onClick={() => onToggle(item.id)} type="button">
         {item.label}
       </Tag>
     </TooltipWrapper>
@@ -375,7 +377,9 @@ const findItem = (
 ): PromptItem | undefined => {
   for (const cat of categories) {
     const found = cat.items.find(i => i.id === id);
-    if (found) return found;
+    if (found) {
+      return found;
+    }
   }
   return undefined;
 };
@@ -406,7 +410,9 @@ const PromptGeneratorScene = () => {
   const prompt = buildPrompt(subject, selectedIds, PROMPT_CATEGORIES);
 
   const handleCopy = useCallback(() => {
-    if (!prompt) return;
+    if (!prompt) {
+      return;
+    }
     navigator.clipboard.writeText(prompt).then(() => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
@@ -459,9 +465,7 @@ const PromptGeneratorScene = () => {
             <OutputLabel>
               生成プロンプト
               <SelectedCount>
-                {selectedCount > 0
-                  ? `${selectedCount} 件選択中`
-                  : "未選択"}
+                {selectedCount > 0 ? `${selectedCount} 件選択中` : "未選択"}
               </SelectedCount>
             </OutputLabel>
 
@@ -490,7 +494,9 @@ const PromptGeneratorScene = () => {
               <SelectedBadges>
                 {Array.from(selectedIds).map(id => {
                   const item = findItem(id, PROMPT_CATEGORIES);
-                  if (!item) return null;
+                  if (!item) {
+                    return null;
+                  }
                   return (
                     <SelectedBadge key={id}>
                       {item.label}
