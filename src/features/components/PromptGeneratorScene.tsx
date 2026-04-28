@@ -4,6 +4,7 @@ import { useState, useCallback } from "react";
 import styled from "@emotion/styled";
 import { css } from "@emotion/react";
 import { buttonReset, px, alphaColor } from "~/common/lib/css-util";
+import requestAppCallable from "~/features/lib/requestAppCallable";
 import { THEME_COLOR } from "~/features/lib/emotion-mixin";
 import {
   type PromptItem,
@@ -273,6 +274,38 @@ const CopyButton = styled.button<{ copied: boolean }>(
         }
 );
 
+const TranslateRow = styled.div({
+  display: "flex",
+  justifyContent: "flex-end",
+  alignItems: "center",
+  gap: px(8),
+  marginTop: px(6)
+});
+
+const TranslateError = styled.span({
+  fontSize: px(11),
+  color: "#ef4444"
+});
+
+const TranslateButton = styled.button<{ isLoading: boolean }>(buttonReset, {
+  padding: px(5, 12),
+  borderRadius: px(6),
+  fontSize: px(12),
+  fontWeight: 500,
+  border: `1.5px solid ${BORDER}`,
+  color: TEXT_SUB,
+  transition: "all 0.15s ease",
+  "&:not(:disabled):hover": {
+    borderColor: ACCENT,
+    color: ACCENT,
+    background: ACCENT_LIGHT
+  },
+  "&:disabled": {
+    opacity: 0.5,
+    cursor: "default"
+  }
+});
+
 const ClearButton = styled.button(buttonReset, {
   width: "100%",
   padding: px(9),
@@ -388,6 +421,8 @@ const PromptGeneratorScene = () => {
   const [subject, setSubject] = useState("");
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [copied, setCopied] = useState(false);
+  const [translating, setTranslating] = useState(false);
+  const [translateError, setTranslateError] = useState("");
 
   const toggleItem = useCallback((id: string) => {
     setSelectedIds(prev => {
@@ -406,6 +441,27 @@ const PromptGeneratorScene = () => {
     setSubject("");
     setCopied(false);
   }, []);
+
+  const handleTranslate = useCallback(async () => {
+    if (!subject.trim()) {
+      return;
+    }
+    setTranslating(true);
+    setTranslateError("");
+    try {
+      const res = await requestAppCallable("translateWithApi", {
+        jaWord: subject
+      });
+      if (res.case !== "ok") {
+        throw new Error(`HTTP ${res.error}`);
+      }
+      setSubject(res.data.enWord);
+    } catch {
+      setTranslateError("翻訳に失敗しました");
+    } finally {
+      setTranslating(false);
+    }
+  }, [subject]);
 
   const prompt = buildPrompt(subject, selectedIds, PROMPT_CATEGORIES);
 
@@ -441,6 +497,19 @@ const PromptGeneratorScene = () => {
               value={subject}
               onChange={e => setSubject(e.target.value)}
             />
+            <TranslateRow>
+              {translateError && (
+                <TranslateError>{translateError}</TranslateError>
+              )}
+              <TranslateButton
+                type="button"
+                isLoading={translating}
+                disabled={translating || !subject.trim()}
+                onClick={handleTranslate}
+              >
+                {translating ? "翻訳中..." : "英語に翻訳"}
+              </TranslateButton>
+            </TranslateRow>
           </SubjectCard>
 
           {PROMPT_CATEGORIES.map(category => (

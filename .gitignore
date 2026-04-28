@@ -5,3 +5,5 @@ yarn.lock
 next-env.d.ts
 dist
 tsconfig.tsbuildinfo
+.env.local
+.firebase
