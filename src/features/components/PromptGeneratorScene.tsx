@@ -488,6 +488,15 @@ const PromptGeneratorScene = () => {
     });
   }, []);
 
+  const removeSubjectItem = useCallback((id: string) => {
+    setSubjectItems(prev => prev.filter(item => item.id !== id));
+    setSubjectSelectedIds(prev => {
+      const next = new Set(prev);
+      next.delete(id);
+      return next;
+    });
+  }, []);
+
   const clearAll = useCallback(() => {
     setSelectedIds(new Set());
     setSubjectItems([]);
@@ -569,31 +578,32 @@ const PromptGeneratorScene = () => {
                 ))}
               </SubjectTagsGrid>
             )}
-            <SubjectInput
-              id="subject-input"
-              type="text"
-              placeholder="例: 花畑に立つ若い女性"
-              value={subjectInput}
-              onChange={e => setSubjectInput(e.target.value)}
-              onKeyDown={e => {
-                if (e.key === "Enter" && !translating && subjectInput.trim()) {
-                  handleAddSubject();
-                }
+            <form
+              onSubmit={e => {
+                e.preventDefault();
+                handleAddSubject();
               }}
-            />
-            <TranslateRow>
-              {translateError && (
-                <TranslateError>{translateError}</TranslateError>
-              )}
-              <TranslateButton
-                type="button"
-                isLoading={translating}
-                disabled={translating || !subjectInput.trim()}
-                onClick={handleAddSubject}
-              >
-                {translating ? "追加中..." : "追加"}
-              </TranslateButton>
-            </TranslateRow>
+            >
+              <SubjectInput
+                id="subject-input"
+                type="text"
+                placeholder="例: 花畑に立つ若い女性"
+                value={subjectInput}
+                onChange={e => setSubjectInput(e.target.value)}
+              />
+              <TranslateRow>
+                {translateError && (
+                  <TranslateError>{translateError}</TranslateError>
+                )}
+                <TranslateButton
+                  type="submit"
+                  isLoading={translating}
+                  disabled={translating || !subjectInput.trim()}
+                >
+                  {translating ? "追加中..." : "追加"}
+                </TranslateButton>
+              </TranslateRow>
+            </form>
           </SubjectCard>
 
           {PROMPT_CATEGORIES.map(category => (
@@ -643,8 +653,20 @@ const PromptGeneratorScene = () => {
               すべてクリア
             </ClearButton>
 
-            {selectedIds.size > 0 && (
+            {(subjectItems.length > 0 || selectedIds.size > 0) && (
               <SelectedBadges>
+                {subjectItems.map(item => (
+                  <SelectedBadge key={item.id}>
+                    {item.label}
+                    <BadgeRemove
+                      onClick={() => removeSubjectItem(item.id)}
+                      type="button"
+                      aria-label={`${item.label}を削除`}
+                    >
+                      ×
+                    </BadgeRemove>
+                  </SelectedBadge>
+                ))}
                 {Array.from(selectedIds).map(id => {
                   const item = findItem(id, PROMPT_CATEGORIES);
                   if (!item) {
