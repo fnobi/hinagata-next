@@ -1,5 +1,5 @@
-import TopScene from "~/features/components/TopScene";
+import PromptGeneratorScene from "~/features/components/PromptGeneratorScene";
 
-const PageIndex = () => <TopScene />;
+const PagePromptGenerator = () => <PromptGeneratorScene />;
 
-export default PageIndex;
+export default PagePromptGenerator;
