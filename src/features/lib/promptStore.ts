@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { toggleArrayItem, uniq } from "~/common/lib/array-util";
 
 type SubjectItem = {
   id: string;
@@ -8,11 +9,11 @@ type SubjectItem = {
 
 type PromptStore = {
   subjectItems: SubjectItem[];
-  subjectSelectedIds: Set<string>;
-  selectedIds: Set<string>;
+  subjectSelectedIds: string[];
+  selectedIds: string[];
   setSubjectItems: (items: SubjectItem[]) => void;
-  setSubjectSelectedIds: (ids: Set<string>) => void;
-  setSelectedIds: (ids: Set<string>) => void;
+  setSubjectSelectedIds: (ids: string[]) => void;
+  setSelectedIds: (ids: string[]) => void;
   addSubjectItem: (item: SubjectItem) => void;
   toggleSubjectSelected: (id: string) => void;
   toggleSelected: (id: string) => void;
@@ -21,8 +22,8 @@ type PromptStore = {
 
 const usePromptStore = create<PromptStore>(set => ({
   subjectItems: [],
-  subjectSelectedIds: new Set(),
-  selectedIds: new Set(),
+  subjectSelectedIds: [],
+  selectedIds: [],
 
   setSubjectItems: items => set({ subjectItems: items }),
   setSubjectSelectedIds: ids => set({ subjectSelectedIds: ids }),
@@ -31,36 +32,32 @@ const usePromptStore = create<PromptStore>(set => ({
   addSubjectItem: item =>
     set(state => ({
       subjectItems: [...state.subjectItems, item],
-      subjectSelectedIds: new Set([...state.subjectSelectedIds, item.id])
+      subjectSelectedIds: uniq([...state.subjectSelectedIds, item.id])
     })),
 
   toggleSubjectSelected: id =>
-    set(state => {
-      const next = new Set(state.subjectSelectedIds);
-      if (next.has(id)) {
-        next.delete(id);
-      } else {
-        next.add(id);
-      }
-      return { subjectSelectedIds: next };
-    }),
+    set(state => ({
+      subjectSelectedIds: toggleArrayItem(
+        state.subjectSelectedIds,
+        id,
+        !state.subjectSelectedIds.includes(id)
+      )
+    })),
 
   toggleSelected: id =>
-    set(state => {
-      const next = new Set(state.selectedIds);
-      if (next.has(id)) {
-        next.delete(id);
-      } else {
-        next.add(id);
-      }
-      return { selectedIds: next };
-    }),
+    set(state => ({
+      selectedIds: toggleArrayItem(
+        state.selectedIds,
+        id,
+        !state.selectedIds.includes(id)
+      )
+    })),
 
   clearAll: () =>
     set({
       subjectItems: [],
-      subjectSelectedIds: new Set(),
-      selectedIds: new Set()
+      subjectSelectedIds: [],
+      selectedIds: []
     })
 }));
 

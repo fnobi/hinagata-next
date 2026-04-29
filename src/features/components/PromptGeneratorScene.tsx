@@ -488,19 +488,19 @@ const buildTabs = (categories: PromptCategory[]): Tab[] => [
 
 const buildPrompt = (
   subjectItems: SubjectItem[],
-  subjectSelectedIds: Set<string>,
-  selectedIds: Set<string>,
+  subjectSelectedIds: string[],
+  selectedIds: string[],
   categories: PromptCategory[]
 ): string => {
   const parts: string[] = [];
   for (const item of subjectItems) {
-    if (subjectSelectedIds.has(item.id)) {
+    if (subjectSelectedIds.includes(item.id)) {
       parts.push(item.value);
     }
   }
   for (const category of categories) {
     for (const item of category.items) {
-      if (selectedIds.has(item.id)) {
+      if (selectedIds.includes(item.id)) {
         parts.push(item.value);
       }
     }
@@ -595,7 +595,7 @@ const PromptGeneratorScene = () => {
     });
   }, [prompt]);
 
-  const selectedCount = selectedIds.size + subjectSelectedIds.size;
+  const selectedCount = selectedIds.length + subjectSelectedIds.length;
 
   const activeCategory = PROMPT_CATEGORIES.find(c => c.id === activeTab);
 
@@ -627,7 +627,7 @@ const PromptGeneratorScene = () => {
                   <SubjectTagItem
                     key={item.id}
                     item={item}
-                    selected={subjectSelectedIds.has(item.id)}
+                    selected={subjectSelectedIds.includes(item.id)}
                     onToggle={toggleSubjectItem}
                   />
                 ))}
@@ -668,7 +668,7 @@ const PromptGeneratorScene = () => {
                 <TooltipItem
                   key={item.id}
                   item={item}
-                  selected={selectedIds.has(item.id)}
+                  selected={selectedIds.includes(item.id)}
                   onToggle={toggleItem}
                 />
               ))}
