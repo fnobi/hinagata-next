@@ -11,6 +11,7 @@ type MetaOptions = {
   shareImageAsset?: StaticImageData;
   keywords?: string[];
   faviconUrl?: string;
+  appleIconUrl?: string;
 };
 
 const makeMetadata = ({
@@ -20,7 +21,8 @@ const makeMetadata = ({
   shareImageUrl,
   shareImageAsset,
   keywords,
-  faviconUrl
+  faviconUrl,
+  appleIconUrl
 }: MetaOptions): Metadata => {
   const canonicalUrl = page.url;
   const shareImage = shareImageAsset
@@ -30,7 +32,10 @@ const makeMetadata = ({
     title,
     description,
     keywords,
-    icons: faviconUrl ? [{ rel: "icon", url: faviconUrl }] : undefined,
+    icons:
+      faviconUrl || appleIconUrl
+        ? { icon: faviconUrl, apple: appleIconUrl }
+        : undefined,
     alternates: {
       canonical: canonicalUrl
     },
