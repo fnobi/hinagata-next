@@ -611,7 +611,7 @@ const PromptGeneratorScene = () => {
     }
     await myPromptDataStore.addItem({
       userId: myId,
-      data: { prompt: { subjectItems, subjectSelectedIds, selectedIds } }
+      data: { prompt: { subjectItems, subjectSelectedIds, selectedIds }, createdAt: Date.now() }
     });
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);

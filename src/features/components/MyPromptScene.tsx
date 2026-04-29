@@ -8,6 +8,7 @@ import { buttonReset, px, alphaColor } from "~/common/lib/css-util";
 import { useDataStoreList } from "~/common/lib/database-common-hooks";
 import { useAuthorizedUser } from "~/common/lib/firebase-auth-tools";
 import type FirebaseErrorParameter from "~/common/schema/FirebaseErrorParameter";
+import { type QueryFormula } from "~/common/lib/DataStoreAgent";
 import { TITLE_BAR_HEIGHT } from "~/features/components/LayoutRoot";
 import { THEME_COLOR } from "~/features/lib/emotion-mixin";
 import buildPrompt from "~/features/lib/buildPrompt";
@@ -105,6 +106,8 @@ const LoginMessage = styled.div({
 
 const myPromptDataStore = new ClientDataStoreAgent(myPromptDataStoreScheme);
 
+const LIST_QUERY: QueryFormula<MyPromptItem>[] = [["orderBy", "createdAt", "desc"]];
+
 type PromptItemCardProps = {
   id: string;
   data: MyPromptItem;
@@ -154,6 +157,7 @@ const ListView = ({ userId }: { userId: string }) => {
   const list = useDataStoreList({
     dataStore: myPromptDataStore,
     params,
+    query: LIST_QUERY,
     onError: handleError
   });
 
