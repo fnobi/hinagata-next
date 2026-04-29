@@ -7,12 +7,12 @@ import { buttonReset, px, alphaColor } from "~/common/lib/css-util";
 import { useDataStoreList } from "~/common/lib/database-common-hooks";
 import { useAuthorizedUser } from "~/common/lib/firebase-auth-tools";
 import type FirebaseErrorParameter from "~/common/schema/FirebaseErrorParameter";
+import type MyPromptItem from "~/features/schema/MyPromptItem";
 import { TITLE_BAR_HEIGHT } from "~/features/components/LayoutRoot";
 import { THEME_COLOR } from "~/features/lib/emotion-mixin";
 import buildPrompt from "~/features/lib/buildPrompt";
 import PROMPT_CATEGORIES from "~/features/lib/promptData";
 import { myPromptDataStoreScheme } from "~/features/schema/app-data-store-scheme";
-import type PromptState from "~/features/schema/PromptState";
 
 const BORDER = "#e2e8f0";
 const BG = "#f8fafc";
@@ -93,15 +93,15 @@ const myPromptDataStore = new ClientDataStoreAgent(myPromptDataStoreScheme);
 
 type PromptItemCardProps = {
   id: string;
-  data: PromptState;
+  data: MyPromptItem;
   userId: string;
 };
 
 const PromptItemCard = ({ id, data, userId }: PromptItemCardProps) => {
   const text = buildPrompt(
-    data.subjectItems,
-    data.subjectSelectedIds,
-    data.selectedIds,
+    data.prompt.subjectItems,
+    data.prompt.subjectSelectedIds,
+    data.prompt.selectedIds,
     PROMPT_CATEGORIES
   );
 

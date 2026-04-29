@@ -1,8 +1,8 @@
+import type MyPromptItem from "./MyPromptItem";
+import { parseMyPromptItem } from "./MyPromptItem";
 import { type DataStoreScheme } from "~/common/lib/DataStoreAgent";
 import type CommonPermission from "~/common/schema/CommonPermission";
 import { parseCommonPermission } from "~/common/schema/CommonPermission";
-import { parsePromptState } from "~/features/schema/PromptState";
-import type PromptState from "~/features/schema/PromptState";
 
 export const playScoreDataStoreScheme: DataStoreScheme<
   CommonPermission,
@@ -14,12 +14,12 @@ export const playScoreDataStoreScheme: DataStoreScheme<
 };
 
 export const myPromptDataStoreScheme: DataStoreScheme<
-  PromptState,
+  MyPromptItem,
   "promptId",
   "userId"
 > = {
   name: "myPrompts",
-  parse: parsePromptState,
+  parse: parseMyPromptItem,
   documentKey: "promptId",
   parentCollection: playScoreDataStoreScheme
 };
