@@ -3,7 +3,10 @@
 import { useState, useCallback } from "react";
 import styled from "@emotion/styled";
 import { css } from "@emotion/react";
+import { GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth";
 import { buttonReset, px, alphaColor } from "~/common/lib/css-util";
+import { useAuthorizedUser } from "~/common/lib/firebase-auth-tools";
+import { firebaseAuth } from "~/common/lib/firebase-app";
 import requestAppCallable from "~/features/lib/requestAppCallable";
 import { THEME_COLOR } from "~/features/lib/emotion-mixin";
 import {
@@ -106,6 +109,28 @@ const Sidebar = styled.nav<{ open: boolean }>(
   })
 );
 
+const sidebarItemStyle = css({
+  width: "100%",
+  padding: px(12, 14),
+  fontSize: px(14),
+  fontWeight: 500,
+  color: TEXT_MAIN
+});
+
+const SidebarItem = styled.p(sidebarItemStyle);
+
+const SidebarButton = styled.button(buttonReset, sidebarItemStyle, {
+  display: "flex",
+  alignItems: "center",
+  gap: px(10),
+  borderRadius: px(8),
+  cursor: "pointer",
+  transition: "background 0.15s ease",
+  "&:hover": {
+    background: BG
+  }
+});
+
 // ─── Scrollable tab bar ────────────────────────────────────────────────────────
 
 const TabBarOuter = styled.div({
@@ -136,24 +161,22 @@ const tabPillBase = css(buttonReset, {
   border: `1.5px solid transparent`
 });
 
-const TabPill = styled.button<{ active: boolean }>(
-  tabPillBase,
-  ({ active }) =>
-    active
-      ? {
-          background: ACCENT,
-          color: THEME_COLOR.WHITE
+const TabPill = styled.button<{ active: boolean }>(tabPillBase, ({ active }) =>
+  active
+    ? {
+        background: ACCENT,
+        color: THEME_COLOR.WHITE
+      }
+    : {
+        background: THEME_COLOR.WHITE,
+        color: TEXT_SUB,
+        border: `1.5px solid ${BORDER}`,
+        "&:hover": {
+          borderColor: ACCENT,
+          color: ACCENT,
+          background: ACCENT_LIGHT
         }
-      : {
-          background: THEME_COLOR.WHITE,
-          color: TEXT_SUB,
-          border: `1.5px solid ${BORDER}`,
-          "&:hover": {
-            borderColor: ACCENT,
-            color: ACCENT,
-            background: ACCENT_LIGHT
-          }
-        }
+      }
 );
 
 // ─── Body ─────────────────────────────────────────────────────────────────────
@@ -592,6 +615,7 @@ const buildPrompt = (
 const TABS = buildTabs(PROMPT_CATEGORIES);
 
 const PromptGeneratorScene = () => {
+  const { myId, myEmail } = useAuthorizedUser();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeTab, setActiveTab] = useState(SUBJECT_TAB_ID);
   const [subjectInput, setSubjectInput] = useState("");
@@ -702,8 +726,36 @@ const PromptGeneratorScene = () => {
         <TitleBarText>prompt-holder</TitleBarText>
       </TitleBar>
 
-      <SidebarOverlay open={sidebarOpen} onClick={() => setSidebarOpen(false)} />
-      <Sidebar open={sidebarOpen} />
+      <SidebarOverlay
+        open={sidebarOpen}
+        onClick={() => setSidebarOpen(false)}
+      />
+      <Sidebar open={sidebarOpen}>
+        {myId ? (
+          <>
+            <SidebarItem>{myEmail}</SidebarItem>
+            <SidebarButton
+              type="button"
+              onClick={() => signOut(firebaseAuth())}
+            >
+              ログアウト
+            </SidebarButton>
+          </>
+        ) : (
+          <SidebarButton
+            type="button"
+            onClick={() => {
+              const a = firebaseAuth();
+              const p = new GoogleAuthProvider();
+              signInWithPopup(a, p).catch(e => {
+                console.log(e);
+              });
+            }}
+          >
+            ログイン
+          </SidebarButton>
+        )}
+      </Sidebar>
 
       {/* Scrollable pill tab bar */}
       <TabBarOuter>
@@ -788,8 +840,7 @@ const PromptGeneratorScene = () => {
         type="button"
         aria-label="プロンプトを表示"
       >
-        ✦
-        {selectedCount > 0 && <FabBadge>{selectedCount}</FabBadge>}
+        ✦{selectedCount > 0 && <FabBadge>{selectedCount}</FabBadge>}
       </Fab>
 
       {/* Prompt popup */}
