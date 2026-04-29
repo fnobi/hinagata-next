@@ -3,12 +3,10 @@
 import { useState, useCallback } from "react";
 import styled from "@emotion/styled";
 import { css } from "@emotion/react";
-import { GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth";
 import { buttonReset, px, alphaColor } from "~/common/lib/css-util";
-import { useAuthorizedUser } from "~/common/lib/firebase-auth-tools";
-import { firebaseAuth } from "~/common/lib/firebase-app";
 import requestAppCallable from "~/features/lib/requestAppCallable";
 import { THEME_COLOR } from "~/features/lib/emotion-mixin";
+import { TITLE_BAR_HEIGHT } from "~/features/components/LayoutRoot";
 import {
   type PromptItem,
   type PromptCategory
@@ -22,113 +20,12 @@ const BG = "#f8fafc";
 const TEXT_MAIN = "#1e293b";
 const TEXT_SUB = "#64748b";
 
-const TITLE_BAR_HEIGHT = 56;
-
 // ─── Layout ───────────────────────────────────────────────────────────────────
 
 const Root = styled.div({
   minHeight: "100vh",
   background: BG,
-  paddingTop: px(TITLE_BAR_HEIGHT),
   paddingBottom: px(100)
-});
-
-const TitleBar = styled.header({
-  position: "fixed",
-  top: 0,
-  left: 0,
-  right: 0,
-  height: px(TITLE_BAR_HEIGHT),
-  background: THEME_COLOR.WHITE,
-  borderBottom: `1px solid ${BORDER}`,
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  zIndex: 100
-});
-
-const TitleBarText = styled.h1({
-  fontSize: px(16),
-  fontWeight: 700,
-  color: TEXT_MAIN,
-  margin: 0,
-  letterSpacing: "0.04em"
-});
-
-const MenuButton = styled.button(buttonReset, {
-  position: "absolute",
-  left: px(16),
-  display: "flex",
-  flexDirection: "column",
-  justifyContent: "center",
-  gap: px(5),
-  width: px(36),
-  height: px(36),
-  padding: px(6),
-  borderRadius: px(6),
-  cursor: "pointer",
-  "&:hover": { background: BG }
-});
-
-const MenuLine = styled.span({
-  display: "block",
-  height: px(2),
-  background: TEXT_MAIN,
-  borderRadius: px(2)
-});
-
-const SidebarOverlay = styled.div<{ open: boolean }>(
-  {
-    position: "fixed",
-    inset: 0,
-    background: alphaColor(TEXT_MAIN as `#${string}`, 0.4),
-    zIndex: 400,
-    transition: "opacity 0.25s ease"
-  },
-  ({ open }) => ({
-    opacity: open ? 1 : 0,
-    pointerEvents: open ? "auto" : "none"
-  })
-);
-
-const Sidebar = styled.nav<{ open: boolean }>(
-  {
-    position: "fixed",
-    top: 0,
-    left: 0,
-    bottom: 0,
-    width: px(280),
-    background: THEME_COLOR.WHITE,
-    borderRight: `1px solid ${BORDER}`,
-    zIndex: 500,
-    transition: "transform 0.25s ease",
-    padding: px(TITLE_BAR_HEIGHT + 16, 20, 20)
-  },
-  ({ open }) => ({
-    transform: open ? "translateX(0)" : "translateX(-100%)"
-  })
-);
-
-const sidebarItemStyle = css({
-  width: "100%",
-  padding: px(12, 14),
-  fontSize: px(14),
-  fontWeight: 500,
-  color: TEXT_MAIN
-});
-
-const SidebarItem = styled.p(sidebarItemStyle);
-
-const SidebarButton = styled.button(buttonReset, sidebarItemStyle, {
-  display: "flex",
-  alignItems: "center",
-  gap: px(10),
-  borderRadius: px(8),
-  cursor: "pointer",
-  transition: "background 0.15s ease",
-  "&:hover": {
-    background: BG
-  }
 });
 
 // ─── Scrollable tab bar ────────────────────────────────────────────────────────
@@ -615,8 +512,6 @@ const buildPrompt = (
 const TABS = buildTabs(PROMPT_CATEGORIES);
 
 const PromptGeneratorScene = () => {
-  const { myId, myEmail } = useAuthorizedUser();
-  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeTab, setActiveTab] = useState(SUBJECT_TAB_ID);
   const [subjectInput, setSubjectInput] = useState("");
   const [subjectItems, setSubjectItems] = useState<SubjectItem[]>([]);
@@ -713,50 +608,6 @@ const PromptGeneratorScene = () => {
 
   return (
     <Root>
-      <TitleBar>
-        <MenuButton
-          type="button"
-          aria-label="メニューを開く"
-          onClick={() => setSidebarOpen(true)}
-        >
-          <MenuLine />
-          <MenuLine />
-          <MenuLine />
-        </MenuButton>
-        <TitleBarText>prompt-holder</TitleBarText>
-      </TitleBar>
-
-      <SidebarOverlay
-        open={sidebarOpen}
-        onClick={() => setSidebarOpen(false)}
-      />
-      <Sidebar open={sidebarOpen}>
-        {myId ? (
-          <>
-            <SidebarItem>{myEmail}</SidebarItem>
-            <SidebarButton
-              type="button"
-              onClick={() => signOut(firebaseAuth())}
-            >
-              ログアウト
-            </SidebarButton>
-          </>
-        ) : (
-          <SidebarButton
-            type="button"
-            onClick={() => {
-              const a = firebaseAuth();
-              const p = new GoogleAuthProvider();
-              signInWithPopup(a, p).catch(e => {
-                console.log(e);
-              });
-            }}
-          >
-            ログイン
-          </SidebarButton>
-        )}
-      </Sidebar>
-
       {/* Scrollable pill tab bar */}
       <TabBarOuter>
         <TabBarScroll>
