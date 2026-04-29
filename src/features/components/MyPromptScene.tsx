@@ -228,7 +228,7 @@ const ListView = ({ userId }: { userId: string }) => {
   return (
     <div>
       {list.length === 0 ? (
-        <EmptyMessage>保存されたプロンプトはありません。</EmptyMessage>
+        <EmptyMessage>お気に入りプロンプトはありません。</EmptyMessage>
       ) : (
         list.map(({ id, data }) => (
           <PromptItemCard key={id} id={id} data={data} userId={userId} />

@@ -200,7 +200,7 @@ const LayoutRoot = ({ children }: { children: ReactNode }) => {
             $isActive={isActive(PAGE_MY_PROMPT.basePath)}
             onClick={() => setSidebarOpen(false)}
           >
-            保存したプロンプト
+            お気に入りプロンプト
           </SidebarNavItem>
         </SidebarNav>
         <SidebarDivider />
