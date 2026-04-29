@@ -1,16 +1,9 @@
 import { create } from "zustand";
 import { toggleArrayItem, uniq } from "~/common/lib/array-util";
+import { type SubjectItem } from "~/features/schema/PromptState";
+import type PromptState from "~/features/schema/PromptState";
 
-type SubjectItem = {
-  id: string;
-  label: string;
-  value: string;
-};
-
-type PromptStore = {
-  subjectItems: SubjectItem[];
-  subjectSelectedIds: string[];
-  selectedIds: string[];
+type PromptStore = PromptState & {
   setSubjectItems: (items: SubjectItem[]) => void;
   setSubjectSelectedIds: (ids: string[]) => void;
   setSelectedIds: (ids: string[]) => void;
