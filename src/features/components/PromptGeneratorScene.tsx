@@ -593,12 +593,7 @@ const PromptGeneratorScene = () => {
     }
   }, [subjectInput, addSubjectItem]);
 
-  const prompt = buildPrompt(
-    subjectItems,
-    subjectSelectedIds,
-    selectedIds,
-    PROMPT_CATEGORIES
-  );
+  const prompt = buildPrompt({ subjectItems, subjectSelectedIds, selectedIds });
 
   const handleCopy = useCallback(() => {
     if (!prompt) {

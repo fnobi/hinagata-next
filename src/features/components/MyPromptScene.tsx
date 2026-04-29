@@ -11,7 +11,6 @@ import type MyPromptItem from "~/features/schema/MyPromptItem";
 import { TITLE_BAR_HEIGHT } from "~/features/components/LayoutRoot";
 import { THEME_COLOR } from "~/features/lib/emotion-mixin";
 import buildPrompt from "~/features/lib/buildPrompt";
-import PROMPT_CATEGORIES from "~/features/lib/promptData";
 import { myPromptDataStoreScheme } from "~/features/schema/app-data-store-scheme";
 
 const BORDER = "#e2e8f0";
@@ -98,12 +97,7 @@ type PromptItemCardProps = {
 };
 
 const PromptItemCard = ({ id, data, userId }: PromptItemCardProps) => {
-  const text = buildPrompt(
-    data.prompt.subjectItems,
-    data.prompt.subjectSelectedIds,
-    data.prompt.selectedIds,
-    PROMPT_CATEGORIES
-  );
+  const text = buildPrompt(data.prompt);
 
   const handleDelete = useCallback(() => {
     myPromptDataStore.deleteItem({ userId, promptId: id });
