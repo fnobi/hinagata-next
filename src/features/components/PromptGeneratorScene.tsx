@@ -12,6 +12,7 @@ import {
   type PromptCategory
 } from "~/features/schema/PromptItem";
 import PROMPT_CATEGORIES from "~/features/lib/promptData";
+import usePromptStore from "~/features/lib/promptStore";
 
 const ACCENT = "#6366f1";
 const ACCENT_LIGHT = "#e0e7ff";
@@ -512,49 +513,42 @@ const buildPrompt = (
 const TABS = buildTabs(PROMPT_CATEGORIES);
 
 const PromptGeneratorScene = () => {
+  const subjectItems = usePromptStore(state => state.subjectItems);
+  const subjectSelectedIds = usePromptStore(state => state.subjectSelectedIds);
+  const selectedIds = usePromptStore(state => state.selectedIds);
+  const addSubjectItem = usePromptStore(state => state.addSubjectItem);
+  const toggleSubjectSelected = usePromptStore(
+    state => state.toggleSubjectSelected
+  );
+  const toggleSelected = usePromptStore(state => state.toggleSelected);
+  const clearAllStore = usePromptStore(state => state.clearAll);
+
   const [activeTab, setActiveTab] = useState(SUBJECT_TAB_ID);
   const [subjectInput, setSubjectInput] = useState("");
-  const [subjectItems, setSubjectItems] = useState<SubjectItem[]>([]);
-  const [subjectSelectedIds, setSubjectSelectedIds] = useState<Set<string>>(
-    new Set()
-  );
-  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [copied, setCopied] = useState(false);
   const [translating, setTranslating] = useState(false);
   const [translateError, setTranslateError] = useState("");
   const [popupOpen, setPopupOpen] = useState(false);
 
-  const toggleItem = useCallback((id: string) => {
-    setSelectedIds(prev => {
-      const next = new Set(prev);
-      if (next.has(id)) {
-        next.delete(id);
-      } else {
-        next.add(id);
-      }
-      return next;
-    });
-  }, []);
+  const toggleItem = useCallback(
+    (id: string) => {
+      toggleSelected(id);
+    },
+    [toggleSelected]
+  );
 
-  const toggleSubjectItem = useCallback((id: string) => {
-    setSubjectSelectedIds(prev => {
-      const next = new Set(prev);
-      if (next.has(id)) {
-        next.delete(id);
-      } else {
-        next.add(id);
-      }
-      return next;
-    });
-  }, []);
+  const toggleSubjectItem = useCallback(
+    (id: string) => {
+      toggleSubjectSelected(id);
+    },
+    [toggleSubjectSelected]
+  );
 
   const clearAll = useCallback(() => {
-    setSelectedIds(new Set());
-    setSubjectItems([]);
-    setSubjectSelectedIds(new Set());
+    clearAllStore();
     setSubjectInput("");
     setCopied(false);
-  }, []);
+  }, [clearAllStore]);
 
   const handleAddSubject = useCallback(async () => {
     const trimmed = subjectInput.trim();
@@ -575,15 +569,14 @@ const PromptGeneratorScene = () => {
         label: trimmed,
         value: res.data.enWord
       };
-      setSubjectItems(prev => [...prev, newItem]);
-      setSubjectSelectedIds(prev => new Set([...prev, newItem.id]));
+      addSubjectItem(newItem);
       setSubjectInput("");
     } catch {
       setTranslateError("翻訳に失敗しました");
     } finally {
       setTranslating(false);
     }
-  }, [subjectInput]);
+  }, [subjectInput, addSubjectItem]);
 
   const prompt = buildPrompt(
     subjectItems,
