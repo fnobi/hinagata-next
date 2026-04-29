@@ -19,32 +19,92 @@ const BG = "#f8fafc";
 const TEXT_MAIN = "#1e293b";
 const TEXT_SUB = "#64748b";
 
+const TITLE_BAR_HEIGHT = 56;
+
 // ─── Layout ───────────────────────────────────────────────────────────────────
 
 const Root = styled.div({
   minHeight: "100vh",
   background: BG,
+  paddingTop: px(TITLE_BAR_HEIGHT),
   paddingBottom: px(100)
 });
 
-const Header = styled.header({
+const TitleBar = styled.header({
+  position: "fixed",
+  top: 0,
+  left: 0,
+  right: 0,
+  height: px(TITLE_BAR_HEIGHT),
   background: THEME_COLOR.WHITE,
   borderBottom: `1px solid ${BORDER}`,
-  padding: px(24, 32)
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  zIndex: 100
 });
 
-const HeaderTitle = styled.h1({
-  fontSize: px(22),
+const TitleBarText = styled.h1({
+  fontSize: px(16),
   fontWeight: 700,
   color: TEXT_MAIN,
-  margin: 0
+  margin: 0,
+  letterSpacing: "0.04em"
 });
 
-const HeaderDesc = styled.p({
-  fontSize: px(13),
-  color: TEXT_SUB,
-  margin: px(6, 0, 0)
+const MenuButton = styled.button(buttonReset, {
+  position: "absolute",
+  left: px(16),
+  display: "flex",
+  flexDirection: "column",
+  justifyContent: "center",
+  gap: px(5),
+  width: px(36),
+  height: px(36),
+  padding: px(6),
+  borderRadius: px(6),
+  cursor: "pointer",
+  "&:hover": { background: BG }
 });
+
+const MenuLine = styled.span({
+  display: "block",
+  height: px(2),
+  background: TEXT_MAIN,
+  borderRadius: px(2)
+});
+
+const SidebarOverlay = styled.div<{ open: boolean }>(
+  {
+    position: "fixed",
+    inset: 0,
+    background: alphaColor(TEXT_MAIN as `#${string}`, 0.4),
+    zIndex: 400,
+    transition: "opacity 0.25s ease"
+  },
+  ({ open }) => ({
+    opacity: open ? 1 : 0,
+    pointerEvents: open ? "auto" : "none"
+  })
+);
+
+const Sidebar = styled.nav<{ open: boolean }>(
+  {
+    position: "fixed",
+    top: 0,
+    left: 0,
+    bottom: 0,
+    width: px(280),
+    background: THEME_COLOR.WHITE,
+    borderRight: `1px solid ${BORDER}`,
+    zIndex: 500,
+    transition: "transform 0.25s ease",
+    padding: px(TITLE_BAR_HEIGHT + 16, 20, 20)
+  },
+  ({ open }) => ({
+    transform: open ? "translateX(0)" : "translateX(-100%)"
+  })
+);
 
 // ─── Scrollable tab bar ────────────────────────────────────────────────────────
 
@@ -52,7 +112,7 @@ const TabBarOuter = styled.div({
   background: THEME_COLOR.WHITE,
   borderBottom: `1px solid ${BORDER}`,
   position: "sticky",
-  top: 0,
+  top: px(TITLE_BAR_HEIGHT),
   zIndex: 10
 });
 
@@ -532,6 +592,7 @@ const buildPrompt = (
 const TABS = buildTabs(PROMPT_CATEGORIES);
 
 const PromptGeneratorScene = () => {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeTab, setActiveTab] = useState(SUBJECT_TAB_ID);
   const [subjectInput, setSubjectInput] = useState("");
   const [subjectItems, setSubjectItems] = useState<SubjectItem[]>([]);
@@ -628,12 +689,21 @@ const PromptGeneratorScene = () => {
 
   return (
     <Root>
-      <Header>
-        <HeaderTitle>AI 画像プロンプトジェネレーター</HeaderTitle>
-        <HeaderDesc>
-          タブでカテゴリを切り替えてオプションを選びましょう。右下のボタンでプロンプトを確認できます。
-        </HeaderDesc>
-      </Header>
+      <TitleBar>
+        <MenuButton
+          type="button"
+          aria-label="メニューを開く"
+          onClick={() => setSidebarOpen(true)}
+        >
+          <MenuLine />
+          <MenuLine />
+          <MenuLine />
+        </MenuButton>
+        <TitleBarText>prompt-holder</TitleBarText>
+      </TitleBar>
+
+      <SidebarOverlay open={sidebarOpen} onClick={() => setSidebarOpen(false)} />
+      <Sidebar open={sidebarOpen} />
 
       {/* Scrollable pill tab bar */}
       <TabBarOuter>
