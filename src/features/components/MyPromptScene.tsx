@@ -11,11 +11,12 @@ import type FirebaseErrorParameter from "~/common/schema/FirebaseErrorParameter"
 import { type QueryFormula } from "~/common/lib/DataStoreAgent";
 import { TITLE_BAR_HEIGHT } from "~/features/components/LayoutRoot";
 import { THEME_COLOR } from "~/features/lib/emotion-mixin";
-import buildPrompt from "~/features/lib/buildPrompt";
+import PROMPT_CATEGORIES from "~/features/lib/promptData";
 import { PAGE_TOP } from "~/features/lib/page-path";
 import usePromptStore from "~/features/lib/promptStore";
 import { myPromptDataStoreScheme } from "~/features/schema/app-data-store-scheme";
 import type MyPromptItem from "~/features/schema/MyPromptItem";
+import type PromptState from "~/features/schema/PromptState";
 
 const ACCENT = "#6366f1";
 const BORDER = "#e2e8f0";
@@ -53,21 +54,47 @@ const PromptCard = styled.div({
   background: THEME_COLOR.WHITE,
   border: `1px solid ${BORDER}`,
   borderRadius: px(10),
-  padding: px(16, 20),
-  marginBottom: px(12),
-  display: "flex",
-  gap: px(8),
-  alignItems: "flex-start"
+  padding: px(14, 20),
+  marginBottom: px(12)
 });
 
-const PromptText = styled.p({
-  flex: 1,
+const CardHeader = styled.div({
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  marginBottom: px(10)
+});
+
+const DateLabel = styled.span({
+  fontSize: px(12),
+  color: TEXT_SUB
+});
+
+const CardActions = styled.div({
+  display: "flex",
+  gap: px(6)
+});
+
+const TagList = styled.div({
+  display: "flex",
+  flexWrap: "wrap",
+  gap: px(6)
+});
+
+const Tag = styled.span({
+  display: "inline-block",
+  padding: px(3, 8),
+  borderRadius: px(20),
+  fontSize: px(12),
+  background: "#eef2ff",
+  color: ACCENT,
+  lineHeight: 1.5
+});
+
+const EmptyTag = styled.span({
   fontSize: px(13),
-  lineHeight: 1.7,
-  color: TEXT_MAIN,
-  fontFamily: "monospace",
-  wordBreak: "break-word",
-  margin: 0
+  color: TEXT_SUB,
+  fontStyle: "italic"
 });
 
 const ActionButton = styled.button(buttonReset, {
@@ -108,6 +135,28 @@ const myPromptDataStore = new ClientDataStoreAgent(myPromptDataStoreScheme);
 
 const LIST_QUERY: QueryFormula<MyPromptItem>[] = [["orderBy", "createdAt", "desc"]];
 
+const buildJapaneseLabels = ({ subjectItems, subjectSelectedIds, selectedIds }: PromptState): string[] => {
+  const labels: string[] = [];
+  for (const item of subjectItems) {
+    if (subjectSelectedIds.includes(item.id)) {
+      labels.push(item.label);
+    }
+  }
+  for (const category of PROMPT_CATEGORIES) {
+    for (const item of category.items) {
+      if (selectedIds.includes(item.id)) {
+        labels.push(item.label);
+      }
+    }
+  }
+  return labels;
+};
+
+const formatCreatedAt = (ts: number) => {
+  const d = new Date(ts);
+  return `${d.getFullYear()}/${d.getMonth() + 1}/${d.getDate()}`;
+};
+
 type PromptItemCardProps = {
   id: string;
   data: MyPromptItem;
@@ -122,7 +171,7 @@ const PromptItemCard = ({ id, data, userId }: PromptItemCardProps) => {
   );
   const setSelectedIds = usePromptStore(state => state.setSelectedIds);
 
-  const text = buildPrompt(data.prompt);
+  const labels = buildJapaneseLabels(data.prompt);
 
   const handleLoad = useCallback(() => {
     setSubjectItems(data.prompt.subjectItems);
@@ -137,13 +186,24 @@ const PromptItemCard = ({ id, data, userId }: PromptItemCardProps) => {
 
   return (
     <PromptCard>
-      <PromptText>{text || "(空のプロンプト)"}</PromptText>
-      <LoadButton type="button" onClick={handleLoad}>
-        読み込む
-      </LoadButton>
-      <DeleteButton type="button" onClick={handleDelete}>
-        削除
-      </DeleteButton>
+      <CardHeader>
+        <DateLabel>{formatCreatedAt(data.createdAt)}</DateLabel>
+        <CardActions>
+          <LoadButton type="button" onClick={handleLoad}>
+            読み込む
+          </LoadButton>
+          <DeleteButton type="button" onClick={handleDelete}>
+            削除
+          </DeleteButton>
+        </CardActions>
+      </CardHeader>
+      <TagList>
+        {labels.length > 0 ? (
+          labels.map((label, i) => <Tag key={i}>{label}</Tag>)
+        ) : (
+          <EmptyTag>(選択項目なし)</EmptyTag>
+        )}
+      </TagList>
     </PromptCard>
   );
 };
