@@ -3,16 +3,20 @@
 import { useState, useCallback } from "react";
 import styled from "@emotion/styled";
 import { css } from "@emotion/react";
+import { ClientDataStoreAgent } from "~/common/lib/ClientDataStoreAgent";
 import { buttonReset, px, alphaColor } from "~/common/lib/css-util";
-import requestAppCallable from "~/features/lib/requestAppCallable";
-import { THEME_COLOR } from "~/features/lib/emotion-mixin";
+import { useAuthorizedUser } from "~/common/lib/firebase-auth-tools";
 import { TITLE_BAR_HEIGHT } from "~/features/components/LayoutRoot";
+import { THEME_COLOR } from "~/features/lib/emotion-mixin";
+import buildPrompt from "~/features/lib/buildPrompt";
+import PROMPT_CATEGORIES from "~/features/lib/promptData";
+import requestAppCallable from "~/features/lib/requestAppCallable";
+import usePromptStore from "~/features/lib/promptStore";
+import { myPromptDataStoreScheme } from "~/features/schema/app-data-store-scheme";
 import {
   type PromptItem,
   type PromptCategory
 } from "~/features/schema/PromptItem";
-import PROMPT_CATEGORIES from "~/features/lib/promptData";
-import usePromptStore from "~/features/lib/promptStore";
 
 const ACCENT = "#6366f1";
 const ACCENT_LIGHT = "#e0e7ff";
@@ -416,6 +420,34 @@ const ClearButton = styled.button(buttonReset, {
   }
 });
 
+const SaveButton = styled.button<{ saved: boolean }>(
+  buttonReset,
+  {
+    width: "100%",
+    padding: px(11),
+    borderRadius: px(8),
+    fontSize: px(14),
+    fontWeight: 600,
+    textAlign: "center",
+    marginTop: px(8),
+    transition: "all 0.15s ease"
+  },
+  ({ saved }) =>
+    saved
+      ? {
+          background: "#10b981",
+          color: THEME_COLOR.WHITE,
+          cursor: "default"
+        }
+      : {
+          background: THEME_COLOR.WHITE,
+          color: ACCENT,
+          border: `1.5px solid ${ACCENT}`,
+          "&:hover:not(:disabled)": { background: ACCENT_LIGHT },
+          "&:disabled": { opacity: 0.5, cursor: "default" }
+        }
+);
+
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
 type TooltipItemProps = {
@@ -486,29 +518,9 @@ const buildTabs = (categories: PromptCategory[]): Tab[] => [
   ...categories.map(c => ({ id: c.id, label: c.label }))
 ];
 
-const buildPrompt = (
-  subjectItems: SubjectItem[],
-  subjectSelectedIds: string[],
-  selectedIds: string[],
-  categories: PromptCategory[]
-): string => {
-  const parts: string[] = [];
-  for (const item of subjectItems) {
-    if (subjectSelectedIds.includes(item.id)) {
-      parts.push(item.value);
-    }
-  }
-  for (const category of categories) {
-    for (const item of category.items) {
-      if (selectedIds.includes(item.id)) {
-        parts.push(item.value);
-      }
-    }
-  }
-  return parts.join(", ");
-};
-
 // ─── Scene ────────────────────────────────────────────────────────────────────
+
+const myPromptDataStore = new ClientDataStoreAgent(myPromptDataStoreScheme);
 
 const TABS = buildTabs(PROMPT_CATEGORIES);
 
@@ -523,9 +535,12 @@ const PromptGeneratorScene = () => {
   const toggleSelected = usePromptStore(state => state.toggleSelected);
   const clearAllStore = usePromptStore(state => state.clearAll);
 
+  const { myId } = useAuthorizedUser();
+
   const [activeTab, setActiveTab] = useState(SUBJECT_TAB_ID);
   const [subjectInput, setSubjectInput] = useState("");
   const [copied, setCopied] = useState(false);
+  const [saved, setSaved] = useState(false);
   const [translating, setTranslating] = useState(false);
   const [translateError, setTranslateError] = useState("");
   const [popupOpen, setPopupOpen] = useState(false);
@@ -594,6 +609,18 @@ const PromptGeneratorScene = () => {
       setTimeout(() => setCopied(false), 2000);
     });
   }, [prompt]);
+
+  const handleSave = useCallback(async () => {
+    if (!myId || !prompt) {
+      return;
+    }
+    await myPromptDataStore.addItem({
+      userId: myId,
+      data: { subjectItems, subjectSelectedIds, selectedIds }
+    });
+    setSaved(true);
+    setTimeout(() => setSaved(false), 2000);
+  }, [myId, prompt, subjectItems, subjectSelectedIds, selectedIds]);
 
   const selectedCount = selectedIds.length + subjectSelectedIds.length;
 
@@ -721,6 +748,17 @@ const PromptGeneratorScene = () => {
             >
               {copied ? "コピーしました ✓" : "クリップボードにコピー"}
             </CopyButton>
+
+            {myId && (
+              <SaveButton
+                saved={saved}
+                onClick={handleSave}
+                disabled={!prompt || saved}
+                type="button"
+              >
+                {saved ? "保存しました ✓" : "お気に入りに保存"}
+              </SaveButton>
+            )}
 
             <ClearButton onClick={clearAll} type="button">
               すべてクリア
