@@ -19,10 +19,12 @@ const BG = "#f8fafc";
 const TEXT_MAIN = "#1e293b";
 const TEXT_SUB = "#64748b";
 
+// ─── Layout ───────────────────────────────────────────────────────────────────
+
 const Root = styled.div({
   minHeight: "100vh",
   background: BG,
-  padding: px(0, 0, 80)
+  paddingBottom: px(100)
 });
 
 const Header = styled.header({
@@ -44,32 +46,62 @@ const HeaderDesc = styled.p({
   margin: px(6, 0, 0)
 });
 
+// ─── Scrollable tab bar ────────────────────────────────────────────────────────
+
+const TabBarOuter = styled.div({
+  background: THEME_COLOR.WHITE,
+  borderBottom: `1px solid ${BORDER}`,
+  position: "sticky",
+  top: 0,
+  zIndex: 10
+});
+
+const TabBarScroll = styled.div({
+  display: "flex",
+  overflowX: "auto",
+  padding: px(10, 16),
+  gap: px(8),
+  scrollbarWidth: "none",
+  "&::-webkit-scrollbar": { display: "none" }
+});
+
+const tabPillBase = css(buttonReset, {
+  flexShrink: 0,
+  padding: px(7, 16),
+  borderRadius: px(999),
+  fontSize: px(13),
+  fontWeight: 500,
+  whiteSpace: "nowrap",
+  transition: "background 0.15s ease, color 0.15s ease",
+  border: `1.5px solid transparent`
+});
+
+const TabPill = styled.button<{ active: boolean }>(
+  tabPillBase,
+  ({ active }) =>
+    active
+      ? {
+          background: ACCENT,
+          color: THEME_COLOR.WHITE
+        }
+      : {
+          background: THEME_COLOR.WHITE,
+          color: TEXT_SUB,
+          border: `1.5px solid ${BORDER}`,
+          "&:hover": {
+            borderColor: ACCENT,
+            color: ACCENT,
+            background: ACCENT_LIGHT
+          }
+        }
+);
+
+// ─── Body ─────────────────────────────────────────────────────────────────────
+
 const Body = styled.div({
-  maxWidth: px(1100),
+  maxWidth: px(760),
   margin: "0 auto",
-  padding: px(32, 24),
-  display: "grid",
-  gridTemplateColumns: "1fr 380px",
-  gap: px(24),
-  "@media (max-width: 860px)": {
-    gridTemplateColumns: "1fr",
-    padding: px(20, 16)
-  }
-});
-
-const LeftCol = styled.div({
-  display: "flex",
-  flexDirection: "column",
-  gap: px(16)
-});
-
-const RightCol = styled.div({
-  display: "flex",
-  flexDirection: "column",
-  gap: px(16),
-  "@media (max-width: 860px)": {
-    order: -1
-  }
+  padding: px(24, 16)
 });
 
 const Card = styled.div({
@@ -127,6 +159,8 @@ const Tag = styled.button<{ selected: boolean }>(tagBase, ({ selected }) =>
   selected ? tagSelected : {}
 );
 
+// ─── Tooltip ──────────────────────────────────────────────────────────────────
+
 const TooltipWrapper = styled.div({
   position: "relative",
   display: "inline-block"
@@ -170,7 +204,7 @@ const TooltipDesc = styled.div({
   lineHeight: 1.5
 });
 
-const SubjectCard = styled(Card)({});
+// ─── Subject card ─────────────────────────────────────────────────────────────
 
 const SubjectLabel = styled.label({
   display: "block",
@@ -205,31 +239,139 @@ const SubjectInput = styled.input({
   }
 });
 
-const OutputCard = styled(Card)({
-  position: "sticky",
-  top: px(24)
+const TranslateRow = styled.div({
+  display: "flex",
+  justifyContent: "flex-end",
+  alignItems: "center",
+  gap: px(8),
+  marginTop: px(6)
 });
 
-const OutputLabel = styled.div({
-  fontSize: px(13),
-  fontWeight: 700,
+const TranslateError = styled.span({
+  fontSize: px(11),
+  color: "#ef4444"
+});
+
+const TranslateButton = styled.button<{ isLoading: boolean }>(buttonReset, {
+  padding: px(5, 12),
+  borderRadius: px(6),
+  fontSize: px(12),
+  fontWeight: 500,
+  border: `1.5px solid ${BORDER}`,
   color: TEXT_SUB,
-  marginBottom: px(8),
-  textTransform: "uppercase",
-  letterSpacing: "0.08em",
+  transition: "all 0.15s ease",
+  "&:not(:disabled):hover": {
+    borderColor: ACCENT,
+    color: ACCENT,
+    background: ACCENT_LIGHT
+  },
+  "&:disabled": {
+    opacity: 0.5,
+    cursor: "default"
+  }
+});
+
+// ─── FAB ──────────────────────────────────────────────────────────────────────
+
+const Fab = styled.button<{ hasPrompt: boolean }>(buttonReset, {
+  position: "fixed",
+  bottom: px(28),
+  right: px(28),
+  width: px(56),
+  height: px(56),
+  borderRadius: "50%",
+  background: ACCENT,
+  color: THEME_COLOR.WHITE,
+  boxShadow: `0 4px 20px ${alphaColor(THEME_COLOR.BLACK, 0.25)}`,
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  fontSize: px(24),
+  zIndex: 200,
+  transition: "background 0.15s ease, transform 0.15s ease",
+  "&:hover": {
+    background: "#4f46e5",
+    transform: "scale(1.07)"
+  },
+  "&:active": {
+    transform: "scale(0.96)"
+  }
+});
+
+const FabBadge = styled.span({
+  position: "absolute",
+  top: px(-4),
+  right: px(-4),
+  background: "#10b981",
+  color: THEME_COLOR.WHITE,
+  borderRadius: "50%",
+  width: px(20),
+  height: px(20),
+  fontSize: px(10),
+  fontWeight: 700,
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  lineHeight: 1
+});
+
+// ─── Popup ────────────────────────────────────────────────────────────────────
+
+const Overlay = styled.div({
+  position: "fixed",
+  inset: 0,
+  background: alphaColor(THEME_COLOR.BLACK, 0.45),
+  zIndex: 300,
+  display: "flex",
+  alignItems: "flex-end",
+  justifyContent: "center",
+  "@media (min-width: 600px)": {
+    alignItems: "center"
+  }
+});
+
+const PopupPanel = styled.div({
+  background: THEME_COLOR.WHITE,
+  borderRadius: px(16, 16, 0, 0),
+  padding: px(24),
+  width: "100%",
+  maxWidth: px(600),
+  maxHeight: "80vh",
+  overflowY: "auto",
+  "@media (min-width: 600px)": {
+    borderRadius: px(16),
+    margin: px(16)
+  }
+});
+
+const PopupHeader = styled.div({
   display: "flex",
   justifyContent: "space-between",
-  alignItems: "center"
+  alignItems: "center",
+  marginBottom: px(16)
 });
 
-const SelectedCount = styled.span({
-  fontSize: px(12),
-  fontWeight: 400,
-  color: TEXT_SUB
+const PopupTitle = styled.div({
+  fontSize: px(14),
+  fontWeight: 700,
+  color: TEXT_MAIN
+});
+
+const PopupClose = styled.button(buttonReset, {
+  width: px(32),
+  height: px(32),
+  borderRadius: "50%",
+  background: BG,
+  color: TEXT_SUB,
+  fontSize: px(18),
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  "&:hover": { background: BORDER }
 });
 
 const OutputText = styled.div({
-  minHeight: px(120),
+  minHeight: px(100),
   border: `1.5px solid ${BORDER}`,
   borderRadius: px(8),
   padding: px(12),
@@ -276,38 +418,6 @@ const CopyButton = styled.button<{ copied: boolean }>(
         }
 );
 
-const TranslateRow = styled.div({
-  display: "flex",
-  justifyContent: "flex-end",
-  alignItems: "center",
-  gap: px(8),
-  marginTop: px(6)
-});
-
-const TranslateError = styled.span({
-  fontSize: px(11),
-  color: "#ef4444"
-});
-
-const TranslateButton = styled.button<{ isLoading: boolean }>(buttonReset, {
-  padding: px(5, 12),
-  borderRadius: px(6),
-  fontSize: px(12),
-  fontWeight: 500,
-  border: `1.5px solid ${BORDER}`,
-  color: TEXT_SUB,
-  transition: "all 0.15s ease",
-  "&:not(:disabled):hover": {
-    borderColor: ACCENT,
-    color: ACCENT,
-    background: ACCENT_LIGHT
-  },
-  "&:disabled": {
-    opacity: 0.5,
-    cursor: "default"
-  }
-});
-
 const ClearButton = styled.button(buttonReset, {
   width: "100%",
   padding: px(9),
@@ -325,41 +435,7 @@ const ClearButton = styled.button(buttonReset, {
   }
 });
 
-const SelectedBadges = styled.div({
-  display: "flex",
-  flexWrap: "wrap",
-  gap: px(4),
-  marginTop: px(12)
-});
-
-const SelectedBadge = styled.div({
-  display: "flex",
-  alignItems: "center",
-  gap: px(4),
-  padding: px(3, 8),
-  background: ACCENT_LIGHT,
-  borderRadius: px(12),
-  fontSize: px(11),
-  color: ACCENT,
-  fontWeight: 500
-});
-
-const BadgeRemove = styled.button(buttonReset, {
-  width: px(14),
-  height: px(14),
-  borderRadius: "50%",
-  background: ACCENT,
-  color: THEME_COLOR.WHITE,
-  fontSize: px(10),
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  lineHeight: 1,
-  flexShrink: 0,
-  "&:hover": {
-    background: "#4f46e5"
-  }
-});
+// ─── Sub-components ───────────────────────────────────────────────────────────
 
 type TooltipItemProps = {
   item: PromptItem;
@@ -418,6 +494,17 @@ const SubjectTagItem = ({ item, selected, onToggle }: SubjectTagItemProps) => {
   );
 };
 
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+const SUBJECT_TAB_ID = "__subject__";
+
+type Tab = { id: string; label: string };
+
+const buildTabs = (categories: PromptCategory[]): Tab[] => [
+  { id: SUBJECT_TAB_ID, label: "主題・被写体" },
+  ...categories.map(c => ({ id: c.id, label: c.label }))
+];
+
 const buildPrompt = (
   subjectItems: SubjectItem[],
   subjectSelectedIds: Set<string>,
@@ -440,20 +527,12 @@ const buildPrompt = (
   return parts.join(", ");
 };
 
-const findItem = (
-  id: string,
-  categories: PromptCategory[]
-): PromptItem | undefined => {
-  for (const cat of categories) {
-    const found = cat.items.find(i => i.id === id);
-    if (found) {
-      return found;
-    }
-  }
-  return undefined;
-};
+// ─── Scene ────────────────────────────────────────────────────────────────────
+
+const TABS = buildTabs(PROMPT_CATEGORIES);
 
 const PromptGeneratorScene = () => {
+  const [activeTab, setActiveTab] = useState(SUBJECT_TAB_ID);
   const [subjectInput, setSubjectInput] = useState("");
   const [subjectItems, setSubjectItems] = useState<SubjectItem[]>([]);
   const [subjectSelectedIds, setSubjectSelectedIds] = useState<Set<string>>(
@@ -463,6 +542,7 @@ const PromptGeneratorScene = () => {
   const [copied, setCopied] = useState(false);
   const [translating, setTranslating] = useState(false);
   const [translateError, setTranslateError] = useState("");
+  const [popupOpen, setPopupOpen] = useState(false);
 
   const toggleItem = useCallback((id: string) => {
     setSelectedIds(prev => {
@@ -484,15 +564,6 @@ const PromptGeneratorScene = () => {
       } else {
         next.add(id);
       }
-      return next;
-    });
-  }, []);
-
-  const removeSubjectItem = useCallback((id: string) => {
-    setSubjectItems(prev => prev.filter(item => item.id !== id));
-    setSubjectSelectedIds(prev => {
-      const next = new Set(prev);
-      next.delete(id);
       return next;
     });
   }, []);
@@ -553,18 +624,36 @@ const PromptGeneratorScene = () => {
 
   const selectedCount = selectedIds.size + subjectSelectedIds.size;
 
+  const activeCategory = PROMPT_CATEGORIES.find(c => c.id === activeTab);
+
   return (
     <Root>
       <Header>
         <HeaderTitle>AI 画像プロンプトジェネレーター</HeaderTitle>
         <HeaderDesc>
-          各カテゴリからオプションを選んでプロンプトを組み立てましょう。タグにカーソルを合わせると説明が表示されます。
+          タブでカテゴリを切り替えてオプションを選びましょう。右下のボタンでプロンプトを確認できます。
         </HeaderDesc>
       </Header>
 
+      {/* Scrollable pill tab bar */}
+      <TabBarOuter>
+        <TabBarScroll>
+          {TABS.map(tab => (
+            <TabPill
+              key={tab.id}
+              active={activeTab === tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              type="button"
+            >
+              {tab.label}
+            </TabPill>
+          ))}
+        </TabBarScroll>
+      </TabBarOuter>
+
       <Body>
-        <LeftCol>
-          <SubjectCard>
+        {activeTab === SUBJECT_TAB_ID ? (
+          <Card>
             <SubjectLabel htmlFor="subject-input">主題・被写体</SubjectLabel>
             {subjectItems.length > 0 && (
               <SubjectTagsGrid>
@@ -604,38 +693,57 @@ const PromptGeneratorScene = () => {
                 </TranslateButton>
               </TranslateRow>
             </form>
-          </SubjectCard>
+          </Card>
+        ) : activeCategory ? (
+          <Card>
+            <CategoryTitle>{activeCategory.label}</CategoryTitle>
+            <TagsGrid>
+              {activeCategory.items.map(item => (
+                <TooltipItem
+                  key={item.id}
+                  item={item}
+                  selected={selectedIds.has(item.id)}
+                  onToggle={toggleItem}
+                />
+              ))}
+            </TagsGrid>
+          </Card>
+        ) : null}
+      </Body>
 
-          {PROMPT_CATEGORIES.map(category => (
-            <Card key={category.id}>
-              <CategoryTitle>{category.label}</CategoryTitle>
-              <TagsGrid>
-                {category.items.map(item => (
-                  <TooltipItem
-                    key={item.id}
-                    item={item}
-                    selected={selectedIds.has(item.id)}
-                    onToggle={toggleItem}
-                  />
-                ))}
-              </TagsGrid>
-            </Card>
-          ))}
-        </LeftCol>
+      {/* FAB */}
+      <Fab
+        hasPrompt={!!prompt}
+        onClick={() => setPopupOpen(true)}
+        type="button"
+        aria-label="プロンプトを表示"
+      >
+        ✦
+        {selectedCount > 0 && <FabBadge>{selectedCount}</FabBadge>}
+      </Fab>
 
-        <RightCol>
-          <OutputCard>
-            <OutputLabel>
-              生成プロンプト
-              <SelectedCount>
-                {selectedCount > 0 ? `${selectedCount} 件選択中` : "未選択"}
-              </SelectedCount>
-            </OutputLabel>
+      {/* Prompt popup */}
+      {popupOpen && (
+        <Overlay onClick={() => setPopupOpen(false)}>
+          <PopupPanel onClick={e => e.stopPropagation()}>
+            <PopupHeader>
+              <PopupTitle>
+                生成プロンプト
+                {selectedCount > 0 && `　${selectedCount} 件選択中`}
+              </PopupTitle>
+              <PopupClose
+                onClick={() => setPopupOpen(false)}
+                type="button"
+                aria-label="閉じる"
+              >
+                ×
+              </PopupClose>
+            </PopupHeader>
 
             <OutputText>
               {prompt || (
                 <EmptyOutput>
-                  左のカテゴリからオプションを選ぶと、ここにプロンプトが表示されます。
+                  カテゴリからオプションを選ぶと、ここにプロンプトが表示されます。
                 </EmptyOutput>
               )}
             </OutputText>
@@ -652,44 +760,9 @@ const PromptGeneratorScene = () => {
             <ClearButton onClick={clearAll} type="button">
               すべてクリア
             </ClearButton>
-
-            {(subjectItems.length > 0 || selectedIds.size > 0) && (
-              <SelectedBadges>
-                {subjectItems.map(item => (
-                  <SelectedBadge key={item.id}>
-                    {item.label}
-                    <BadgeRemove
-                      onClick={() => removeSubjectItem(item.id)}
-                      type="button"
-                      aria-label={`${item.label}を削除`}
-                    >
-                      ×
-                    </BadgeRemove>
-                  </SelectedBadge>
-                ))}
-                {Array.from(selectedIds).map(id => {
-                  const item = findItem(id, PROMPT_CATEGORIES);
-                  if (!item) {
-                    return null;
-                  }
-                  return (
-                    <SelectedBadge key={id}>
-                      {item.label}
-                      <BadgeRemove
-                        onClick={() => toggleItem(id)}
-                        type="button"
-                        aria-label={`${item.label}を削除`}
-                      >
-                        ×
-                      </BadgeRemove>
-                    </SelectedBadge>
-                  );
-                })}
-              </SelectedBadges>
-            )}
-          </OutputCard>
-        </RightCol>
-      </Body>
+          </PopupPanel>
+        </Overlay>
+      )}
     </Root>
   );
 };
