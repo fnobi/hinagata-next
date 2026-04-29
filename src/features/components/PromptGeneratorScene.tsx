@@ -191,14 +191,35 @@ const TooltipDesc = styled.div({
 
 // ─── Subject card ─────────────────────────────────────────────────────────────
 
+const SubjectHeaderRow = styled.div({
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  marginBottom: px(8)
+});
+
 const SubjectLabel = styled.label({
   display: "block",
   fontSize: px(13),
   fontWeight: 700,
   color: TEXT_SUB,
-  marginBottom: px(8),
   textTransform: "uppercase",
   letterSpacing: "0.08em"
+});
+
+const EditTrigger = styled.button(buttonReset, {
+  display: "flex",
+  alignItems: "center",
+  gap: px(3),
+  fontSize: px(11),
+  color: TEXT_SUB,
+  padding: px(3, 7),
+  borderRadius: px(4),
+  transition: "all 0.15s ease",
+  "&:hover": {
+    color: ACCENT,
+    background: ACCENT_LIGHT
+  }
 });
 
 const SubjectTagsGrid = styled(TagsGrid)({
@@ -448,6 +469,82 @@ const SaveButton = styled.button<{ saved: boolean }>(
         }
 );
 
+// ─── Subject edit popup ───────────────────────────────────────────────────────
+
+const EditListItem = styled.div({
+  display: "flex",
+  alignItems: "center",
+  gap: px(8),
+  padding: px(10, 0),
+  borderBottom: `1px solid ${BORDER}`,
+  "&:last-child": { borderBottom: "none" }
+});
+
+const EditItemInfo = styled.div({
+  flex: 1,
+  minWidth: 0
+});
+
+const EditItemLabelText = styled.div({
+  fontSize: px(13),
+  fontWeight: 600,
+  color: TEXT_MAIN
+});
+
+const EditItemValue = styled.div({
+  fontSize: px(11),
+  color: TEXT_SUB,
+  fontFamily: "monospace",
+  overflow: "hidden",
+  textOverflow: "ellipsis",
+  whiteSpace: "nowrap",
+  marginTop: px(2)
+});
+
+const EditItemActions = styled.div({
+  display: "flex",
+  gap: px(4),
+  flexShrink: 0
+});
+
+const SmallIconBtn = styled.button(buttonReset, {
+  width: px(28),
+  height: px(28),
+  borderRadius: px(6),
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  fontSize: px(13),
+  color: TEXT_SUB,
+  border: `1px solid ${BORDER}`,
+  transition: "all 0.15s ease",
+  "&:hover:not(:disabled)": {
+    borderColor: ACCENT,
+    color: ACCENT,
+    background: ACCENT_LIGHT
+  },
+  "&:disabled": {
+    opacity: 0.3,
+    cursor: "default"
+  }
+});
+
+const DeleteIconBtn = styled(SmallIconBtn)({
+  "&:hover:not(:disabled)": {
+    borderColor: "#ef4444",
+    color: "#ef4444",
+    background: "#fef2f2"
+  }
+});
+
+const EditEmptyState = styled.div({
+  textAlign: "center",
+  color: alphaColor(TEXT_SUB as `#${string}`, 0.5),
+  fontSize: px(13),
+  padding: px(24, 0),
+  fontStyle: "italic"
+});
+
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
 type TooltipItemProps = {
@@ -529,6 +626,8 @@ const PromptGeneratorScene = () => {
   const subjectSelectedIds = usePromptStore(state => state.subjectSelectedIds);
   const selectedIds = usePromptStore(state => state.selectedIds);
   const addSubjectItem = usePromptStore(state => state.addSubjectItem);
+  const removeSubjectItem = usePromptStore(state => state.removeSubjectItem);
+  const moveSubjectItem = usePromptStore(state => state.moveSubjectItem);
   const toggleSubjectSelected = usePromptStore(
     state => state.toggleSubjectSelected
   );
@@ -544,6 +643,7 @@ const PromptGeneratorScene = () => {
   const [translating, setTranslating] = useState(false);
   const [translateError, setTranslateError] = useState("");
   const [popupOpen, setPopupOpen] = useState(false);
+  const [editSubjectOpen, setEditSubjectOpen] = useState(false);
 
   const toggleItem = useCallback(
     (id: string) => {
@@ -642,7 +742,17 @@ const PromptGeneratorScene = () => {
       <Body>
         {activeTab === SUBJECT_TAB_ID ? (
           <Card>
-            <SubjectLabel htmlFor="subject-input">主題・被写体</SubjectLabel>
+            <SubjectHeaderRow>
+              <SubjectLabel htmlFor="subject-input">主題・被写体</SubjectLabel>
+              {subjectItems.length > 0 && (
+                <EditTrigger
+                  type="button"
+                  onClick={() => setEditSubjectOpen(true)}
+                >
+                  ✏ 編集
+                </EditTrigger>
+              )}
+            </SubjectHeaderRow>
             {subjectItems.length > 0 && (
               <SubjectTagsGrid>
                 {subjectItems.map(item => (
@@ -708,6 +818,61 @@ const PromptGeneratorScene = () => {
       >
         ✦{selectedCount > 0 && <FabBadge>{selectedCount}</FabBadge>}
       </Fab>
+
+      {/* Subject edit popup */}
+      {editSubjectOpen && (
+        <Overlay onClick={() => setEditSubjectOpen(false)}>
+          <PopupPanel onClick={e => e.stopPropagation()}>
+            <PopupHeader>
+              <PopupTitle>主題・被写体を編集</PopupTitle>
+              <PopupClose
+                onClick={() => setEditSubjectOpen(false)}
+                type="button"
+                aria-label="閉じる"
+              >
+                ×
+              </PopupClose>
+            </PopupHeader>
+            {subjectItems.length === 0 ? (
+              <EditEmptyState>登録済みの項目がありません</EditEmptyState>
+            ) : (
+              subjectItems.map((item, index) => (
+                <EditListItem key={item.id}>
+                  <EditItemInfo>
+                    <EditItemLabelText>{item.label}</EditItemLabelText>
+                    <EditItemValue>{item.value}</EditItemValue>
+                  </EditItemInfo>
+                  <EditItemActions>
+                    <SmallIconBtn
+                      type="button"
+                      onClick={() => moveSubjectItem(index, index - 1)}
+                      disabled={index === 0}
+                      aria-label="上に移動"
+                    >
+                      ↑
+                    </SmallIconBtn>
+                    <SmallIconBtn
+                      type="button"
+                      onClick={() => moveSubjectItem(index, index + 1)}
+                      disabled={index === subjectItems.length - 1}
+                      aria-label="下に移動"
+                    >
+                      ↓
+                    </SmallIconBtn>
+                    <DeleteIconBtn
+                      type="button"
+                      onClick={() => removeSubjectItem(item.id)}
+                      aria-label="削除"
+                    >
+                      ×
+                    </DeleteIconBtn>
+                  </EditItemActions>
+                </EditListItem>
+              ))
+            )}
+          </PopupPanel>
+        </Overlay>
+      )}
 
       {/* Prompt popup */}
       {popupOpen && (
