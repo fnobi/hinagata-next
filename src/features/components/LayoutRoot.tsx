@@ -128,7 +128,9 @@ const SidebarNav = styled.nav({
   borderRadius: px(8)
 });
 
-const SidebarNavItem = styled(Link)<{ $isActive?: boolean }>(
+const SidebarNavItem = styled(Link, {
+  shouldForwardProp: prop => prop !== "$isActive"
+})<{ $isActive?: boolean }>(
   sidebarItemStyle,
   {
     display: "flex",
@@ -165,7 +167,8 @@ const LayoutRoot = ({ children }: { children: ReactNode }) => {
   const { myId, myEmail } = useAuthorizedUser();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  const isActive = (href: string) => pathname === href || pathname === `${href}/`;
+  const isActive = (href: string) =>
+    pathname === href || pathname === `${href}/`;
 
   return (
     <div>
