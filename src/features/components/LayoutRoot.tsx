@@ -151,6 +151,22 @@ const SidebarNavItem = styled(Link, {
       : {}
 );
 
+const SidebarCloseButton = styled.button(buttonReset, {
+  position: "absolute",
+  top: px(10),
+  left: px(10),
+  width: px(36),
+  height: px(36),
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  borderRadius: px(6),
+  fontSize: px(20),
+  color: TEXT_MAIN,
+  cursor: "pointer",
+  "&:hover": { background: BG }
+});
+
 const SidebarDivider = styled.div({
   height: "1px",
   background: BORDER,
@@ -190,6 +206,13 @@ const LayoutRoot = ({ children }: { children: ReactNode }) => {
         onClick={() => setSidebarOpen(false)}
       />
       <Sidebar open={sidebarOpen}>
+        <SidebarCloseButton
+          type="button"
+          aria-label="メニューを閉じる"
+          onClick={() => setSidebarOpen(false)}
+        >
+          ✕
+        </SidebarCloseButton>
         <SidebarNav>
           <SidebarNavItem
             href={PAGE_TOP.href}
