@@ -2,17 +2,21 @@
 
 import { useCallback, useMemo } from "react";
 import styled from "@emotion/styled";
+import { useRouter } from "next/navigation";
 import { ClientDataStoreAgent } from "~/common/lib/ClientDataStoreAgent";
 import { buttonReset, px, alphaColor } from "~/common/lib/css-util";
 import { useDataStoreList } from "~/common/lib/database-common-hooks";
 import { useAuthorizedUser } from "~/common/lib/firebase-auth-tools";
 import type FirebaseErrorParameter from "~/common/schema/FirebaseErrorParameter";
-import type MyPromptItem from "~/features/schema/MyPromptItem";
 import { TITLE_BAR_HEIGHT } from "~/features/components/LayoutRoot";
 import { THEME_COLOR } from "~/features/lib/emotion-mixin";
 import buildPrompt from "~/features/lib/buildPrompt";
+import { PAGE_TOP } from "~/features/lib/page-path";
+import usePromptStore from "~/features/lib/promptStore";
 import { myPromptDataStoreScheme } from "~/features/schema/app-data-store-scheme";
+import type MyPromptItem from "~/features/schema/MyPromptItem";
 
+const ACCENT = "#6366f1";
 const BORDER = "#e2e8f0";
 const BG = "#f8fafc";
 const TEXT_MAIN = "#1e293b";
@@ -51,7 +55,7 @@ const PromptCard = styled.div({
   padding: px(16, 20),
   marginBottom: px(12),
   display: "flex",
-  gap: px(12),
+  gap: px(8),
   alignItems: "flex-start"
 });
 
@@ -65,14 +69,25 @@ const PromptText = styled.p({
   margin: 0
 });
 
-const DeleteButton = styled.button(buttonReset, {
+const ActionButton = styled.button(buttonReset, {
   flexShrink: 0,
   padding: px(5, 10),
   borderRadius: px(6),
   fontSize: px(12),
-  color: TEXT_SUB,
   border: `1px solid ${BORDER}`,
-  transition: "all 0.15s ease",
+  transition: "all 0.15s ease"
+});
+
+const LoadButton = styled(ActionButton)({
+  color: ACCENT,
+  borderColor: ACCENT,
+  "&:hover": {
+    background: "#e0e7ff"
+  }
+});
+
+const DeleteButton = styled(ActionButton)({
+  color: TEXT_SUB,
   "&:hover": {
     borderColor: "#ef4444",
     color: "#ef4444"
@@ -97,7 +112,21 @@ type PromptItemCardProps = {
 };
 
 const PromptItemCard = ({ id, data, userId }: PromptItemCardProps) => {
+  const router = useRouter();
+  const setSubjectItems = usePromptStore(state => state.setSubjectItems);
+  const setSubjectSelectedIds = usePromptStore(
+    state => state.setSubjectSelectedIds
+  );
+  const setSelectedIds = usePromptStore(state => state.setSelectedIds);
+
   const text = buildPrompt(data.prompt);
+
+  const handleLoad = useCallback(() => {
+    setSubjectItems(data.prompt.subjectItems);
+    setSubjectSelectedIds(data.prompt.subjectSelectedIds);
+    setSelectedIds(data.prompt.selectedIds);
+    router.push(PAGE_TOP.href);
+  }, [data.prompt, setSubjectItems, setSubjectSelectedIds, setSelectedIds, router]);
 
   const handleDelete = useCallback(() => {
     myPromptDataStore.deleteItem({ userId, promptId: id });
@@ -106,6 +135,9 @@ const PromptItemCard = ({ id, data, userId }: PromptItemCardProps) => {
   return (
     <PromptCard>
       <PromptText>{text || "(空のプロンプト)"}</PromptText>
+      <LoadButton type="button" onClick={handleLoad}>
+        読み込む
+      </LoadButton>
       <DeleteButton type="button" onClick={handleDelete}>
         削除
       </DeleteButton>
