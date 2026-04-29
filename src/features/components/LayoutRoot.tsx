@@ -13,6 +13,7 @@ import {
 } from "~/common/lib/firebase-auth-tools";
 import { firebaseAuth } from "~/common/lib/firebase-app";
 import { THEME_COLOR } from "~/features/lib/emotion-mixin";
+import { PAGE_TOP, PAGE_MY_PROMPT } from "~/features/lib/page-path";
 
 export const TITLE_BAR_HEIGHT = 56;
 
@@ -188,15 +189,15 @@ const LayoutRoot = ({ children }: { children: ReactNode }) => {
       <Sidebar open={sidebarOpen}>
         <SidebarNav>
           <SidebarNavItem
-            href="/"
-            $isActive={isActive("/")}
+            href={PAGE_TOP.href}
+            $isActive={isActive(PAGE_TOP.basePath)}
             onClick={() => setSidebarOpen(false)}
           >
             プロンプト作成
           </SidebarNavItem>
           <SidebarNavItem
-            href="/my-prompt"
-            $isActive={isActive("/my-prompt")}
+            href={PAGE_MY_PROMPT.href}
+            $isActive={isActive(PAGE_MY_PROMPT.basePath)}
             onClick={() => setSidebarOpen(false)}
           >
             保存したプロンプト

@@ -5,3 +5,4 @@ const PAGE_ROOT = new PageEntry(BASE_URL);
 
 export const PAGE_TOP = PAGE_ROOT;
 export const PAGE_ABOUT = PAGE_ROOT.child("about");
+export const PAGE_MY_PROMPT = PAGE_ROOT.child("my-prompt");
