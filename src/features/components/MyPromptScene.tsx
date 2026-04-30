@@ -4,13 +4,12 @@ import { useCallback, useMemo } from "react";
 import styled from "@emotion/styled";
 import { useRouter } from "next/navigation";
 import { ClientDataStoreAgent } from "~/common/lib/ClientDataStoreAgent";
-import { buttonReset, px, alphaColor } from "~/common/lib/css-util";
+import { buttonReset, px } from "~/common/lib/css-util";
 import { useDataStoreList } from "~/common/lib/database-common-hooks";
 import { useAuthorizedUser } from "~/common/lib/firebase-auth-tools";
 import type FirebaseErrorParameter from "~/common/schema/FirebaseErrorParameter";
 import { type QueryFormula } from "~/common/lib/DataStoreAgent";
 import { TITLE_BAR_HEIGHT } from "~/features/components/LayoutRoot";
-import { THEME_COLOR } from "~/features/lib/emotion-mixin";
 import PROMPT_CATEGORIES from "~/features/lib/promptData";
 import { PAGE_TOP } from "~/features/lib/page-path";
 import usePromptStore from "~/features/lib/promptStore";
@@ -18,11 +17,11 @@ import { myPromptDataStoreScheme } from "~/features/schema/app-data-store-scheme
 import type MyPromptItem from "~/features/schema/MyPromptItem";
 import type PromptState from "~/features/schema/PromptState";
 
-const ACCENT = "#6366f1";
-const BORDER = "#e2e8f0";
-const BG = "#f8fafc";
-const TEXT_MAIN = "#1e293b";
-const TEXT_SUB = "#64748b";
+const ACCENT = "var(--c-accent)";
+const BORDER = "var(--c-border)";
+const BG = "var(--c-bg)";
+const TEXT_MAIN = "var(--c-text-main)";
+const TEXT_SUB = "var(--c-text-sub)";
 
 const Root = styled.div({
   minHeight: "100vh",
@@ -51,7 +50,7 @@ const EmptyMessage = styled.p({
 });
 
 const PromptCard = styled.div({
-  background: THEME_COLOR.WHITE,
+  background: "var(--c-surface)",
   border: `1px solid ${BORDER}`,
   borderRadius: px(10),
   padding: px(14, 20),
@@ -86,7 +85,7 @@ const Tag = styled.span({
   padding: px(3, 8),
   borderRadius: px(20),
   fontSize: px(12),
-  background: "#eef2ff",
+  background: "var(--c-tag-accent-bg)",
   color: ACCENT,
   lineHeight: 1.5
 });
@@ -110,15 +109,15 @@ const LoadButton = styled(ActionButton)({
   color: ACCENT,
   borderColor: ACCENT,
   "&:hover": {
-    background: "#e0e7ff"
+    background: "var(--c-accent-light)"
   }
 });
 
 const DeleteButton = styled(ActionButton)({
   color: TEXT_SUB,
   "&:hover": {
-    borderColor: "#ef4444",
-    color: "#ef4444"
+    borderColor: "var(--c-error)",
+    color: "var(--c-error)"
   }
 });
 
@@ -128,7 +127,7 @@ const LoginMessage = styled.div({
   justifyContent: "center",
   minHeight: px(200),
   fontSize: px(14),
-  color: alphaColor(TEXT_SUB as `#${string}`, 0.8)
+  color: "var(--c-text-sub-80)"
 });
 
 const myPromptDataStore = new ClientDataStoreAgent(myPromptDataStoreScheme);

@@ -4,10 +4,9 @@ import { useState, useCallback } from "react";
 import styled from "@emotion/styled";
 import { css } from "@emotion/react";
 import { ClientDataStoreAgent } from "~/common/lib/ClientDataStoreAgent";
-import { buttonReset, px, alphaColor } from "~/common/lib/css-util";
+import { buttonReset, px } from "~/common/lib/css-util";
 import { useAuthorizedUser } from "~/common/lib/firebase-auth-tools";
 import { TITLE_BAR_HEIGHT } from "~/features/components/LayoutRoot";
-import { THEME_COLOR } from "~/features/lib/emotion-mixin";
 import buildPrompt from "~/features/lib/buildPrompt";
 import PROMPT_CATEGORIES from "~/features/lib/promptData";
 import requestAppCallable from "~/features/lib/requestAppCallable";
@@ -18,12 +17,12 @@ import {
   type PromptCategory
 } from "~/features/schema/PromptItem";
 
-const ACCENT = "#6366f1";
-const ACCENT_LIGHT = "#e0e7ff";
-const BORDER = "#e2e8f0";
-const BG = "#f8fafc";
-const TEXT_MAIN = "#1e293b";
-const TEXT_SUB = "#64748b";
+const ACCENT = "var(--c-accent)";
+const ACCENT_LIGHT = "var(--c-accent-light)";
+const BORDER = "var(--c-border)";
+const BG = "var(--c-bg)";
+const TEXT_MAIN = "var(--c-text-main)";
+const TEXT_SUB = "var(--c-text-sub)";
 
 // ─── Layout ───────────────────────────────────────────────────────────────────
 
@@ -36,7 +35,7 @@ const Root = styled.div({
 // ─── Scrollable tab bar ────────────────────────────────────────────────────────
 
 const TabBarOuter = styled.div({
-  background: THEME_COLOR.WHITE,
+  background: "var(--c-surface)",
   borderBottom: `1px solid ${BORDER}`,
   position: "sticky",
   top: px(TITLE_BAR_HEIGHT),
@@ -67,10 +66,10 @@ const TabPill = styled.button<{ active: boolean }>(tabPillBase, ({ active }) =>
   active
     ? {
         background: ACCENT,
-        color: THEME_COLOR.WHITE
+        color: "#ffffff"
       }
     : {
-        background: THEME_COLOR.WHITE,
+        background: "var(--c-surface)",
         color: TEXT_SUB,
         border: `1.5px solid ${BORDER}`,
         "&:hover": {
@@ -90,7 +89,7 @@ const Body = styled.div({
 });
 
 const Card = styled.div({
-  background: THEME_COLOR.WHITE,
+  background: "var(--c-surface)",
   border: `1px solid ${BORDER}`,
   borderRadius: px(10),
   padding: px(20)
@@ -118,7 +117,7 @@ const tagBase = css(buttonReset, {
   fontSize: px(13),
   fontWeight: 500,
   border: `1.5px solid ${BORDER}`,
-  background: THEME_COLOR.WHITE,
+  background: "var(--c-surface)",
   color: TEXT_MAIN,
   cursor: "pointer",
   transition: "all 0.15s ease",
@@ -132,11 +131,11 @@ const tagBase = css(buttonReset, {
 const tagSelected = css({
   background: ACCENT,
   borderColor: ACCENT,
-  color: THEME_COLOR.WHITE,
+  color: "#ffffff",
   "&:hover": {
-    background: "#4f46e5",
-    borderColor: "#4f46e5",
-    color: THEME_COLOR.WHITE
+    background: "var(--c-accent-hover)",
+    borderColor: "var(--c-accent-hover)",
+    color: "#ffffff"
   }
 });
 
@@ -156,14 +155,14 @@ const Tooltip = styled.div({
   bottom: "calc(100% + 8px)",
   left: "50%",
   transform: "translateX(-50%)",
-  background: TEXT_MAIN,
-  color: THEME_COLOR.WHITE,
+  background: "var(--c-tooltip-bg)",
+  color: "var(--c-tooltip-text)",
   borderRadius: px(8),
   padding: px(10, 12),
   width: px(220),
   zIndex: 100,
   pointerEvents: "none",
-  boxShadow: `0 4px 16px ${alphaColor(THEME_COLOR.BLACK, 0.2)}`,
+  boxShadow: `0 4px 16px var(--c-shadow-sm)`,
   "&::after": {
     content: '""',
     position: "absolute",
@@ -172,13 +171,13 @@ const Tooltip = styled.div({
     transform: "translateX(-50%)",
     borderWidth: px(6),
     borderStyle: "solid",
-    borderColor: `${TEXT_MAIN} transparent transparent transparent`
+    borderColor: `var(--c-tooltip-bg) transparent transparent transparent`
   }
 });
 
 const TooltipValue = styled.div({
   fontSize: px(11),
-  color: alphaColor(THEME_COLOR.WHITE, 0.7),
+  color: "var(--c-tooltip-value)",
   fontFamily: "monospace",
   marginBottom: px(4),
   wordBreak: "break-word"
@@ -240,8 +239,9 @@ const SubjectInput = styled.input({
   "&:focus": {
     borderColor: ACCENT
   },
+  background: "var(--c-surface)",
   "&::placeholder": {
-    color: alphaColor(TEXT_SUB as `#${string}`, 0.6)
+    color: "var(--c-text-sub-60)"
   }
 });
 
@@ -255,7 +255,7 @@ const TranslateRow = styled.div({
 
 const TranslateError = styled.span({
   fontSize: px(11),
-  color: "#ef4444"
+  color: "var(--c-error)"
 });
 
 const TranslateButton = styled.button<{ isLoading: boolean }>(buttonReset, {
@@ -287,8 +287,8 @@ const Fab = styled.button<{ hasPrompt: boolean }>(buttonReset, {
   height: px(56),
   borderRadius: "50%",
   background: ACCENT,
-  color: THEME_COLOR.WHITE,
-  boxShadow: `0 4px 20px ${alphaColor(THEME_COLOR.BLACK, 0.25)}`,
+  color: "#ffffff",
+  boxShadow: `0 4px 20px var(--c-shadow-md)`,
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
@@ -296,7 +296,7 @@ const Fab = styled.button<{ hasPrompt: boolean }>(buttonReset, {
   zIndex: 200,
   transition: "background 0.15s ease, transform 0.15s ease",
   "&:hover": {
-    background: "#4f46e5",
+    background: "var(--c-accent-hover)",
     transform: "scale(1.07)"
   },
   "&:active": {
@@ -308,8 +308,8 @@ const FabBadge = styled.span({
   position: "absolute",
   top: px(-4),
   right: px(-4),
-  background: "#10b981",
-  color: THEME_COLOR.WHITE,
+  background: "var(--c-success)",
+  color: "#ffffff",
   borderRadius: "50%",
   width: px(20),
   height: px(20),
@@ -326,7 +326,7 @@ const FabBadge = styled.span({
 const Overlay = styled.div({
   position: "fixed",
   inset: 0,
-  background: alphaColor(THEME_COLOR.BLACK, 0.45),
+  background: "var(--c-black-overlay)",
   zIndex: 300,
   display: "flex",
   alignItems: "flex-end",
@@ -337,7 +337,7 @@ const Overlay = styled.div({
 });
 
 const PopupPanel = styled.div({
-  background: THEME_COLOR.WHITE,
+  background: "var(--c-surface)",
   borderRadius: px(16, 16, 0, 0),
   padding: px(24),
   width: "100%",
@@ -392,7 +392,7 @@ const OutputText = styled.div({
 });
 
 const EmptyOutput = styled.div({
-  color: alphaColor(TEXT_SUB as `#${string}`, 0.5),
+  color: "var(--c-text-sub-50)",
   fontFamily: "sans-serif",
   fontStyle: "italic",
   fontSize: px(13)
@@ -412,15 +412,15 @@ const CopyButton = styled.button<{ copied: boolean }>(
   ({ copied }) =>
     copied
       ? {
-          background: "#10b981",
-          color: THEME_COLOR.WHITE,
+          background: "var(--c-success)",
+          color: "#ffffff",
           cursor: "default"
         }
       : {
           background: ACCENT,
-          color: THEME_COLOR.WHITE,
-          "&:hover": { background: "#4f46e5" },
-          "&:active": { background: "#4338ca" }
+          color: "#ffffff",
+          "&:hover": { background: "var(--c-accent-hover)" },
+          "&:active": { background: "var(--c-accent-deep)" }
         }
 );
 
@@ -436,8 +436,8 @@ const ClearButton = styled.button(buttonReset, {
   marginTop: px(8),
   transition: "all 0.15s ease",
   "&:hover": {
-    borderColor: "#ef4444",
-    color: "#ef4444"
+    borderColor: "var(--c-error)",
+    color: "var(--c-error)"
   }
 });
 
@@ -456,12 +456,12 @@ const SaveButton = styled.button<{ saved: boolean }>(
   ({ saved }) =>
     saved
       ? {
-          background: "#10b981",
-          color: THEME_COLOR.WHITE,
+          background: "var(--c-success)",
+          color: "#ffffff",
           cursor: "default"
         }
       : {
-          background: THEME_COLOR.WHITE,
+          background: "var(--c-surface)",
           color: ACCENT,
           border: `1.5px solid ${ACCENT}`,
           "&:hover:not(:disabled)": { background: ACCENT_LIGHT },
@@ -531,15 +531,15 @@ const SmallIconBtn = styled.button(buttonReset, {
 
 const DeleteIconBtn = styled(SmallIconBtn)({
   "&:hover:not(:disabled)": {
-    borderColor: "#ef4444",
-    color: "#ef4444",
-    background: "#fef2f2"
+    borderColor: "var(--c-error)",
+    color: "var(--c-error)",
+    background: "var(--c-error-bg)"
   }
 });
 
 const EditEmptyState = styled.div({
   textAlign: "center",
-  color: alphaColor(TEXT_SUB as `#${string}`, 0.5),
+  color: "var(--c-text-sub-50)",
   fontSize: px(13),
   padding: px(24, 0),
   fontStyle: "italic"

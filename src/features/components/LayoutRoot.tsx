@@ -6,22 +6,21 @@ import Link from "next/link";
 import styled from "@emotion/styled";
 import { css } from "@emotion/react";
 import { GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth";
-import { buttonReset, px, alphaColor } from "~/common/lib/css-util";
+import { buttonReset, px } from "~/common/lib/css-util";
 import {
   useAuthRoot,
   useAuthorizedUser
 } from "~/common/lib/firebase-auth-tools";
 import { firebaseAuth } from "~/common/lib/firebase-app";
-import { THEME_COLOR } from "~/features/lib/emotion-mixin";
 import { PAGE_TOP, PAGE_MY_PROMPT } from "~/features/lib/page-path";
 
 export const TITLE_BAR_HEIGHT = 56;
 
-const ACCENT = "#6366f1";
-const ACCENT_LIGHT = "#e0e7ff";
-const BORDER = "#e2e8f0";
-const BG = "#f8fafc";
-const TEXT_MAIN = "#1e293b";
+const ACCENT = "var(--c-accent)";
+const ACCENT_LIGHT = "var(--c-accent-light)";
+const BORDER = "var(--c-border)";
+const BG = "var(--c-bg)";
+const TEXT_MAIN = "var(--c-text-main)";
 
 const TitleBar = styled.header({
   position: "fixed",
@@ -29,7 +28,7 @@ const TitleBar = styled.header({
   left: 0,
   right: 0,
   height: px(TITLE_BAR_HEIGHT),
-  background: THEME_COLOR.WHITE,
+  background: "var(--c-surface)",
   borderBottom: `1px solid ${BORDER}`,
   display: "flex",
   alignItems: "center",
@@ -71,7 +70,7 @@ const SidebarOverlay = styled.div<{ open: boolean }>(
   {
     position: "fixed",
     inset: 0,
-    background: alphaColor(TEXT_MAIN as `#${string}`, 0.4),
+    background: "var(--c-overlay)",
     zIndex: 400,
     transition: "opacity 0.25s ease"
   },
@@ -88,7 +87,7 @@ const Sidebar = styled.nav<{ open: boolean }>(
     left: 0,
     bottom: 0,
     width: px(280),
-    background: THEME_COLOR.WHITE,
+    background: "var(--c-surface)",
     borderRight: `1px solid ${BORDER}`,
     zIndex: 500,
     transition: "transform 0.25s ease",
