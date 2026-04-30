@@ -60,7 +60,7 @@ const TabPill = styled.button<{ active: boolean }>(tabPillBase, ({ active }) =>
   active
     ? {
         background: THEME_COLOR.ACCENT,
-        color: "#ffffff"
+        color: THEME_COLOR.WHITE
       }
     : {
         background: THEME_COLOR.SURFACE,
@@ -125,11 +125,11 @@ const tagBase = css(buttonReset, {
 const tagSelected = css({
   background: THEME_COLOR.ACCENT,
   borderColor: THEME_COLOR.ACCENT,
-  color: "#ffffff",
+  color: THEME_COLOR.WHITE,
   "&:hover": {
     background: THEME_COLOR.ACCENT_HOVER,
     borderColor: THEME_COLOR.ACCENT_HOVER,
-    color: "#ffffff"
+    color: THEME_COLOR.WHITE
   }
 });
 
@@ -281,7 +281,7 @@ const Fab = styled.button<{ hasPrompt: boolean }>(buttonReset, {
   height: px(56),
   borderRadius: "50%",
   background: THEME_COLOR.ACCENT,
-  color: "#ffffff",
+  color: THEME_COLOR.WHITE,
   boxShadow: `0 4px 20px ${THEME_COLOR.SHADOW_MD}`,
   display: "flex",
   alignItems: "center",
@@ -303,7 +303,7 @@ const FabBadge = styled.span({
   top: px(-4),
   right: px(-4),
   background: THEME_COLOR.SUCCESS,
-  color: "#ffffff",
+  color: THEME_COLOR.WHITE,
   borderRadius: "50%",
   width: px(20),
   height: px(20),
@@ -407,12 +407,12 @@ const CopyButton = styled.button<{ copied: boolean }>(
     copied
       ? {
           background: THEME_COLOR.SUCCESS,
-          color: "#ffffff",
+          color: THEME_COLOR.WHITE,
           cursor: "default"
         }
       : {
           background: THEME_COLOR.ACCENT,
-          color: "#ffffff",
+          color: THEME_COLOR.WHITE,
           "&:hover": { background: THEME_COLOR.ACCENT_HOVER },
           "&:active": { background: THEME_COLOR.ACCENT_DEEP }
         }
@@ -451,7 +451,7 @@ const SaveButton = styled.button<{ saved: boolean }>(
     saved
       ? {
           background: THEME_COLOR.SUCCESS,
-          color: "#ffffff",
+          color: THEME_COLOR.WHITE,
           cursor: "default"
         }
       : {

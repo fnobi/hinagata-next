@@ -92,6 +92,7 @@ export const spp = (...nums: CSSSizeKeyword[]) =>
   );
 
 export const THEME_COLOR = {
+  WHITE: "#ffffff",
   BG: "var(--c-bg)",
   SURFACE: "var(--c-surface)",
   BORDER: "var(--c-border)",
