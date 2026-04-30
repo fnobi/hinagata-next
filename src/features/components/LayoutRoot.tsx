@@ -6,7 +6,7 @@ import Link from "next/link";
 import styled from "@emotion/styled";
 import { css } from "@emotion/react";
 import { GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth";
-import { buttonReset, px, alphaColor } from "~/common/lib/css-util";
+import { buttonReset, px } from "~/common/lib/css-util";
 import {
   useAuthRoot,
   useAuthorizedUser
@@ -17,20 +17,14 @@ import { PAGE_TOP, PAGE_MY_PROMPT } from "~/features/lib/page-path";
 
 export const TITLE_BAR_HEIGHT = 56;
 
-const ACCENT = "#6366f1";
-const ACCENT_LIGHT = "#e0e7ff";
-const BORDER = "#e2e8f0";
-const BG = "#f8fafc";
-const TEXT_MAIN = "#1e293b";
-
 const TitleBar = styled.header({
   position: "fixed",
   top: 0,
   left: 0,
   right: 0,
   height: px(TITLE_BAR_HEIGHT),
-  background: THEME_COLOR.WHITE,
-  borderBottom: `1px solid ${BORDER}`,
+  background: THEME_COLOR.SURFACE,
+  borderBottom: `1px solid ${THEME_COLOR.BORDER}`,
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
@@ -40,7 +34,7 @@ const TitleBar = styled.header({
 const TitleBarText = styled.h1({
   fontSize: px(16),
   fontWeight: 700,
-  color: TEXT_MAIN,
+  color: THEME_COLOR.TEXT_MAIN,
   margin: 0,
   letterSpacing: "0.04em"
 });
@@ -57,13 +51,13 @@ const MenuButton = styled.button(buttonReset, {
   padding: px(6),
   borderRadius: px(6),
   cursor: "pointer",
-  "&:hover": { background: BG }
+  "&:hover": { background: THEME_COLOR.BG }
 });
 
 const MenuLine = styled.span({
   display: "block",
   height: px(2),
-  background: TEXT_MAIN,
+  background: THEME_COLOR.TEXT_MAIN,
   borderRadius: px(2)
 });
 
@@ -71,7 +65,7 @@ const SidebarOverlay = styled.div<{ open: boolean }>(
   {
     position: "fixed",
     inset: 0,
-    background: alphaColor(TEXT_MAIN as `#${string}`, 0.4),
+    background: THEME_COLOR.OVERLAY,
     zIndex: 400,
     transition: "opacity 0.25s ease"
   },
@@ -88,8 +82,8 @@ const Sidebar = styled.nav<{ open: boolean }>(
     left: 0,
     bottom: 0,
     width: px(280),
-    background: THEME_COLOR.WHITE,
-    borderRight: `1px solid ${BORDER}`,
+    background: THEME_COLOR.SURFACE,
+    borderRight: `1px solid ${THEME_COLOR.BORDER}`,
     zIndex: 500,
     transition: "transform 0.25s ease",
     padding: px(TITLE_BAR_HEIGHT + 16, 20, 20)
@@ -104,7 +98,7 @@ const sidebarItemStyle = css({
   padding: px(12, 14),
   fontSize: px(14),
   fontWeight: 500,
-  color: TEXT_MAIN
+  color: THEME_COLOR.TEXT_MAIN
 });
 
 const SidebarItem = styled.p(sidebarItemStyle);
@@ -116,7 +110,7 @@ const SidebarButton = styled.button(buttonReset, sidebarItemStyle, {
   borderRadius: px(8),
   cursor: "pointer",
   transition: "background 0.15s ease",
-  "&:hover": { background: BG }
+  "&:hover": { background: THEME_COLOR.BG }
 });
 
 const SidebarNav = styled.nav({
@@ -139,13 +133,13 @@ const SidebarNavItem = styled(Link, {
     textDecoration: "none",
     color: "inherit",
     transition: "background 0.15s ease, color 0.15s ease",
-    "&:hover": { background: BG }
+    "&:hover": { background: THEME_COLOR.BG }
   },
   ({ $isActive }) =>
     $isActive
       ? {
-          background: ACCENT_LIGHT,
-          color: ACCENT,
+          background: THEME_COLOR.ACCENT_LIGHT,
+          color: THEME_COLOR.ACCENT,
           fontWeight: 600
         }
       : {}
@@ -162,14 +156,14 @@ const SidebarCloseButton = styled.button(buttonReset, {
   justifyContent: "center",
   borderRadius: px(6),
   fontSize: px(20),
-  color: TEXT_MAIN,
+  color: THEME_COLOR.TEXT_MAIN,
   cursor: "pointer",
-  "&:hover": { background: BG }
+  "&:hover": { background: THEME_COLOR.BG }
 });
 
 const SidebarDivider = styled.div({
   height: "1px",
-  background: BORDER,
+  background: THEME_COLOR.BORDER,
   margin: px(16, 0)
 });
 

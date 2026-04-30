@@ -4,7 +4,7 @@ import { useCallback, useMemo } from "react";
 import styled from "@emotion/styled";
 import { useRouter } from "next/navigation";
 import { ClientDataStoreAgent } from "~/common/lib/ClientDataStoreAgent";
-import { buttonReset, px, alphaColor } from "~/common/lib/css-util";
+import { buttonReset, px } from "~/common/lib/css-util";
 import { useDataStoreList } from "~/common/lib/database-common-hooks";
 import { useAuthorizedUser } from "~/common/lib/firebase-auth-tools";
 import type FirebaseErrorParameter from "~/common/schema/FirebaseErrorParameter";
@@ -18,15 +18,9 @@ import { myPromptDataStoreScheme } from "~/features/schema/app-data-store-scheme
 import type MyPromptItem from "~/features/schema/MyPromptItem";
 import type PromptState from "~/features/schema/PromptState";
 
-const ACCENT = "#6366f1";
-const BORDER = "#e2e8f0";
-const BG = "#f8fafc";
-const TEXT_MAIN = "#1e293b";
-const TEXT_SUB = "#64748b";
-
 const Root = styled.div({
   minHeight: "100vh",
-  background: BG,
+  background: THEME_COLOR.BG,
   paddingTop: px(TITLE_BAR_HEIGHT + 24),
   paddingBottom: px(100)
 });
@@ -40,19 +34,19 @@ const Inner = styled.div({
 const PageTitle = styled.h1({
   fontSize: px(18),
   fontWeight: 700,
-  color: TEXT_MAIN,
+  color: THEME_COLOR.TEXT_MAIN,
   marginBottom: px(20)
 });
 
 const EmptyMessage = styled.p({
-  color: TEXT_SUB,
+  color: THEME_COLOR.TEXT_SUB,
   fontSize: px(14),
   fontStyle: "italic"
 });
 
 const PromptCard = styled.div({
-  background: THEME_COLOR.WHITE,
-  border: `1px solid ${BORDER}`,
+  background: THEME_COLOR.SURFACE,
+  border: `1px solid ${THEME_COLOR.BORDER}`,
   borderRadius: px(10),
   padding: px(14, 20),
   marginBottom: px(12)
@@ -67,7 +61,7 @@ const CardHeader = styled.div({
 
 const DateLabel = styled.span({
   fontSize: px(12),
-  color: TEXT_SUB
+  color: THEME_COLOR.TEXT_SUB
 });
 
 const CardActions = styled.div({
@@ -86,14 +80,14 @@ const Tag = styled.span({
   padding: px(3, 8),
   borderRadius: px(20),
   fontSize: px(12),
-  background: "#eef2ff",
-  color: ACCENT,
+  background: THEME_COLOR.TAG_ACCENT_BG,
+  color: THEME_COLOR.ACCENT,
   lineHeight: 1.5
 });
 
 const EmptyTag = styled.span({
   fontSize: px(13),
-  color: TEXT_SUB,
+  color: THEME_COLOR.TEXT_SUB,
   fontStyle: "italic"
 });
 
@@ -102,23 +96,23 @@ const ActionButton = styled.button(buttonReset, {
   padding: px(5, 10),
   borderRadius: px(6),
   fontSize: px(12),
-  border: `1px solid ${BORDER}`,
+  border: `1px solid ${THEME_COLOR.BORDER}`,
   transition: "all 0.15s ease"
 });
 
 const LoadButton = styled(ActionButton)({
-  color: ACCENT,
-  borderColor: ACCENT,
+  color: THEME_COLOR.ACCENT,
+  borderColor: THEME_COLOR.ACCENT,
   "&:hover": {
-    background: "#e0e7ff"
+    background: THEME_COLOR.ACCENT_LIGHT
   }
 });
 
 const DeleteButton = styled(ActionButton)({
-  color: TEXT_SUB,
+  color: THEME_COLOR.TEXT_SUB,
   "&:hover": {
-    borderColor: "#ef4444",
-    color: "#ef4444"
+    borderColor: THEME_COLOR.ERROR,
+    color: THEME_COLOR.ERROR
   }
 });
 
@@ -128,7 +122,7 @@ const LoginMessage = styled.div({
   justifyContent: "center",
   minHeight: px(200),
   fontSize: px(14),
-  color: alphaColor(TEXT_SUB as `#${string}`, 0.8)
+  color: THEME_COLOR.TEXT_SUB_80
 });
 
 const myPromptDataStore = new ClientDataStoreAgent(myPromptDataStoreScheme);
