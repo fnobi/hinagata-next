@@ -7,6 +7,7 @@ import { ClientDataStoreAgent } from "~/common/lib/ClientDataStoreAgent";
 import { buttonReset, px } from "~/common/lib/css-util";
 import { useAuthorizedUser } from "~/common/lib/firebase-auth-tools";
 import { TITLE_BAR_HEIGHT } from "~/features/components/LayoutRoot";
+import { THEME_COLOR } from "~/features/lib/emotion-mixin";
 import buildPrompt from "~/features/lib/buildPrompt";
 import PROMPT_CATEGORIES from "~/features/lib/promptData";
 import requestAppCallable from "~/features/lib/requestAppCallable";
@@ -17,26 +18,19 @@ import {
   type PromptCategory
 } from "~/features/schema/PromptItem";
 
-const ACCENT = "var(--c-accent)";
-const ACCENT_LIGHT = "var(--c-accent-light)";
-const BORDER = "var(--c-border)";
-const BG = "var(--c-bg)";
-const TEXT_MAIN = "var(--c-text-main)";
-const TEXT_SUB = "var(--c-text-sub)";
-
 // ─── Layout ───────────────────────────────────────────────────────────────────
 
 const Root = styled.div({
   minHeight: "100vh",
-  background: BG,
+  background: THEME_COLOR.BG,
   paddingBottom: px(100)
 });
 
 // ─── Scrollable tab bar ────────────────────────────────────────────────────────
 
 const TabBarOuter = styled.div({
-  background: "var(--c-surface)",
-  borderBottom: `1px solid ${BORDER}`,
+  background: THEME_COLOR.SURFACE,
+  borderBottom: `1px solid ${THEME_COLOR.BORDER}`,
   position: "sticky",
   top: px(TITLE_BAR_HEIGHT),
   zIndex: 10
@@ -65,17 +59,17 @@ const tabPillBase = css(buttonReset, {
 const TabPill = styled.button<{ active: boolean }>(tabPillBase, ({ active }) =>
   active
     ? {
-        background: ACCENT,
+        background: THEME_COLOR.ACCENT,
         color: "#ffffff"
       }
     : {
-        background: "var(--c-surface)",
-        color: TEXT_SUB,
-        border: `1.5px solid ${BORDER}`,
+        background: THEME_COLOR.SURFACE,
+        color: THEME_COLOR.TEXT_SUB,
+        border: `1.5px solid ${THEME_COLOR.BORDER}`,
         "&:hover": {
-          borderColor: ACCENT,
-          color: ACCENT,
-          background: ACCENT_LIGHT
+          borderColor: THEME_COLOR.ACCENT,
+          color: THEME_COLOR.ACCENT,
+          background: THEME_COLOR.ACCENT_LIGHT
         }
       }
 );
@@ -89,8 +83,8 @@ const Body = styled.div({
 });
 
 const Card = styled.div({
-  background: "var(--c-surface)",
-  border: `1px solid ${BORDER}`,
+  background: THEME_COLOR.SURFACE,
+  border: `1px solid ${THEME_COLOR.BORDER}`,
   borderRadius: px(10),
   padding: px(20)
 });
@@ -98,7 +92,7 @@ const Card = styled.div({
 const CategoryTitle = styled.h2({
   fontSize: px(13),
   fontWeight: 700,
-  color: TEXT_SUB,
+  color: THEME_COLOR.TEXT_SUB,
   margin: px(0, 0, 12),
   textTransform: "uppercase",
   letterSpacing: "0.08em"
@@ -116,25 +110,25 @@ const tagBase = css(buttonReset, {
   borderRadius: px(20),
   fontSize: px(13),
   fontWeight: 500,
-  border: `1.5px solid ${BORDER}`,
-  background: "var(--c-surface)",
-  color: TEXT_MAIN,
+  border: `1.5px solid ${THEME_COLOR.BORDER}`,
+  background: THEME_COLOR.SURFACE,
+  color: THEME_COLOR.TEXT_MAIN,
   cursor: "pointer",
   transition: "all 0.15s ease",
   "&:hover": {
-    borderColor: ACCENT,
-    color: ACCENT,
-    background: ACCENT_LIGHT
+    borderColor: THEME_COLOR.ACCENT,
+    color: THEME_COLOR.ACCENT,
+    background: THEME_COLOR.ACCENT_LIGHT
   }
 });
 
 const tagSelected = css({
-  background: ACCENT,
-  borderColor: ACCENT,
+  background: THEME_COLOR.ACCENT,
+  borderColor: THEME_COLOR.ACCENT,
   color: "#ffffff",
   "&:hover": {
-    background: "var(--c-accent-hover)",
-    borderColor: "var(--c-accent-hover)",
+    background: THEME_COLOR.ACCENT_HOVER,
+    borderColor: THEME_COLOR.ACCENT_HOVER,
     color: "#ffffff"
   }
 });
@@ -155,14 +149,14 @@ const Tooltip = styled.div({
   bottom: "calc(100% + 8px)",
   left: "50%",
   transform: "translateX(-50%)",
-  background: "var(--c-tooltip-bg)",
-  color: "var(--c-tooltip-text)",
+  background: THEME_COLOR.TOOLTIP_BG,
+  color: THEME_COLOR.TOOLTIP_TEXT,
   borderRadius: px(8),
   padding: px(10, 12),
   width: px(220),
   zIndex: 100,
   pointerEvents: "none",
-  boxShadow: `0 4px 16px var(--c-shadow-sm)`,
+  boxShadow: `0 4px 16px ${THEME_COLOR.SHADOW_SM}`,
   "&::after": {
     content: '""',
     position: "absolute",
@@ -171,13 +165,13 @@ const Tooltip = styled.div({
     transform: "translateX(-50%)",
     borderWidth: px(6),
     borderStyle: "solid",
-    borderColor: `var(--c-tooltip-bg) transparent transparent transparent`
+    borderColor: `${THEME_COLOR.TOOLTIP_BG} transparent transparent transparent`
   }
 });
 
 const TooltipValue = styled.div({
   fontSize: px(11),
-  color: "var(--c-tooltip-value)",
+  color: THEME_COLOR.TOOLTIP_VALUE,
   fontFamily: "monospace",
   marginBottom: px(4),
   wordBreak: "break-word"
@@ -201,7 +195,7 @@ const SubjectLabel = styled.label({
   display: "block",
   fontSize: px(13),
   fontWeight: 700,
-  color: TEXT_SUB,
+  color: THEME_COLOR.TEXT_SUB,
   textTransform: "uppercase",
   letterSpacing: "0.08em"
 });
@@ -211,13 +205,13 @@ const EditTrigger = styled.button(buttonReset, {
   alignItems: "center",
   gap: px(3),
   fontSize: px(11),
-  color: TEXT_SUB,
+  color: THEME_COLOR.TEXT_SUB,
   padding: px(3, 7),
   borderRadius: px(4),
   transition: "all 0.15s ease",
   "&:hover": {
-    color: ACCENT,
-    background: ACCENT_LIGHT
+    color: THEME_COLOR.ACCENT,
+    background: THEME_COLOR.ACCENT_LIGHT
   }
 });
 
@@ -228,20 +222,20 @@ const SubjectTagsGrid = styled(TagsGrid)({
 const SubjectInput = styled.input({
   width: "100%",
   boxSizing: "border-box",
-  border: `1.5px solid ${BORDER}`,
+  border: `1.5px solid ${THEME_COLOR.BORDER}`,
   borderRadius: px(8),
   padding: px(10, 12),
   fontSize: px(13),
   fontFamily: "inherit",
-  color: TEXT_MAIN,
+  color: THEME_COLOR.TEXT_MAIN,
   outline: "none",
   transition: "border-color 0.15s ease",
   "&:focus": {
-    borderColor: ACCENT
+    borderColor: THEME_COLOR.ACCENT
   },
-  background: "var(--c-surface)",
+  background: THEME_COLOR.SURFACE,
   "&::placeholder": {
-    color: "var(--c-text-sub-60)"
+    color: THEME_COLOR.TEXT_SUB_60
   }
 });
 
@@ -255,7 +249,7 @@ const TranslateRow = styled.div({
 
 const TranslateError = styled.span({
   fontSize: px(11),
-  color: "var(--c-error)"
+  color: THEME_COLOR.ERROR
 });
 
 const TranslateButton = styled.button<{ isLoading: boolean }>(buttonReset, {
@@ -263,13 +257,13 @@ const TranslateButton = styled.button<{ isLoading: boolean }>(buttonReset, {
   borderRadius: px(6),
   fontSize: px(12),
   fontWeight: 500,
-  border: `1.5px solid ${BORDER}`,
-  color: TEXT_SUB,
+  border: `1.5px solid ${THEME_COLOR.BORDER}`,
+  color: THEME_COLOR.TEXT_SUB,
   transition: "all 0.15s ease",
   "&:not(:disabled):hover": {
-    borderColor: ACCENT,
-    color: ACCENT,
-    background: ACCENT_LIGHT
+    borderColor: THEME_COLOR.ACCENT,
+    color: THEME_COLOR.ACCENT,
+    background: THEME_COLOR.ACCENT_LIGHT
   },
   "&:disabled": {
     opacity: 0.5,
@@ -286,9 +280,9 @@ const Fab = styled.button<{ hasPrompt: boolean }>(buttonReset, {
   width: px(56),
   height: px(56),
   borderRadius: "50%",
-  background: ACCENT,
+  background: THEME_COLOR.ACCENT,
   color: "#ffffff",
-  boxShadow: `0 4px 20px var(--c-shadow-md)`,
+  boxShadow: `0 4px 20px ${THEME_COLOR.SHADOW_MD}`,
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
@@ -296,7 +290,7 @@ const Fab = styled.button<{ hasPrompt: boolean }>(buttonReset, {
   zIndex: 200,
   transition: "background 0.15s ease, transform 0.15s ease",
   "&:hover": {
-    background: "var(--c-accent-hover)",
+    background: THEME_COLOR.ACCENT_HOVER,
     transform: "scale(1.07)"
   },
   "&:active": {
@@ -308,7 +302,7 @@ const FabBadge = styled.span({
   position: "absolute",
   top: px(-4),
   right: px(-4),
-  background: "var(--c-success)",
+  background: THEME_COLOR.SUCCESS,
   color: "#ffffff",
   borderRadius: "50%",
   width: px(20),
@@ -326,7 +320,7 @@ const FabBadge = styled.span({
 const Overlay = styled.div({
   position: "fixed",
   inset: 0,
-  background: "var(--c-black-overlay)",
+  background: THEME_COLOR.BLACK_OVERLAY,
   zIndex: 300,
   display: "flex",
   alignItems: "flex-end",
@@ -337,7 +331,7 @@ const Overlay = styled.div({
 });
 
 const PopupPanel = styled.div({
-  background: "var(--c-surface)",
+  background: THEME_COLOR.SURFACE,
   borderRadius: px(16, 16, 0, 0),
   padding: px(24),
   width: "100%",
@@ -360,39 +354,39 @@ const PopupHeader = styled.div({
 const PopupTitle = styled.div({
   fontSize: px(14),
   fontWeight: 700,
-  color: TEXT_MAIN
+  color: THEME_COLOR.TEXT_MAIN
 });
 
 const PopupClose = styled.button(buttonReset, {
   width: px(32),
   height: px(32),
   borderRadius: "50%",
-  background: BG,
-  color: TEXT_SUB,
+  background: THEME_COLOR.BG,
+  color: THEME_COLOR.TEXT_SUB,
   fontSize: px(18),
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
-  "&:hover": { background: BORDER }
+  "&:hover": { background: THEME_COLOR.BORDER }
 });
 
 const OutputText = styled.div({
   minHeight: px(100),
-  border: `1.5px solid ${BORDER}`,
+  border: `1.5px solid ${THEME_COLOR.BORDER}`,
   borderRadius: px(8),
   padding: px(12),
   fontSize: px(13),
   lineHeight: 1.7,
-  color: TEXT_MAIN,
+  color: THEME_COLOR.TEXT_MAIN,
   fontFamily: "monospace",
-  background: BG,
+  background: THEME_COLOR.BG,
   wordBreak: "break-word",
   whiteSpace: "pre-wrap",
   marginBottom: px(12)
 });
 
 const EmptyOutput = styled.div({
-  color: "var(--c-text-sub-50)",
+  color: THEME_COLOR.TEXT_SUB_50,
   fontFamily: "sans-serif",
   fontStyle: "italic",
   fontSize: px(13)
@@ -412,15 +406,15 @@ const CopyButton = styled.button<{ copied: boolean }>(
   ({ copied }) =>
     copied
       ? {
-          background: "var(--c-success)",
+          background: THEME_COLOR.SUCCESS,
           color: "#ffffff",
           cursor: "default"
         }
       : {
-          background: ACCENT,
+          background: THEME_COLOR.ACCENT,
           color: "#ffffff",
-          "&:hover": { background: "var(--c-accent-hover)" },
-          "&:active": { background: "var(--c-accent-deep)" }
+          "&:hover": { background: THEME_COLOR.ACCENT_HOVER },
+          "&:active": { background: THEME_COLOR.ACCENT_DEEP }
         }
 );
 
@@ -431,13 +425,13 @@ const ClearButton = styled.button(buttonReset, {
   fontSize: px(13),
   fontWeight: 500,
   textAlign: "center",
-  border: `1.5px solid ${BORDER}`,
-  color: TEXT_SUB,
+  border: `1.5px solid ${THEME_COLOR.BORDER}`,
+  color: THEME_COLOR.TEXT_SUB,
   marginTop: px(8),
   transition: "all 0.15s ease",
   "&:hover": {
-    borderColor: "var(--c-error)",
-    color: "var(--c-error)"
+    borderColor: THEME_COLOR.ERROR,
+    color: THEME_COLOR.ERROR
   }
 });
 
@@ -456,15 +450,15 @@ const SaveButton = styled.button<{ saved: boolean }>(
   ({ saved }) =>
     saved
       ? {
-          background: "var(--c-success)",
+          background: THEME_COLOR.SUCCESS,
           color: "#ffffff",
           cursor: "default"
         }
       : {
-          background: "var(--c-surface)",
-          color: ACCENT,
-          border: `1.5px solid ${ACCENT}`,
-          "&:hover:not(:disabled)": { background: ACCENT_LIGHT },
+          background: THEME_COLOR.SURFACE,
+          color: THEME_COLOR.ACCENT,
+          border: `1.5px solid ${THEME_COLOR.ACCENT}`,
+          "&:hover:not(:disabled)": { background: THEME_COLOR.ACCENT_LIGHT },
           "&:disabled": { opacity: 0.5, cursor: "default" }
         }
 );
@@ -476,7 +470,7 @@ const EditListItem = styled.div({
   alignItems: "center",
   gap: px(8),
   padding: px(10, 0),
-  borderBottom: `1px solid ${BORDER}`,
+  borderBottom: `1px solid ${THEME_COLOR.BORDER}`,
   "&:last-child": { borderBottom: "none" }
 });
 
@@ -488,12 +482,12 @@ const EditItemInfo = styled.div({
 const EditItemLabelText = styled.div({
   fontSize: px(13),
   fontWeight: 600,
-  color: TEXT_MAIN
+  color: THEME_COLOR.TEXT_MAIN
 });
 
 const EditItemValue = styled.div({
   fontSize: px(11),
-  color: TEXT_SUB,
+  color: THEME_COLOR.TEXT_SUB,
   fontFamily: "monospace",
   overflow: "hidden",
   textOverflow: "ellipsis",
@@ -515,13 +509,13 @@ const SmallIconBtn = styled.button(buttonReset, {
   alignItems: "center",
   justifyContent: "center",
   fontSize: px(13),
-  color: TEXT_SUB,
-  border: `1px solid ${BORDER}`,
+  color: THEME_COLOR.TEXT_SUB,
+  border: `1px solid ${THEME_COLOR.BORDER}`,
   transition: "all 0.15s ease",
   "&:hover:not(:disabled)": {
-    borderColor: ACCENT,
-    color: ACCENT,
-    background: ACCENT_LIGHT
+    borderColor: THEME_COLOR.ACCENT,
+    color: THEME_COLOR.ACCENT,
+    background: THEME_COLOR.ACCENT_LIGHT
   },
   "&:disabled": {
     opacity: 0.3,
@@ -531,15 +525,15 @@ const SmallIconBtn = styled.button(buttonReset, {
 
 const DeleteIconBtn = styled(SmallIconBtn)({
   "&:hover:not(:disabled)": {
-    borderColor: "var(--c-error)",
-    color: "var(--c-error)",
-    background: "var(--c-error-bg)"
+    borderColor: THEME_COLOR.ERROR,
+    color: THEME_COLOR.ERROR,
+    background: THEME_COLOR.ERROR_BG
   }
 });
 
 const EditEmptyState = styled.div({
   textAlign: "center",
-  color: "var(--c-text-sub-50)",
+  color: THEME_COLOR.TEXT_SUB_50,
   fontSize: px(13),
   padding: px(24, 0),
   fontStyle: "italic"

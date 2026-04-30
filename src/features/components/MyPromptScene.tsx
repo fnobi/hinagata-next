@@ -10,6 +10,7 @@ import { useAuthorizedUser } from "~/common/lib/firebase-auth-tools";
 import type FirebaseErrorParameter from "~/common/schema/FirebaseErrorParameter";
 import { type QueryFormula } from "~/common/lib/DataStoreAgent";
 import { TITLE_BAR_HEIGHT } from "~/features/components/LayoutRoot";
+import { THEME_COLOR } from "~/features/lib/emotion-mixin";
 import PROMPT_CATEGORIES from "~/features/lib/promptData";
 import { PAGE_TOP } from "~/features/lib/page-path";
 import usePromptStore from "~/features/lib/promptStore";
@@ -17,15 +18,9 @@ import { myPromptDataStoreScheme } from "~/features/schema/app-data-store-scheme
 import type MyPromptItem from "~/features/schema/MyPromptItem";
 import type PromptState from "~/features/schema/PromptState";
 
-const ACCENT = "var(--c-accent)";
-const BORDER = "var(--c-border)";
-const BG = "var(--c-bg)";
-const TEXT_MAIN = "var(--c-text-main)";
-const TEXT_SUB = "var(--c-text-sub)";
-
 const Root = styled.div({
   minHeight: "100vh",
-  background: BG,
+  background: THEME_COLOR.BG,
   paddingTop: px(TITLE_BAR_HEIGHT + 24),
   paddingBottom: px(100)
 });
@@ -39,19 +34,19 @@ const Inner = styled.div({
 const PageTitle = styled.h1({
   fontSize: px(18),
   fontWeight: 700,
-  color: TEXT_MAIN,
+  color: THEME_COLOR.TEXT_MAIN,
   marginBottom: px(20)
 });
 
 const EmptyMessage = styled.p({
-  color: TEXT_SUB,
+  color: THEME_COLOR.TEXT_SUB,
   fontSize: px(14),
   fontStyle: "italic"
 });
 
 const PromptCard = styled.div({
-  background: "var(--c-surface)",
-  border: `1px solid ${BORDER}`,
+  background: THEME_COLOR.SURFACE,
+  border: `1px solid ${THEME_COLOR.BORDER}`,
   borderRadius: px(10),
   padding: px(14, 20),
   marginBottom: px(12)
@@ -66,7 +61,7 @@ const CardHeader = styled.div({
 
 const DateLabel = styled.span({
   fontSize: px(12),
-  color: TEXT_SUB
+  color: THEME_COLOR.TEXT_SUB
 });
 
 const CardActions = styled.div({
@@ -85,14 +80,14 @@ const Tag = styled.span({
   padding: px(3, 8),
   borderRadius: px(20),
   fontSize: px(12),
-  background: "var(--c-tag-accent-bg)",
-  color: ACCENT,
+  background: THEME_COLOR.TAG_ACCENT_BG,
+  color: THEME_COLOR.ACCENT,
   lineHeight: 1.5
 });
 
 const EmptyTag = styled.span({
   fontSize: px(13),
-  color: TEXT_SUB,
+  color: THEME_COLOR.TEXT_SUB,
   fontStyle: "italic"
 });
 
@@ -101,23 +96,23 @@ const ActionButton = styled.button(buttonReset, {
   padding: px(5, 10),
   borderRadius: px(6),
   fontSize: px(12),
-  border: `1px solid ${BORDER}`,
+  border: `1px solid ${THEME_COLOR.BORDER}`,
   transition: "all 0.15s ease"
 });
 
 const LoadButton = styled(ActionButton)({
-  color: ACCENT,
-  borderColor: ACCENT,
+  color: THEME_COLOR.ACCENT,
+  borderColor: THEME_COLOR.ACCENT,
   "&:hover": {
-    background: "var(--c-accent-light)"
+    background: THEME_COLOR.ACCENT_LIGHT
   }
 });
 
 const DeleteButton = styled(ActionButton)({
-  color: TEXT_SUB,
+  color: THEME_COLOR.TEXT_SUB,
   "&:hover": {
-    borderColor: "var(--c-error)",
-    color: "var(--c-error)"
+    borderColor: THEME_COLOR.ERROR,
+    color: THEME_COLOR.ERROR
   }
 });
 
@@ -127,7 +122,7 @@ const LoginMessage = styled.div({
   justifyContent: "center",
   minHeight: px(200),
   fontSize: px(14),
-  color: "var(--c-text-sub-80)"
+  color: THEME_COLOR.TEXT_SUB_80
 });
 
 const myPromptDataStore = new ClientDataStoreAgent(myPromptDataStoreScheme);

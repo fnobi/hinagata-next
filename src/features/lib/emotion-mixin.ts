@@ -1,11 +1,6 @@
 import { css } from "@emotion/react";
 import { type CSSInterpolation } from "@emotion/serialize";
-import {
-  type CSSSizeKeyword,
-  PRIMITIVE_COLOR,
-  px,
-  vw
-} from "~/common/lib/css-util";
+import { type CSSSizeKeyword, px, vw } from "~/common/lib/css-util";
 
 // NOTE: デザインファイルのサイズに合わせる
 const SP_VIEWPORT_SIZE = 1125;
@@ -97,10 +92,27 @@ export const spp = (...nums: CSSSizeKeyword[]) =>
   );
 
 export const THEME_COLOR = {
-  ...PRIMITIVE_COLOR,
-  DARK: "#333333",
-  BROWN: "#712636",
-  BG_YELLOW: "#FFFABA",
-  WAVE_YELLOW: "#ffeb3c",
-  PINK: "#E4007F"
-} satisfies Record<string, `#${string}`>;
+  BG: "var(--c-bg)",
+  SURFACE: "var(--c-surface)",
+  BORDER: "var(--c-border)",
+  TEXT_MAIN: "var(--c-text-main)",
+  TEXT_SUB: "var(--c-text-sub)",
+  TEXT_SUB_50: "var(--c-text-sub-50)",
+  TEXT_SUB_60: "var(--c-text-sub-60)",
+  TEXT_SUB_80: "var(--c-text-sub-80)",
+  ACCENT: "var(--c-accent)",
+  ACCENT_LIGHT: "var(--c-accent-light)",
+  ACCENT_HOVER: "var(--c-accent-hover)",
+  ACCENT_DEEP: "var(--c-accent-deep)",
+  SUCCESS: "var(--c-success)",
+  ERROR: "var(--c-error)",
+  ERROR_BG: "var(--c-error-bg)",
+  TAG_ACCENT_BG: "var(--c-tag-accent-bg)",
+  TOOLTIP_BG: "var(--c-tooltip-bg)",
+  TOOLTIP_TEXT: "var(--c-tooltip-text)",
+  TOOLTIP_VALUE: "var(--c-tooltip-value)",
+  SHADOW_SM: "var(--c-shadow-sm)",
+  SHADOW_MD: "var(--c-shadow-md)",
+  BLACK_OVERLAY: "var(--c-black-overlay)",
+  OVERLAY: "var(--c-overlay)"
+} as const;
