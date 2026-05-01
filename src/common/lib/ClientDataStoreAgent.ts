@@ -11,7 +11,6 @@ import {
   getDoc,
   deleteDoc,
   collectionGroup,
-  type DocumentData,
   type Query,
   type DocumentReference,
   runTransaction,
@@ -33,7 +32,6 @@ export class ClientDataStoreAgent<
   D extends string,
   C extends string
 > extends DataStoreAgent<T, D, C, DocumentReference, Query> {
-  // eslint-disable-next-line class-methods-use-this
   protected collectionReference({
     collectionPath
   }: {
@@ -57,13 +55,7 @@ export class ClientDataStoreAgent<
     return id ? doc(collectionRef, id) : doc(collectionRef);
   }
 
-  protected override newDocId(opts: { collectionPath: string }) {
-    const documentRef = this.documentReference(opts);
-    return documentRef.id;
-  }
-
-  // eslint-disable-next-line class-methods-use-this
-  protected override async setDoc({
+  protected override setDoc({
     ref,
     data,
     merge
@@ -72,62 +64,55 @@ export class ClientDataStoreAgent<
     data: Object;
     merge?: boolean;
   }) {
-    await setDoc(ref, data, { merge });
-    return ref.id;
+    return setDoc(ref, data, { merge });
   }
 
-  // eslint-disable-next-line class-methods-use-this
   protected getDoc(r: DocumentReference) {
-    return getDoc(r);
+    return getDoc(r.withConverter(this.converter));
   }
 
-  // eslint-disable-next-line class-methods-use-this
   protected async deleteDoc(r: DocumentReference) {
     await deleteDoc(r);
   }
 
-  // eslint-disable-next-line class-methods-use-this
   protected getQueryDocs(r: Query) {
-    return getDocs(r).then(snapshot => snapshot.docs);
+    return getDocs(r.withConverter(this.converter));
   }
 
-  // eslint-disable-next-line class-methods-use-this
   protected async getQueryCount(r: Query) {
     const snapshot = await getCountFromServer(r);
     return snapshot.data().count;
   }
 
-  // eslint-disable-next-line class-methods-use-this
   protected subscribeDoc({
     ref,
     handler,
     onError
   }: {
     ref: DocumentReference;
-    handler: (d: Object | null) => void;
+    handler: (d: Object | undefined) => void;
     onError: (e: unknown) => void;
   }) {
     return onSnapshot(ref, handler, onError);
   }
 
-  // eslint-disable-next-line class-methods-use-this
   protected subscribeQueryDocs({
     ref,
     handler,
     onError
   }: {
     ref: Query;
-    handler: (l: DocumentSnapshotMock[]) => void;
+    handler: (l: DocumentSnapshotMock<T>[]) => void;
     onError: (e: unknown) => void;
   }) {
-    return onSnapshot(ref, snapshot => handler(snapshot.docs), onError);
+    return onSnapshot(
+      ref.withConverter(this.converter),
+      snapshot => handler(snapshot.docs),
+      onError
+    );
   }
 
-  // eslint-disable-next-line class-methods-use-this
-  protected applyQueryFormula(
-    ref: Query<DocumentData, DocumentData>,
-    q: QueryFormula<T>[] = []
-  ): Query<DocumentData, DocumentData> {
+  protected applyQueryFormula(ref: Query, q: QueryFormula<T>[] = []): Query {
     return q.length
       ? query(
           ref,
@@ -147,19 +132,18 @@ export class ClientDataStoreAgent<
       : ref;
   }
 
-  public static runTransaction<M>(
+  public static runTransaction<M, R>(
     getStep: (
       o: TransactionGetStepParams<DocumentReference, Query>
     ) => Promise<M>,
-    setStep: (
-      p: M,
-      m: TransactionSetStepParams<DocumentReference, Query>
-    ) => void
+    setStep: (p: M, m: TransactionSetStepParams<DocumentReference, Query>) => R
   ) {
     return runTransaction(firebaseFirestore(), async t => {
       const r = await getStep({
-        get: async (s, o) =>
-          s.parseDocumentSnapshot(await t.get(s.singleItemReference(o)))
+        get: (a, o) =>
+          t
+            .get(a.singleItemReference(o).withConverter(a.converter))
+            .then(s => s.data())
       });
       return setStep(r, {
         set: (s, args) =>

@@ -4,7 +4,7 @@ import MyPromptScene from "~/features/components/MyPromptScene";
 
 export const metadata = makeSubPageMetadata({
   page: PAGE_MY_PROMPT,
-  subPageTitle: "保存したプロンプト"
+  subPageTitle: "お気に入りプロンプト"
 });
 
 const PageMyPrompt = () => <MyPromptScene />;

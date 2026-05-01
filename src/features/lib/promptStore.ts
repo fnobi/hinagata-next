@@ -8,6 +8,8 @@ type PromptStore = PromptState & {
   setSubjectSelectedIds: (ids: string[]) => void;
   setSelectedIds: (ids: string[]) => void;
   addSubjectItem: (item: SubjectItem) => void;
+  removeSubjectItem: (id: string) => void;
+  moveSubjectItem: (fromIndex: number, toIndex: number) => void;
   toggleSubjectSelected: (id: string) => void;
   toggleSelected: (id: string) => void;
   clearAll: () => void;
@@ -27,6 +29,20 @@ const usePromptStore = create<PromptStore>(set => ({
       subjectItems: [...state.subjectItems, item],
       subjectSelectedIds: uniq([...state.subjectSelectedIds, item.id])
     })),
+
+  removeSubjectItem: id =>
+    set(state => ({
+      subjectItems: state.subjectItems.filter(item => item.id !== id),
+      subjectSelectedIds: state.subjectSelectedIds.filter(sid => sid !== id)
+    })),
+
+  moveSubjectItem: (fromIndex, toIndex) =>
+    set(state => {
+      const items = [...state.subjectItems];
+      const [moved] = items.splice(fromIndex, 1);
+      items.splice(toIndex, 0, moved);
+      return { subjectItems: items };
+    }),
 
   toggleSubjectSelected: id =>
     set(state => ({

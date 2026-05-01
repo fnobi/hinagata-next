@@ -4,7 +4,7 @@ import { useState, useCallback } from "react";
 import styled from "@emotion/styled";
 import { css } from "@emotion/react";
 import { ClientDataStoreAgent } from "~/common/lib/ClientDataStoreAgent";
-import { buttonReset, px, alphaColor } from "~/common/lib/css-util";
+import { buttonReset, px } from "~/common/lib/css-util";
 import { useAuthorizedUser } from "~/common/lib/firebase-auth-tools";
 import { TITLE_BAR_HEIGHT } from "~/features/components/LayoutRoot";
 import { THEME_COLOR } from "~/features/lib/emotion-mixin";
@@ -18,26 +18,19 @@ import {
   type PromptCategory
 } from "~/features/schema/PromptItem";
 
-const ACCENT = "#6366f1";
-const ACCENT_LIGHT = "#e0e7ff";
-const BORDER = "#e2e8f0";
-const BG = "#f8fafc";
-const TEXT_MAIN = "#1e293b";
-const TEXT_SUB = "#64748b";
-
 // ─── Layout ───────────────────────────────────────────────────────────────────
 
 const Root = styled.div({
   minHeight: "100vh",
-  background: BG,
+  background: THEME_COLOR.BG,
   paddingBottom: px(100)
 });
 
 // ─── Scrollable tab bar ────────────────────────────────────────────────────────
 
 const TabBarOuter = styled.div({
-  background: THEME_COLOR.WHITE,
-  borderBottom: `1px solid ${BORDER}`,
+  background: THEME_COLOR.SURFACE,
+  borderBottom: `1px solid ${THEME_COLOR.BORDER}`,
   position: "sticky",
   top: px(TITLE_BAR_HEIGHT),
   zIndex: 10
@@ -66,17 +59,17 @@ const tabPillBase = css(buttonReset, {
 const TabPill = styled.button<{ active: boolean }>(tabPillBase, ({ active }) =>
   active
     ? {
-        background: ACCENT,
+        background: THEME_COLOR.ACCENT,
         color: THEME_COLOR.WHITE
       }
     : {
-        background: THEME_COLOR.WHITE,
-        color: TEXT_SUB,
-        border: `1.5px solid ${BORDER}`,
+        background: THEME_COLOR.SURFACE,
+        color: THEME_COLOR.TEXT_SUB,
+        border: `1.5px solid ${THEME_COLOR.BORDER}`,
         "&:hover": {
-          borderColor: ACCENT,
-          color: ACCENT,
-          background: ACCENT_LIGHT
+          borderColor: THEME_COLOR.ACCENT,
+          color: THEME_COLOR.ACCENT,
+          background: THEME_COLOR.ACCENT_LIGHT
         }
       }
 );
@@ -90,8 +83,8 @@ const Body = styled.div({
 });
 
 const Card = styled.div({
-  background: THEME_COLOR.WHITE,
-  border: `1px solid ${BORDER}`,
+  background: THEME_COLOR.SURFACE,
+  border: `1px solid ${THEME_COLOR.BORDER}`,
   borderRadius: px(10),
   padding: px(20)
 });
@@ -99,7 +92,7 @@ const Card = styled.div({
 const CategoryTitle = styled.h2({
   fontSize: px(13),
   fontWeight: 700,
-  color: TEXT_SUB,
+  color: THEME_COLOR.TEXT_SUB,
   margin: px(0, 0, 12),
   textTransform: "uppercase",
   letterSpacing: "0.08em"
@@ -117,25 +110,25 @@ const tagBase = css(buttonReset, {
   borderRadius: px(20),
   fontSize: px(13),
   fontWeight: 500,
-  border: `1.5px solid ${BORDER}`,
-  background: THEME_COLOR.WHITE,
-  color: TEXT_MAIN,
+  border: `1.5px solid ${THEME_COLOR.BORDER}`,
+  background: THEME_COLOR.SURFACE,
+  color: THEME_COLOR.TEXT_MAIN,
   cursor: "pointer",
   transition: "all 0.15s ease",
   "&:hover": {
-    borderColor: ACCENT,
-    color: ACCENT,
-    background: ACCENT_LIGHT
+    borderColor: THEME_COLOR.ACCENT,
+    color: THEME_COLOR.ACCENT,
+    background: THEME_COLOR.ACCENT_LIGHT
   }
 });
 
 const tagSelected = css({
-  background: ACCENT,
-  borderColor: ACCENT,
+  background: THEME_COLOR.ACCENT,
+  borderColor: THEME_COLOR.ACCENT,
   color: THEME_COLOR.WHITE,
   "&:hover": {
-    background: "#4f46e5",
-    borderColor: "#4f46e5",
+    background: THEME_COLOR.ACCENT_HOVER,
+    borderColor: THEME_COLOR.ACCENT_HOVER,
     color: THEME_COLOR.WHITE
   }
 });
@@ -156,14 +149,14 @@ const Tooltip = styled.div({
   bottom: "calc(100% + 8px)",
   left: "50%",
   transform: "translateX(-50%)",
-  background: TEXT_MAIN,
-  color: THEME_COLOR.WHITE,
+  background: THEME_COLOR.TOOLTIP_BG,
+  color: THEME_COLOR.TOOLTIP_TEXT,
   borderRadius: px(8),
   padding: px(10, 12),
   width: px(220),
   zIndex: 100,
   pointerEvents: "none",
-  boxShadow: `0 4px 16px ${alphaColor(THEME_COLOR.BLACK, 0.2)}`,
+  boxShadow: `0 4px 16px ${THEME_COLOR.SHADOW_SM}`,
   "&::after": {
     content: '""',
     position: "absolute",
@@ -172,13 +165,13 @@ const Tooltip = styled.div({
     transform: "translateX(-50%)",
     borderWidth: px(6),
     borderStyle: "solid",
-    borderColor: `${TEXT_MAIN} transparent transparent transparent`
+    borderColor: `${THEME_COLOR.TOOLTIP_BG} transparent transparent transparent`
   }
 });
 
 const TooltipValue = styled.div({
   fontSize: px(11),
-  color: alphaColor(THEME_COLOR.WHITE, 0.7),
+  color: THEME_COLOR.TOOLTIP_VALUE,
   fontFamily: "monospace",
   marginBottom: px(4),
   wordBreak: "break-word"
@@ -191,14 +184,35 @@ const TooltipDesc = styled.div({
 
 // ─── Subject card ─────────────────────────────────────────────────────────────
 
+const SubjectHeaderRow = styled.div({
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  marginBottom: px(8)
+});
+
 const SubjectLabel = styled.label({
   display: "block",
   fontSize: px(13),
   fontWeight: 700,
-  color: TEXT_SUB,
-  marginBottom: px(8),
+  color: THEME_COLOR.TEXT_SUB,
   textTransform: "uppercase",
   letterSpacing: "0.08em"
+});
+
+const EditTrigger = styled.button(buttonReset, {
+  display: "flex",
+  alignItems: "center",
+  gap: px(3),
+  fontSize: px(11),
+  color: THEME_COLOR.TEXT_SUB,
+  padding: px(3, 7),
+  borderRadius: px(4),
+  transition: "all 0.15s ease",
+  "&:hover": {
+    color: THEME_COLOR.ACCENT,
+    background: THEME_COLOR.ACCENT_LIGHT
+  }
 });
 
 const SubjectTagsGrid = styled(TagsGrid)({
@@ -208,19 +222,20 @@ const SubjectTagsGrid = styled(TagsGrid)({
 const SubjectInput = styled.input({
   width: "100%",
   boxSizing: "border-box",
-  border: `1.5px solid ${BORDER}`,
+  border: `1.5px solid ${THEME_COLOR.BORDER}`,
   borderRadius: px(8),
   padding: px(10, 12),
   fontSize: px(13),
   fontFamily: "inherit",
-  color: TEXT_MAIN,
+  color: THEME_COLOR.TEXT_MAIN,
   outline: "none",
   transition: "border-color 0.15s ease",
   "&:focus": {
-    borderColor: ACCENT
+    borderColor: THEME_COLOR.ACCENT
   },
+  background: THEME_COLOR.SURFACE,
   "&::placeholder": {
-    color: alphaColor(TEXT_SUB as `#${string}`, 0.6)
+    color: THEME_COLOR.TEXT_SUB_60
   }
 });
 
@@ -234,7 +249,7 @@ const TranslateRow = styled.div({
 
 const TranslateError = styled.span({
   fontSize: px(11),
-  color: "#ef4444"
+  color: THEME_COLOR.ERROR
 });
 
 const TranslateButton = styled.button<{ isLoading: boolean }>(buttonReset, {
@@ -242,13 +257,13 @@ const TranslateButton = styled.button<{ isLoading: boolean }>(buttonReset, {
   borderRadius: px(6),
   fontSize: px(12),
   fontWeight: 500,
-  border: `1.5px solid ${BORDER}`,
-  color: TEXT_SUB,
+  border: `1.5px solid ${THEME_COLOR.BORDER}`,
+  color: THEME_COLOR.TEXT_SUB,
   transition: "all 0.15s ease",
   "&:not(:disabled):hover": {
-    borderColor: ACCENT,
-    color: ACCENT,
-    background: ACCENT_LIGHT
+    borderColor: THEME_COLOR.ACCENT,
+    color: THEME_COLOR.ACCENT,
+    background: THEME_COLOR.ACCENT_LIGHT
   },
   "&:disabled": {
     opacity: 0.5,
@@ -265,9 +280,9 @@ const Fab = styled.button<{ hasPrompt: boolean }>(buttonReset, {
   width: px(56),
   height: px(56),
   borderRadius: "50%",
-  background: ACCENT,
+  background: THEME_COLOR.ACCENT,
   color: THEME_COLOR.WHITE,
-  boxShadow: `0 4px 20px ${alphaColor(THEME_COLOR.BLACK, 0.25)}`,
+  boxShadow: `0 4px 20px ${THEME_COLOR.SHADOW_MD}`,
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
@@ -275,7 +290,7 @@ const Fab = styled.button<{ hasPrompt: boolean }>(buttonReset, {
   zIndex: 200,
   transition: "background 0.15s ease, transform 0.15s ease",
   "&:hover": {
-    background: "#4f46e5",
+    background: THEME_COLOR.ACCENT_HOVER,
     transform: "scale(1.07)"
   },
   "&:active": {
@@ -287,7 +302,7 @@ const FabBadge = styled.span({
   position: "absolute",
   top: px(-4),
   right: px(-4),
-  background: "#10b981",
+  background: THEME_COLOR.SUCCESS,
   color: THEME_COLOR.WHITE,
   borderRadius: "50%",
   width: px(20),
@@ -305,7 +320,7 @@ const FabBadge = styled.span({
 const Overlay = styled.div({
   position: "fixed",
   inset: 0,
-  background: alphaColor(THEME_COLOR.BLACK, 0.45),
+  background: THEME_COLOR.BLACK_OVERLAY,
   zIndex: 300,
   display: "flex",
   alignItems: "flex-end",
@@ -316,7 +331,7 @@ const Overlay = styled.div({
 });
 
 const PopupPanel = styled.div({
-  background: THEME_COLOR.WHITE,
+  background: THEME_COLOR.SURFACE,
   borderRadius: px(16, 16, 0, 0),
   padding: px(24),
   width: "100%",
@@ -339,39 +354,39 @@ const PopupHeader = styled.div({
 const PopupTitle = styled.div({
   fontSize: px(14),
   fontWeight: 700,
-  color: TEXT_MAIN
+  color: THEME_COLOR.TEXT_MAIN
 });
 
 const PopupClose = styled.button(buttonReset, {
   width: px(32),
   height: px(32),
   borderRadius: "50%",
-  background: BG,
-  color: TEXT_SUB,
+  background: THEME_COLOR.BG,
+  color: THEME_COLOR.TEXT_SUB,
   fontSize: px(18),
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
-  "&:hover": { background: BORDER }
+  "&:hover": { background: THEME_COLOR.BORDER }
 });
 
 const OutputText = styled.div({
   minHeight: px(100),
-  border: `1.5px solid ${BORDER}`,
+  border: `1.5px solid ${THEME_COLOR.BORDER}`,
   borderRadius: px(8),
   padding: px(12),
   fontSize: px(13),
   lineHeight: 1.7,
-  color: TEXT_MAIN,
+  color: THEME_COLOR.TEXT_MAIN,
   fontFamily: "monospace",
-  background: BG,
+  background: THEME_COLOR.BG,
   wordBreak: "break-word",
   whiteSpace: "pre-wrap",
   marginBottom: px(12)
 });
 
 const EmptyOutput = styled.div({
-  color: alphaColor(TEXT_SUB as `#${string}`, 0.5),
+  color: THEME_COLOR.TEXT_SUB_50,
   fontFamily: "sans-serif",
   fontStyle: "italic",
   fontSize: px(13)
@@ -391,15 +406,15 @@ const CopyButton = styled.button<{ copied: boolean }>(
   ({ copied }) =>
     copied
       ? {
-          background: "#10b981",
+          background: THEME_COLOR.SUCCESS,
           color: THEME_COLOR.WHITE,
           cursor: "default"
         }
       : {
-          background: ACCENT,
+          background: THEME_COLOR.ACCENT,
           color: THEME_COLOR.WHITE,
-          "&:hover": { background: "#4f46e5" },
-          "&:active": { background: "#4338ca" }
+          "&:hover": { background: THEME_COLOR.ACCENT_HOVER },
+          "&:active": { background: THEME_COLOR.ACCENT_DEEP }
         }
 );
 
@@ -410,13 +425,13 @@ const ClearButton = styled.button(buttonReset, {
   fontSize: px(13),
   fontWeight: 500,
   textAlign: "center",
-  border: `1.5px solid ${BORDER}`,
-  color: TEXT_SUB,
+  border: `1.5px solid ${THEME_COLOR.BORDER}`,
+  color: THEME_COLOR.TEXT_SUB,
   marginTop: px(8),
   transition: "all 0.15s ease",
   "&:hover": {
-    borderColor: "#ef4444",
-    color: "#ef4444"
+    borderColor: THEME_COLOR.ERROR,
+    color: THEME_COLOR.ERROR
   }
 });
 
@@ -435,18 +450,94 @@ const SaveButton = styled.button<{ saved: boolean }>(
   ({ saved }) =>
     saved
       ? {
-          background: "#10b981",
+          background: THEME_COLOR.SUCCESS,
           color: THEME_COLOR.WHITE,
           cursor: "default"
         }
       : {
-          background: THEME_COLOR.WHITE,
-          color: ACCENT,
-          border: `1.5px solid ${ACCENT}`,
-          "&:hover:not(:disabled)": { background: ACCENT_LIGHT },
+          background: THEME_COLOR.SURFACE,
+          color: THEME_COLOR.ACCENT,
+          border: `1.5px solid ${THEME_COLOR.ACCENT}`,
+          "&:hover:not(:disabled)": { background: THEME_COLOR.ACCENT_LIGHT },
           "&:disabled": { opacity: 0.5, cursor: "default" }
         }
 );
+
+// ─── Subject edit popup ───────────────────────────────────────────────────────
+
+const EditListItem = styled.div({
+  display: "flex",
+  alignItems: "center",
+  gap: px(8),
+  padding: px(10, 0),
+  borderBottom: `1px solid ${THEME_COLOR.BORDER}`,
+  "&:last-child": { borderBottom: "none" }
+});
+
+const EditItemInfo = styled.div({
+  flex: 1,
+  minWidth: 0
+});
+
+const EditItemLabelText = styled.div({
+  fontSize: px(13),
+  fontWeight: 600,
+  color: THEME_COLOR.TEXT_MAIN
+});
+
+const EditItemValue = styled.div({
+  fontSize: px(11),
+  color: THEME_COLOR.TEXT_SUB,
+  fontFamily: "monospace",
+  overflow: "hidden",
+  textOverflow: "ellipsis",
+  whiteSpace: "nowrap",
+  marginTop: px(2)
+});
+
+const EditItemActions = styled.div({
+  display: "flex",
+  gap: px(4),
+  flexShrink: 0
+});
+
+const SmallIconBtn = styled.button(buttonReset, {
+  width: px(28),
+  height: px(28),
+  borderRadius: px(6),
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  fontSize: px(13),
+  color: THEME_COLOR.TEXT_SUB,
+  border: `1px solid ${THEME_COLOR.BORDER}`,
+  transition: "all 0.15s ease",
+  "&:hover:not(:disabled)": {
+    borderColor: THEME_COLOR.ACCENT,
+    color: THEME_COLOR.ACCENT,
+    background: THEME_COLOR.ACCENT_LIGHT
+  },
+  "&:disabled": {
+    opacity: 0.3,
+    cursor: "default"
+  }
+});
+
+const DeleteIconBtn = styled(SmallIconBtn)({
+  "&:hover:not(:disabled)": {
+    borderColor: THEME_COLOR.ERROR,
+    color: THEME_COLOR.ERROR,
+    background: THEME_COLOR.ERROR_BG
+  }
+});
+
+const EditEmptyState = styled.div({
+  textAlign: "center",
+  color: THEME_COLOR.TEXT_SUB_50,
+  fontSize: px(13),
+  padding: px(24, 0),
+  fontStyle: "italic"
+});
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
@@ -529,6 +620,8 @@ const PromptGeneratorScene = () => {
   const subjectSelectedIds = usePromptStore(state => state.subjectSelectedIds);
   const selectedIds = usePromptStore(state => state.selectedIds);
   const addSubjectItem = usePromptStore(state => state.addSubjectItem);
+  const removeSubjectItem = usePromptStore(state => state.removeSubjectItem);
+  const moveSubjectItem = usePromptStore(state => state.moveSubjectItem);
   const toggleSubjectSelected = usePromptStore(
     state => state.toggleSubjectSelected
   );
@@ -544,6 +637,7 @@ const PromptGeneratorScene = () => {
   const [translating, setTranslating] = useState(false);
   const [translateError, setTranslateError] = useState("");
   const [popupOpen, setPopupOpen] = useState(false);
+  const [editSubjectOpen, setEditSubjectOpen] = useState(false);
 
   const toggleItem = useCallback(
     (id: string) => {
@@ -642,7 +736,17 @@ const PromptGeneratorScene = () => {
       <Body>
         {activeTab === SUBJECT_TAB_ID ? (
           <Card>
-            <SubjectLabel htmlFor="subject-input">主題・被写体</SubjectLabel>
+            <SubjectHeaderRow>
+              <SubjectLabel htmlFor="subject-input">主題・被写体</SubjectLabel>
+              {subjectItems.length > 0 && (
+                <EditTrigger
+                  type="button"
+                  onClick={() => setEditSubjectOpen(true)}
+                >
+                  ✏ 編集
+                </EditTrigger>
+              )}
+            </SubjectHeaderRow>
             {subjectItems.length > 0 && (
               <SubjectTagsGrid>
                 {subjectItems.map(item => (
@@ -708,6 +812,61 @@ const PromptGeneratorScene = () => {
       >
         ✦{selectedCount > 0 && <FabBadge>{selectedCount}</FabBadge>}
       </Fab>
+
+      {/* Subject edit popup */}
+      {editSubjectOpen && (
+        <Overlay onClick={() => setEditSubjectOpen(false)}>
+          <PopupPanel onClick={e => e.stopPropagation()}>
+            <PopupHeader>
+              <PopupTitle>主題・被写体を編集</PopupTitle>
+              <PopupClose
+                onClick={() => setEditSubjectOpen(false)}
+                type="button"
+                aria-label="閉じる"
+              >
+                ×
+              </PopupClose>
+            </PopupHeader>
+            {subjectItems.length === 0 ? (
+              <EditEmptyState>登録済みの項目がありません</EditEmptyState>
+            ) : (
+              subjectItems.map((item, index) => (
+                <EditListItem key={item.id}>
+                  <EditItemInfo>
+                    <EditItemLabelText>{item.label}</EditItemLabelText>
+                    <EditItemValue>{item.value}</EditItemValue>
+                  </EditItemInfo>
+                  <EditItemActions>
+                    <SmallIconBtn
+                      type="button"
+                      onClick={() => moveSubjectItem(index, index - 1)}
+                      disabled={index === 0}
+                      aria-label="上に移動"
+                    >
+                      ↑
+                    </SmallIconBtn>
+                    <SmallIconBtn
+                      type="button"
+                      onClick={() => moveSubjectItem(index, index + 1)}
+                      disabled={index === subjectItems.length - 1}
+                      aria-label="下に移動"
+                    >
+                      ↓
+                    </SmallIconBtn>
+                    <DeleteIconBtn
+                      type="button"
+                      onClick={() => removeSubjectItem(item.id)}
+                      aria-label="削除"
+                    >
+                      ×
+                    </DeleteIconBtn>
+                  </EditItemActions>
+                </EditListItem>
+              ))
+            )}
+          </PopupPanel>
+        </Overlay>
+      )}
 
       {/* Prompt popup */}
       {popupOpen && (

@@ -4,28 +4,23 @@ import { useCallback, useMemo } from "react";
 import styled from "@emotion/styled";
 import { useRouter } from "next/navigation";
 import { ClientDataStoreAgent } from "~/common/lib/ClientDataStoreAgent";
-import { buttonReset, px, alphaColor } from "~/common/lib/css-util";
+import { buttonReset, px } from "~/common/lib/css-util";
 import { useDataStoreList } from "~/common/lib/database-common-hooks";
 import { useAuthorizedUser } from "~/common/lib/firebase-auth-tools";
 import type FirebaseErrorParameter from "~/common/schema/FirebaseErrorParameter";
 import { type QueryFormula } from "~/common/lib/DataStoreAgent";
 import { TITLE_BAR_HEIGHT } from "~/features/components/LayoutRoot";
 import { THEME_COLOR } from "~/features/lib/emotion-mixin";
-import buildPrompt from "~/features/lib/buildPrompt";
+import PROMPT_CATEGORIES from "~/features/lib/promptData";
 import { PAGE_TOP } from "~/features/lib/page-path";
 import usePromptStore from "~/features/lib/promptStore";
 import { myPromptDataStoreScheme } from "~/features/schema/app-data-store-scheme";
 import type MyPromptItem from "~/features/schema/MyPromptItem";
-
-const ACCENT = "#6366f1";
-const BORDER = "#e2e8f0";
-const BG = "#f8fafc";
-const TEXT_MAIN = "#1e293b";
-const TEXT_SUB = "#64748b";
+import type PromptState from "~/features/schema/PromptState";
 
 const Root = styled.div({
   minHeight: "100vh",
-  background: BG,
+  background: THEME_COLOR.BG,
   paddingTop: px(TITLE_BAR_HEIGHT + 24),
   paddingBottom: px(100)
 });
@@ -39,35 +34,61 @@ const Inner = styled.div({
 const PageTitle = styled.h1({
   fontSize: px(18),
   fontWeight: 700,
-  color: TEXT_MAIN,
+  color: THEME_COLOR.TEXT_MAIN,
   marginBottom: px(20)
 });
 
 const EmptyMessage = styled.p({
-  color: TEXT_SUB,
+  color: THEME_COLOR.TEXT_SUB,
   fontSize: px(14),
   fontStyle: "italic"
 });
 
 const PromptCard = styled.div({
-  background: THEME_COLOR.WHITE,
-  border: `1px solid ${BORDER}`,
+  background: THEME_COLOR.SURFACE,
+  border: `1px solid ${THEME_COLOR.BORDER}`,
   borderRadius: px(10),
-  padding: px(16, 20),
-  marginBottom: px(12),
-  display: "flex",
-  gap: px(8),
-  alignItems: "flex-start"
+  padding: px(14, 20),
+  marginBottom: px(12)
 });
 
-const PromptText = styled.p({
-  flex: 1,
+const CardHeader = styled.div({
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  marginBottom: px(10)
+});
+
+const DateLabel = styled.span({
+  fontSize: px(12),
+  color: THEME_COLOR.TEXT_SUB
+});
+
+const CardActions = styled.div({
+  display: "flex",
+  gap: px(6)
+});
+
+const TagList = styled.div({
+  display: "flex",
+  flexWrap: "wrap",
+  gap: px(6)
+});
+
+const Tag = styled.span({
+  display: "inline-block",
+  padding: px(3, 8),
+  borderRadius: px(20),
+  fontSize: px(12),
+  background: THEME_COLOR.TAG_ACCENT_BG,
+  color: THEME_COLOR.ACCENT,
+  lineHeight: 1.5
+});
+
+const EmptyTag = styled.span({
   fontSize: px(13),
-  lineHeight: 1.7,
-  color: TEXT_MAIN,
-  fontFamily: "monospace",
-  wordBreak: "break-word",
-  margin: 0
+  color: THEME_COLOR.TEXT_SUB,
+  fontStyle: "italic"
 });
 
 const ActionButton = styled.button(buttonReset, {
@@ -75,23 +96,23 @@ const ActionButton = styled.button(buttonReset, {
   padding: px(5, 10),
   borderRadius: px(6),
   fontSize: px(12),
-  border: `1px solid ${BORDER}`,
+  border: `1px solid ${THEME_COLOR.BORDER}`,
   transition: "all 0.15s ease"
 });
 
 const LoadButton = styled(ActionButton)({
-  color: ACCENT,
-  borderColor: ACCENT,
+  color: THEME_COLOR.ACCENT,
+  borderColor: THEME_COLOR.ACCENT,
   "&:hover": {
-    background: "#e0e7ff"
+    background: THEME_COLOR.ACCENT_LIGHT
   }
 });
 
 const DeleteButton = styled(ActionButton)({
-  color: TEXT_SUB,
+  color: THEME_COLOR.TEXT_SUB,
   "&:hover": {
-    borderColor: "#ef4444",
-    color: "#ef4444"
+    borderColor: THEME_COLOR.ERROR,
+    color: THEME_COLOR.ERROR
   }
 });
 
@@ -101,12 +122,34 @@ const LoginMessage = styled.div({
   justifyContent: "center",
   minHeight: px(200),
   fontSize: px(14),
-  color: alphaColor(TEXT_SUB as `#${string}`, 0.8)
+  color: THEME_COLOR.TEXT_SUB_80
 });
 
 const myPromptDataStore = new ClientDataStoreAgent(myPromptDataStoreScheme);
 
 const LIST_QUERY: QueryFormula<MyPromptItem>[] = [["orderBy", "createdAt", "desc"]];
+
+const buildJapaneseLabels = ({ subjectItems, subjectSelectedIds, selectedIds }: PromptState): string[] => {
+  const labels: string[] = [];
+  for (const item of subjectItems) {
+    if (subjectSelectedIds.includes(item.id)) {
+      labels.push(item.label);
+    }
+  }
+  for (const category of PROMPT_CATEGORIES) {
+    for (const item of category.items) {
+      if (selectedIds.includes(item.id)) {
+        labels.push(item.label);
+      }
+    }
+  }
+  return labels;
+};
+
+const formatCreatedAt = (ts: number) => {
+  const d = new Date(ts);
+  return `${d.getFullYear()}/${d.getMonth() + 1}/${d.getDate()}`;
+};
 
 type PromptItemCardProps = {
   id: string;
@@ -122,7 +165,7 @@ const PromptItemCard = ({ id, data, userId }: PromptItemCardProps) => {
   );
   const setSelectedIds = usePromptStore(state => state.setSelectedIds);
 
-  const text = buildPrompt(data.prompt);
+  const labels = buildJapaneseLabels(data.prompt);
 
   const handleLoad = useCallback(() => {
     setSubjectItems(data.prompt.subjectItems);
@@ -137,13 +180,24 @@ const PromptItemCard = ({ id, data, userId }: PromptItemCardProps) => {
 
   return (
     <PromptCard>
-      <PromptText>{text || "(空のプロンプト)"}</PromptText>
-      <LoadButton type="button" onClick={handleLoad}>
-        読み込む
-      </LoadButton>
-      <DeleteButton type="button" onClick={handleDelete}>
-        削除
-      </DeleteButton>
+      <CardHeader>
+        <DateLabel>{formatCreatedAt(data.createdAt)}</DateLabel>
+        <CardActions>
+          <LoadButton type="button" onClick={handleLoad}>
+            読み込む
+          </LoadButton>
+          <DeleteButton type="button" onClick={handleDelete}>
+            削除
+          </DeleteButton>
+        </CardActions>
+      </CardHeader>
+      <TagList>
+        {labels.length > 0 ? (
+          labels.map((label, i) => <Tag key={i}>{label}</Tag>)
+        ) : (
+          <EmptyTag>(選択項目なし)</EmptyTag>
+        )}
+      </TagList>
     </PromptCard>
   );
 };
@@ -168,7 +222,7 @@ const ListView = ({ userId }: { userId: string }) => {
   return (
     <div>
       {list.length === 0 ? (
-        <EmptyMessage>保存されたプロンプトはありません。</EmptyMessage>
+        <EmptyMessage>お気に入りプロンプトはありません。</EmptyMessage>
       ) : (
         list.map(({ id, data }) => (
           <PromptItemCard key={id} id={id} data={data} userId={userId} />

@@ -1,11 +1,19 @@
-/* eslint-disable max-classes-per-file */
-
 import { compact } from "~/common/lib/array-util";
 
-export type DocumentSnapshotMock = {
+// NOTE: client/server両方の DocumentSnapshot<T, DocumentData> を満たす型
+export type DocumentSnapshotMock<T> = {
   id: string;
   ref: { path: string };
-  data: () => Object | undefined;
+  data: () => T | undefined;
+};
+
+// NOTE: client/server両方の DocumentReference<T, DocumentData> を満たす型
+type DocumentReferenceMock = {
+  id: string;
+};
+
+type QuerySnapshotMock<T> = {
+  docs: DocumentSnapshotMock<T>[];
 };
 
 export type TypedCollectionList<T> = { id: string; data: T }[];
@@ -73,13 +81,23 @@ export abstract class DataStoreAgent<
   T extends {},
   D extends string,
   C extends string | never,
-  Dr,
+  Dr extends DocumentReferenceMock,
   Cr
 > {
   public readonly scheme: DataStoreScheme<T, D, C>;
 
   public constructor(scheme: DataStoreScheme<T, D, C>) {
     this.scheme = scheme;
+  }
+
+  public get converter(): {
+    toFirestore: (d: T) => T;
+    fromFirestore: (s: DocumentSnapshotMock<Object>) => T;
+  } {
+    return {
+      toFirestore: (d: T) => d,
+      fromFirestore: s => this.scheme.parse(s.data())
+    };
   }
 
   private calcCollectionParam(opts: Record<C, string>) {
@@ -95,21 +113,16 @@ export abstract class DataStoreAgent<
     };
   }
 
-  public parseDocumentSnapshot(snapshot: DocumentSnapshotMock) {
-    const d = snapshot.data();
-    return d ? this.scheme.parse(d) : null;
-  }
-
   protected parseCollectionSnapshot(
-    docs: DocumentSnapshotMock[]
+    docs: DocumentSnapshotMock<T>[]
   ): TypedCollectionList<T> {
     return compact(
       docs.map(d => {
-        const data = this.parseDocumentSnapshot(d);
-        return data
+        const dd = d.data();
+        return dd
           ? {
               id: d.id,
-              data
+              data: dd
             }
           : null;
       })
@@ -117,21 +130,20 @@ export abstract class DataStoreAgent<
   }
 
   protected parseCollectionGroupSnapshot(
-    docs: DocumentSnapshotMock[]
+    docs: DocumentSnapshotMock<T>[]
   ): TypedCollectionGroupList<T> {
     return compact(
       docs.map(d => {
-        const data = this.parseDocumentSnapshot(d);
-        return data
+        const dd = d.data();
+        return dd
           ? {
               fullPath: d.ref.path,
               ids: d.ref.path
                 .split(/\//g)
-                .reduce<string[]>(
-                  (prev, curr, i) => (i % 2 === 0 ? prev : [...prev, curr]),
-                  []
-                ),
-              data
+                .reduce<
+                  string[]
+                >((prev, curr, i) => (i % 2 === 0 ? prev : [...prev, curr]), []),
+              data: dd
             }
           : null;
       })
@@ -147,31 +159,34 @@ export abstract class DataStoreAgent<
     id?: string;
   }): Dr;
 
-  protected abstract newDocId(args: { collectionPath: string }): string;
+  protected newDocId({ collectionPath }: { collectionPath: string }) {
+    const documentRef = this.documentReference({ collectionPath });
+    return documentRef.id;
+  }
 
   protected abstract setDoc(args: {
     ref: Dr;
     data: Object;
     merge?: boolean;
-  }): Promise<string>;
+  }): Promise<void>;
 
-  protected abstract getDoc(r: Dr): Promise<DocumentSnapshotMock>;
+  protected abstract getDoc(r: Dr): Promise<DocumentSnapshotMock<T>>;
 
   protected abstract deleteDoc(r: Dr): Promise<void>;
 
-  protected abstract getQueryDocs(r: Cr): Promise<DocumentSnapshotMock[]>;
+  protected abstract getQueryDocs(r: Cr): Promise<QuerySnapshotMock<T>>;
 
   protected abstract getQueryCount(r: Cr): Promise<number>;
 
   protected abstract subscribeDoc(args: {
     ref: Dr;
-    handler: (d: DocumentSnapshotMock) => void;
+    handler: (d: DocumentSnapshotMock<T>) => void;
     onError: (e: unknown) => void;
   }): () => void;
 
   protected abstract subscribeQueryDocs(args: {
     ref: Cr;
-    handler: (l: DocumentSnapshotMock[]) => void;
+    handler: (l: DocumentSnapshotMock<T>[]) => void;
     onError: (e: unknown) => void;
   }): () => void;
 
@@ -205,10 +220,8 @@ export abstract class DataStoreAgent<
     return this.applyQueryFormula(this.collectionGroupReference(), query);
   }
 
-  public async fetchItem(opts: Record<D | C, string>): Promise<T | null> {
-    return this.parseDocumentSnapshot(
-      await this.getDoc(this.singleItemReference(opts))
-    );
+  public async fetchItem(opts: Record<D | C, string>): Promise<T | undefined> {
+    return this.getDoc(this.singleItemReference(opts)).then(s => s.data());
   }
 
   public setItem(
@@ -218,28 +231,31 @@ export abstract class DataStoreAgent<
     }
   ) {
     const { data, merge } = opts;
+    const ref = this.singleItemReference(opts);
     return this.setDoc({
-      ref: this.singleItemReference(opts),
+      ref,
       data,
       merge
-    }).then(() => data);
+    }).then(() => ref.id);
   }
 
   public addItem(opts: Record<C, string> & { data: T }) {
     const { data } = opts;
+    const ref = this.singleNewItemReference(opts);
     return this.setDoc({
-      ref: this.singleNewItemReference(opts),
+      ref,
       data
-    });
+    }).then(() => ref.id);
   }
 
   public mergeItem(opts: Record<D | C, string> & { data: Partial<T> }) {
     const { data } = opts;
+    const ref = this.singleItemReference(opts);
     return this.setDoc({
-      ref: this.singleItemReference(opts),
+      ref,
       data: data as Object,
       merge: true
-    });
+    }).then(() => ref.id);
   }
 
   public deleteItem(opts: Record<D | C, string>) {
@@ -248,14 +264,14 @@ export abstract class DataStoreAgent<
 
   public subscribeItem(
     opts: Record<D | C, string> & {
-      handler: (d: T | null) => void;
+      handler: (d: T | undefined) => void;
       onError: (e: unknown) => void;
     }
   ) {
     const { handler, onError } = opts;
     return this.subscribeDoc({
       ref: this.singleItemReference(opts),
-      handler: snapshot => handler(this.parseDocumentSnapshot(snapshot)),
+      handler: snapshot => handler(snapshot.data()),
       onError
     });
   }
@@ -265,8 +281,8 @@ export abstract class DataStoreAgent<
   ) {
     const { query } = opts;
     const ref = this.listQueryReference(opts, query);
-    const docs = await this.getQueryDocs(ref);
-    return this.parseCollectionSnapshot(docs);
+    const snapshot = await this.getQueryDocs(ref);
+    return this.parseCollectionSnapshot(snapshot.docs);
   }
 
   public async fetchListCount(
@@ -280,8 +296,8 @@ export abstract class DataStoreAgent<
 
   public async fetchGroupList(query?: QueryFormula<T>[]) {
     const ref = this.groupQueryReference(query);
-    const docs = await this.getQueryDocs(ref);
-    return this.parseCollectionGroupSnapshot(docs);
+    const snapshot = await this.getQueryDocs(ref);
+    return this.parseCollectionGroupSnapshot(snapshot.docs);
   }
 
   public fetchGroupListCount(query?: QueryFormula<T>[]) {
@@ -321,14 +337,20 @@ export abstract class DataStoreAgent<
   }
 }
 
-export interface TransactionGetStepParams<Dr, Cr> {
+export interface TransactionGetStepParams<
+  Dr extends DocumentReferenceMock,
+  Cr
+> {
   get: <T extends {}, D extends string, C extends string>(
     s: DataStoreAgent<T, D, C, Dr, Cr>,
     o: Record<D | C, string>
-  ) => Promise<T | null>;
+  ) => Promise<T | undefined>;
 }
 
-export interface TransactionSetStepParams<Dr, Cr> {
+export interface TransactionSetStepParams<
+  Dr extends DocumentReferenceMock,
+  Cr
+> {
   set: <T extends {}, D extends string, C extends string>(
     s: DataStoreAgent<T, D, C, Dr, Cr>,
     args: Parameters<DataStoreAgent<T, D, C, Dr, Cr>["setItem"]>[0]
