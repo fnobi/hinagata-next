@@ -45,14 +45,6 @@ jobs:
       - name: install functions dependencies
         run: pnpm install --prefix functions
 
-      - uses: actions/cache@v4
-        with:
-          path: ${{ github.workspace }}/.next/cache
-          key: ${{ runner.os }}-nextjs-${{ hashFiles(format('**/{0}',env.ACTIONS_LOCK_FILE)) }}-${{ hashFiles('**/*.ts', '**/*.tsx') }}
-          restore-keys: |
-            ${{ runner.os }}-nextjs-${{ hashFiles(format('**/{0}',env.ACTIONS_LOCK_FILE)) }}-
-            ${{ runner.os }}-nextjs-
-
       - name: build
         run: ${{ env.ACTIONS_BUILD_COMMAND }}
 
