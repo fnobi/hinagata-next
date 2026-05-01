@@ -2,7 +2,8 @@ import {
   type DocumentData,
   type DocumentReference,
   type Query,
-  type Firestore
+  type Firestore,
+  type PartialWithFieldValue
 } from "firebase-admin/firestore";
 import {
   DataStoreAgent,
@@ -14,17 +15,14 @@ import {
 } from "~/common/lib/DataStoreAgent";
 import { parseString } from "~/common/lib/parser-helper";
 
+type Dr<T> = DocumentReference<T, DocumentData>;
+type Cr<T> = Query<T, DocumentData>;
+
 export class ServerDataStoreAgent<
   T extends {},
   D extends string,
   C extends string
-> extends DataStoreAgent<
-  T,
-  D,
-  C,
-  DocumentReference<T, DocumentData>,
-  Query<T, DocumentData>
-> {
+> extends DataStoreAgent<T, D, C, Dr<T>, Cr<T>> {
   private adapter: () => Firestore;
 
   public constructor(
@@ -67,26 +65,26 @@ export class ServerDataStoreAgent<
     data,
     merge
   }: {
-    ref: DocumentReference;
-    data: Object;
+    ref: Dr<T>;
+    data: PartialWithFieldValue<T>;
     merge?: boolean;
   }) {
     await ref.set(data, { merge });
   }
 
-  protected getDoc(r: DocumentReference<T, DocumentData>) {
+  protected getDoc(r: Dr<T>) {
     return r.get();
   }
 
-  protected async deleteDoc(r: DocumentReference) {
+  protected async deleteDoc(r: Dr<T>) {
     await r.delete();
   }
 
-  protected getQueryDocs(r: Query<T, DocumentData>) {
+  protected getQueryDocs(r: Cr<T>) {
     return r.get();
   }
 
-  protected async getQueryCount(r: Query) {
+  protected async getQueryCount(r: Cr<T>) {
     const snapshot = await r.count().get();
     return snapshot.data().count;
   }
@@ -96,7 +94,7 @@ export class ServerDataStoreAgent<
     handler,
     onError
   }: {
-    ref: DocumentReference<T, DocumentData>;
+    ref: Dr<T>;
     handler: (d: Object | undefined) => void;
     onError: (e: unknown) => void;
   }) {
@@ -108,17 +106,14 @@ export class ServerDataStoreAgent<
     handler,
     onError
   }: {
-    ref: Query<T, DocumentData>;
+    ref: Cr<T>;
     handler: (l: DocumentSnapshotMock<T>[]) => void;
     onError: (e: unknown) => void;
   }) {
     return ref.onSnapshot(snapshot => handler(snapshot.docs), onError);
   }
 
-  protected applyQueryFormula(
-    ref: Query<T, DocumentData>,
-    query: QueryFormula<T>[] = []
-  ) {
+  protected applyQueryFormula(ref: Cr<T>, query: QueryFormula<T>[] = []) {
     return query.reduce((prev, l) => {
       switch (l[0]) {
         case "limit":

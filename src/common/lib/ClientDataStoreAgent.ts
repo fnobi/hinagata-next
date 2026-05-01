@@ -27,18 +27,15 @@ import {
 } from "~/common/lib/DataStoreAgent";
 import { firebaseFirestore } from "~/common/lib/firebase-app";
 
+type Dr<T> = DocumentReference<T, DocumentData>;
+type Cr<T> = Query<T, DocumentData>;
+
 // eslint-disable-next-line import/prefer-default-export
 export class ClientDataStoreAgent<
   T extends {},
   D extends string,
   C extends string
-> extends DataStoreAgent<
-  T,
-  D,
-  C,
-  DocumentReference<T, DocumentData>,
-  Query<T, DocumentData>
-> {
+> extends DataStoreAgent<T, D, C, Dr<T>, Cr<T>> {
   protected collectionReference({
     collectionPath
   }: {
@@ -71,26 +68,26 @@ export class ClientDataStoreAgent<
     data,
     merge
   }: {
-    ref: DocumentReference;
+    ref: Dr<T>;
     data: Object;
     merge?: boolean;
   }) {
     return setDoc(ref, data, { merge });
   }
 
-  protected getDoc(r: DocumentReference<T, DocumentData>) {
+  protected getDoc(r: Dr<T>) {
     return getDoc(r);
   }
 
-  protected async deleteDoc(r: DocumentReference<T, DocumentData>) {
+  protected async deleteDoc(r: Dr<T>) {
     await deleteDoc(r);
   }
 
-  protected getQueryDocs(r: Query<T, DocumentData>) {
+  protected getQueryDocs(r: Cr<T>) {
     return getDocs(r);
   }
 
-  protected async getQueryCount(r: Query<T, DocumentData>) {
+  protected async getQueryCount(r: Cr<T>) {
     const snapshot = await getCountFromServer(r);
     return snapshot.data().count;
   }
@@ -100,7 +97,7 @@ export class ClientDataStoreAgent<
     handler,
     onError
   }: {
-    ref: DocumentReference<T, DocumentData>;
+    ref: Dr<T>;
     handler: (d: Object | undefined) => void;
     onError: (e: unknown) => void;
   }) {
@@ -112,17 +109,14 @@ export class ClientDataStoreAgent<
     handler,
     onError
   }: {
-    ref: Query<T, DocumentData>;
+    ref: Cr<T>;
     handler: (l: DocumentSnapshotMock<T>[]) => void;
     onError: (e: unknown) => void;
   }) {
     return onSnapshot(ref, snapshot => handler(snapshot.docs), onError);
   }
 
-  protected applyQueryFormula(
-    ref: Query<T, DocumentData>,
-    q: QueryFormula<T>[] = []
-  ): Query<T, DocumentData> {
+  protected applyQueryFormula(ref: Cr<T>, q: QueryFormula<T>[] = []): Cr<T> {
     return q.length
       ? query(
           ref,
