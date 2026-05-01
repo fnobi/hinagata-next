@@ -142,14 +142,9 @@ export class ClientDataStoreAgent<
       : ref;
   }
 
-  public static runTransaction<T extends {}, M>(
-    getStep: (
-      o: TransactionGetStepParams<T, DocumentReference<T, DocumentData>, Query>
-    ) => Promise<M>,
-    setStep: (
-      p: M,
-      m: TransactionSetStepParams<T, DocumentReference<T, DocumentData>, Query>
-    ) => void
+  public static runTransaction<M, R>(
+    getStep: (o: TransactionGetStepParams) => Promise<M>,
+    setStep: (p: M, m: TransactionSetStepParams) => R
   ) {
     return runTransaction(firebaseFirestore(), async t => {
       const r = await getStep({

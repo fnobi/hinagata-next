@@ -133,23 +133,10 @@ export class ServerDataStoreAgent<
     }, ref);
   }
 
-  public static runTransaction<T extends {}, M, R>(
+  public static runTransaction<M, R>(
     adapter: () => Firestore,
-    getStep: (
-      o: TransactionGetStepParams<
-        T,
-        DocumentReference<T, DocumentData>,
-        Query<T, DocumentData>
-      >
-    ) => Promise<M>,
-    setStep: (
-      p: M,
-      m: TransactionSetStepParams<
-        T,
-        DocumentReference<T, DocumentData>,
-        Query<T, DocumentData>
-      >
-    ) => R
+    getStep: (o: TransactionGetStepParams) => Promise<M>,
+    setStep: (p: M, m: TransactionSetStepParams) => R
   ) {
     return adapter().runTransaction(async t => {
       const r = await getStep({

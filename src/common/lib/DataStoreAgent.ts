@@ -337,27 +337,37 @@ export abstract class DataStoreAgent<
   }
 }
 
-export interface TransactionGetStepParams<
-  T extends {},
-  Dr extends DocumentReferenceMock,
-  Cr
-> {
-  get: <D extends string, C extends string>(
+export interface TransactionGetStepParams {
+  get: <
+    T extends {},
+    D extends string,
+    C extends string,
+    Dr extends DocumentReferenceMock,
+    Cr
+  >(
     s: DataStoreAgent<T, D, C, Dr, Cr>,
     o: Record<D | C, string>
   ) => Promise<T | undefined>;
 }
 
-export interface TransactionSetStepParams<
-  T extends {},
-  Dr extends DocumentReferenceMock,
-  Cr
-> {
-  set: <D extends string, C extends string>(
+export interface TransactionSetStepParams {
+  set: <
+    T extends {},
+    D extends string,
+    C extends string,
+    Dr extends DocumentReferenceMock,
+    Cr
+  >(
     s: DataStoreAgent<T, D, C, Dr, Cr>,
     args: Parameters<DataStoreAgent<T, D, C, Dr, Cr>["setItem"]>[0]
   ) => void;
-  delete: <D extends string, C extends string>(
+  delete: <
+    T extends {},
+    D extends string,
+    C extends string,
+    Dr extends DocumentReferenceMock,
+    Cr
+  >(
     s: DataStoreAgent<T, D, C, Dr, Cr>,
     args: Parameters<DataStoreAgent<T, D, C, Dr, Cr>["deleteItem"]>[0]
   ) => void;
