@@ -1,8 +1,8 @@
 import {
-  type DocumentData,
   type DocumentReference,
   type Query,
-  type Firestore
+  type Firestore,
+  type PartialWithFieldValue
 } from "firebase-admin/firestore";
 import {
   DataStoreAgent,
@@ -18,13 +18,7 @@ export class ServerDataStoreAgent<
   T extends {},
   D extends string,
   C extends string
-> extends DataStoreAgent<
-  T,
-  D,
-  C,
-  DocumentReference<DocumentData, DocumentData>,
-  Query<DocumentData, DocumentData>
-> {
+> extends DataStoreAgent<T, D, C, DocumentReference, Query> {
   private adapter: () => Firestore;
 
   public constructor(
@@ -40,11 +34,15 @@ export class ServerDataStoreAgent<
   }: {
     collectionPath: string;
   }) {
-    return this.adapter().collection(collectionPath);
+    return this.adapter()
+      .collection(collectionPath)
+      .withConverter(this.converter);
   }
 
   protected collectionGroupReference() {
-    return this.adapter().collectionGroup(this.scheme.name);
+    return this.adapter()
+      .collectionGroup(this.scheme.name)
+      .withConverter(this.converter);
   }
 
   protected documentReference({
@@ -58,26 +56,20 @@ export class ServerDataStoreAgent<
     return id ? collectionRef.doc(id) : collectionRef.doc();
   }
 
-  protected override newDocId(opts: { collectionPath: string }) {
-    const documentRef = this.documentReference(opts);
-    return documentRef.id;
-  }
-
   protected async setDoc({
     ref,
     data,
     merge
   }: {
     ref: DocumentReference;
-    data: Object;
+    data: PartialWithFieldValue<T>;
     merge?: boolean;
   }) {
-    await ref.set(data, { merge });
-    return ref.id;
+    await ref.withConverter(this.converter).set(data, { merge });
   }
 
   protected getDoc(r: DocumentReference) {
-    return r.get();
+    return r.withConverter(this.converter).get();
   }
 
   protected async deleteDoc(r: DocumentReference) {
@@ -85,7 +77,7 @@ export class ServerDataStoreAgent<
   }
 
   protected getQueryDocs(r: Query) {
-    return r.get().then(snapshot => snapshot.docs);
+    return r.withConverter(this.converter).get();
   }
 
   protected async getQueryCount(r: Query) {
@@ -99,7 +91,7 @@ export class ServerDataStoreAgent<
     onError
   }: {
     ref: DocumentReference;
-    handler: (d: Object | null) => void;
+    handler: (d: Object | undefined) => void;
     onError: (e: unknown) => void;
   }) {
     return ref.onSnapshot(handler, onError);
@@ -111,16 +103,15 @@ export class ServerDataStoreAgent<
     onError
   }: {
     ref: Query;
-    handler: (l: DocumentSnapshotMock[]) => void;
+    handler: (l: DocumentSnapshotMock<T>[]) => void;
     onError: (e: unknown) => void;
   }) {
-    return ref.onSnapshot(snapshot => handler(snapshot.docs), onError);
+    return ref
+      .withConverter(this.converter)
+      .onSnapshot(snapshot => handler(snapshot.docs), onError);
   }
 
-  protected applyQueryFormula(
-    ref: Query<DocumentData, DocumentData>,
-    query: QueryFormula<T>[] = []
-  ) {
+  protected applyQueryFormula(ref: Query, query: QueryFormula<T>[] = []) {
     return query.reduce((prev, l) => {
       switch (l[0]) {
         case "limit":
@@ -144,8 +135,10 @@ export class ServerDataStoreAgent<
   ) {
     return adapter().runTransaction(async t => {
       const r = await getStep({
-        get: async (s, o) =>
-          s.parseDocumentSnapshot(await t.get(s.singleItemReference(o)))
+        get: (a, o) =>
+          t
+            .get(a.singleItemReference(o).withConverter(a.converter))
+            .then(s => s.data())
       });
       return setStep(r, {
         set: (s, args) =>
