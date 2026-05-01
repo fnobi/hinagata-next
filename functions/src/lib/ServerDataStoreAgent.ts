@@ -2,7 +2,8 @@ import {
   type DocumentData,
   type DocumentReference,
   type Query,
-  type Firestore
+  type Firestore,
+  type FirestoreDataConverter
 } from "firebase-admin/firestore";
 import {
   DataStoreAgent,
@@ -22,8 +23,8 @@ export class ServerDataStoreAgent<
   T,
   D,
   C,
-  DocumentReference<DocumentData, DocumentData>,
-  Query<DocumentData, DocumentData>
+  DocumentReference<T, DocumentData>,
+  Query<T, DocumentData>
 > {
   private adapter: () => Firestore;
 
@@ -35,16 +36,27 @@ export class ServerDataStoreAgent<
     this.adapter = adapter;
   }
 
+  private get converter(): FirestoreDataConverter<T> {
+    return {
+      toFirestore: (d: T) => d,
+      fromFirestore: s => this.scheme.parse(s.data())
+    };
+  }
+
   protected collectionReference({
     collectionPath
   }: {
     collectionPath: string;
   }) {
-    return this.adapter().collection(collectionPath);
+    return this.adapter()
+      .collection(collectionPath)
+      .withConverter(this.converter);
   }
 
   protected collectionGroupReference() {
-    return this.adapter().collectionGroup(this.scheme.name);
+    return this.adapter()
+      .collectionGroup(this.scheme.name)
+      .withConverter(this.converter);
   }
 
   protected documentReference({
@@ -76,7 +88,7 @@ export class ServerDataStoreAgent<
     return ref.id;
   }
 
-  protected getDoc(r: DocumentReference) {
+  protected getDoc(r: DocumentReference<T, DocumentData>) {
     return r.get();
   }
 
@@ -84,7 +96,7 @@ export class ServerDataStoreAgent<
     await r.delete();
   }
 
-  protected getQueryDocs(r: Query) {
+  protected getQueryDocs(r: Query<T, DocumentData>) {
     return r.get().then(snapshot => snapshot.docs);
   }
 
@@ -98,7 +110,7 @@ export class ServerDataStoreAgent<
     handler,
     onError
   }: {
-    ref: DocumentReference;
+    ref: DocumentReference<T, DocumentData>;
     handler: (d: Object | null) => void;
     onError: (e: unknown) => void;
   }) {
@@ -110,15 +122,15 @@ export class ServerDataStoreAgent<
     handler,
     onError
   }: {
-    ref: Query;
-    handler: (l: DocumentSnapshotMock[]) => void;
+    ref: Query<T, DocumentData>;
+    handler: (l: DocumentSnapshotMock<T>[]) => void;
     onError: (e: unknown) => void;
   }) {
     return ref.onSnapshot(snapshot => handler(snapshot.docs), onError);
   }
 
   protected applyQueryFormula(
-    ref: Query<DocumentData, DocumentData>,
+    ref: Query<T, DocumentData>,
     query: QueryFormula<T>[] = []
   ) {
     return query.reduce((prev, l) => {
@@ -135,12 +147,23 @@ export class ServerDataStoreAgent<
     }, ref);
   }
 
-  public static runTransaction<M, R>(
+  public static runTransaction<T extends {}, M, R>(
     adapter: () => Firestore,
     getStep: (
-      o: TransactionGetStepParams<DocumentReference, Query>
+      o: TransactionGetStepParams<
+        T,
+        DocumentReference<T, DocumentData>,
+        Query<T, DocumentData>
+      >
     ) => Promise<M>,
-    setStep: (p: M, m: TransactionSetStepParams<DocumentReference, Query>) => R
+    setStep: (
+      p: M,
+      m: TransactionSetStepParams<
+        T,
+        DocumentReference<T, DocumentData>,
+        Query<T, DocumentData>
+      >
+    ) => R
   ) {
     return adapter().runTransaction(async t => {
       const r = await getStep({

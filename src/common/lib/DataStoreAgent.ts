@@ -1,11 +1,9 @@
-/* eslint-disable max-classes-per-file */
-
 import { compact } from "~/common/lib/array-util";
 
-export type DocumentSnapshotMock = {
+export type DocumentSnapshotMock<T> = {
   id: string;
   ref: { path: string };
-  data: () => Object | undefined;
+  data: () => T | undefined;
 };
 
 export type TypedCollectionList<T> = { id: string; data: T }[];
@@ -95,13 +93,13 @@ export abstract class DataStoreAgent<
     };
   }
 
-  public parseDocumentSnapshot(snapshot: DocumentSnapshotMock) {
+  public parseDocumentSnapshot(snapshot: DocumentSnapshotMock<T>) {
     const d = snapshot.data();
-    return d ? this.scheme.parse(d) : null;
+    return d || null;
   }
 
   protected parseCollectionSnapshot(
-    docs: DocumentSnapshotMock[]
+    docs: DocumentSnapshotMock<T>[]
   ): TypedCollectionList<T> {
     return compact(
       docs.map(d => {
@@ -117,7 +115,7 @@ export abstract class DataStoreAgent<
   }
 
   protected parseCollectionGroupSnapshot(
-    docs: DocumentSnapshotMock[]
+    docs: DocumentSnapshotMock<T>[]
   ): TypedCollectionGroupList<T> {
     return compact(
       docs.map(d => {
@@ -127,10 +125,9 @@ export abstract class DataStoreAgent<
               fullPath: d.ref.path,
               ids: d.ref.path
                 .split(/\//g)
-                .reduce<string[]>(
-                  (prev, curr, i) => (i % 2 === 0 ? prev : [...prev, curr]),
-                  []
-                ),
+                .reduce<
+                  string[]
+                >((prev, curr, i) => (i % 2 === 0 ? prev : [...prev, curr]), []),
               data
             }
           : null;
@@ -155,23 +152,23 @@ export abstract class DataStoreAgent<
     merge?: boolean;
   }): Promise<string>;
 
-  protected abstract getDoc(r: Dr): Promise<DocumentSnapshotMock>;
+  protected abstract getDoc(r: Dr): Promise<DocumentSnapshotMock<T>>;
 
   protected abstract deleteDoc(r: Dr): Promise<void>;
 
-  protected abstract getQueryDocs(r: Cr): Promise<DocumentSnapshotMock[]>;
+  protected abstract getQueryDocs(r: Cr): Promise<DocumentSnapshotMock<T>[]>;
 
   protected abstract getQueryCount(r: Cr): Promise<number>;
 
   protected abstract subscribeDoc(args: {
     ref: Dr;
-    handler: (d: DocumentSnapshotMock) => void;
+    handler: (d: DocumentSnapshotMock<T>) => void;
     onError: (e: unknown) => void;
   }): () => void;
 
   protected abstract subscribeQueryDocs(args: {
     ref: Cr;
-    handler: (l: DocumentSnapshotMock[]) => void;
+    handler: (l: DocumentSnapshotMock<T>[]) => void;
     onError: (e: unknown) => void;
   }): () => void;
 
@@ -321,19 +318,19 @@ export abstract class DataStoreAgent<
   }
 }
 
-export interface TransactionGetStepParams<Dr, Cr> {
-  get: <T extends {}, D extends string, C extends string>(
+export interface TransactionGetStepParams<T extends {}, Dr, Cr> {
+  get: <D extends string, C extends string>(
     s: DataStoreAgent<T, D, C, Dr, Cr>,
     o: Record<D | C, string>
   ) => Promise<T | null>;
 }
 
-export interface TransactionSetStepParams<Dr, Cr> {
-  set: <T extends {}, D extends string, C extends string>(
+export interface TransactionSetStepParams<T extends {}, Dr, Cr> {
+  set: <D extends string, C extends string>(
     s: DataStoreAgent<T, D, C, Dr, Cr>,
     args: Parameters<DataStoreAgent<T, D, C, Dr, Cr>["setItem"]>[0]
   ) => void;
-  delete: <T extends {}, D extends string, C extends string>(
+  delete: <D extends string, C extends string>(
     s: DataStoreAgent<T, D, C, Dr, Cr>,
     args: Parameters<DataStoreAgent<T, D, C, Dr, Cr>["deleteItem"]>[0]
   ) => void;

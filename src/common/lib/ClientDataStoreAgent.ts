@@ -15,7 +15,8 @@ import {
   type Query,
   type DocumentReference,
   runTransaction,
-  getCountFromServer
+  getCountFromServer,
+  type FirestoreDataConverter
 } from "firebase/firestore";
 import { parseString } from "~/common/lib/parser-helper";
 import {
@@ -32,18 +33,34 @@ export class ClientDataStoreAgent<
   T extends {},
   D extends string,
   C extends string
-> extends DataStoreAgent<T, D, C, DocumentReference, Query> {
-  // eslint-disable-next-line class-methods-use-this
+> extends DataStoreAgent<
+  T,
+  D,
+  C,
+  DocumentReference<T, DocumentData>,
+  Query<T, DocumentData>
+> {
+  private get converter(): FirestoreDataConverter<T> {
+    return {
+      toFirestore: (d: T) => d,
+      fromFirestore: (s, o) => this.scheme.parse(s.data(o))
+    };
+  }
+
   protected collectionReference({
     collectionPath
   }: {
     collectionPath: string;
   }) {
-    return collection(firebaseFirestore(), collectionPath);
+    return collection(firebaseFirestore(), collectionPath).withConverter(
+      this.converter
+    );
   }
 
   protected collectionGroupReference() {
-    return collectionGroup(firebaseFirestore(), this.scheme.name);
+    return collectionGroup(firebaseFirestore(), this.scheme.name).withConverter(
+      this.converter
+    );
   }
 
   protected documentReference({
@@ -62,7 +79,6 @@ export class ClientDataStoreAgent<
     return documentRef.id;
   }
 
-  // eslint-disable-next-line class-methods-use-this
   protected override async setDoc({
     ref,
     data,
@@ -76,58 +92,51 @@ export class ClientDataStoreAgent<
     return ref.id;
   }
 
-  // eslint-disable-next-line class-methods-use-this
-  protected getDoc(r: DocumentReference) {
+  protected getDoc(r: DocumentReference<T, DocumentData>) {
     return getDoc(r);
   }
 
-  // eslint-disable-next-line class-methods-use-this
-  protected async deleteDoc(r: DocumentReference) {
+  protected async deleteDoc(r: DocumentReference<T, DocumentData>) {
     await deleteDoc(r);
   }
 
-  // eslint-disable-next-line class-methods-use-this
-  protected getQueryDocs(r: Query) {
+  protected getQueryDocs(r: Query<T, DocumentData>) {
     return getDocs(r).then(snapshot => snapshot.docs);
   }
 
-  // eslint-disable-next-line class-methods-use-this
   protected async getQueryCount(r: Query) {
     const snapshot = await getCountFromServer(r);
     return snapshot.data().count;
   }
 
-  // eslint-disable-next-line class-methods-use-this
   protected subscribeDoc({
     ref,
     handler,
     onError
   }: {
-    ref: DocumentReference;
+    ref: DocumentReference<T, DocumentData>;
     handler: (d: Object | null) => void;
     onError: (e: unknown) => void;
   }) {
     return onSnapshot(ref, handler, onError);
   }
 
-  // eslint-disable-next-line class-methods-use-this
   protected subscribeQueryDocs({
     ref,
     handler,
     onError
   }: {
-    ref: Query;
-    handler: (l: DocumentSnapshotMock[]) => void;
+    ref: Query<T, DocumentData>;
+    handler: (l: DocumentSnapshotMock<T>[]) => void;
     onError: (e: unknown) => void;
   }) {
     return onSnapshot(ref, snapshot => handler(snapshot.docs), onError);
   }
 
-  // eslint-disable-next-line class-methods-use-this
   protected applyQueryFormula(
-    ref: Query<DocumentData, DocumentData>,
+    ref: Query<T, DocumentData>,
     q: QueryFormula<T>[] = []
-  ): Query<DocumentData, DocumentData> {
+  ): Query<T, DocumentData> {
     return q.length
       ? query(
           ref,
@@ -147,19 +156,21 @@ export class ClientDataStoreAgent<
       : ref;
   }
 
-  public static runTransaction<M>(
+  public static runTransaction<T extends {}, M>(
     getStep: (
-      o: TransactionGetStepParams<DocumentReference, Query>
+      o: TransactionGetStepParams<T, DocumentReference<T, DocumentData>, Query>
     ) => Promise<M>,
     setStep: (
       p: M,
-      m: TransactionSetStepParams<DocumentReference, Query>
+      m: TransactionSetStepParams<T, DocumentReference<T, DocumentData>, Query>
     ) => void
   ) {
     return runTransaction(firebaseFirestore(), async t => {
       const r = await getStep({
-        get: async (s, o) =>
-          s.parseDocumentSnapshot(await t.get(s.singleItemReference(o)))
+        get: async (s, o) => {
+          const dd = await t.get(s.singleItemReference(o));
+          return s.parseDocumentSnapshot(dd);
+        }
       });
       return setStep(r, {
         set: (s, args) =>

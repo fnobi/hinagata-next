@@ -24,7 +24,6 @@ export const extractFirebaseError = (e: unknown): FirebaseErrorParameter => {
     const { code } = e;
     if (code === "failed-precondition") {
       // NOTE: エラーログにindex設定用のリンクが来るのでログしてほしい
-      // eslint-disable-next-line no-console
       console.error(e);
       return { type: "firestore-precondition-error" };
     }
