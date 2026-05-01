@@ -7,6 +7,15 @@ export type DocumentSnapshotMock<T> = {
   data: () => T | undefined;
 };
 
+// NOTE: client/server両方の DocumentReference<T, DocumentData> を満たす型
+type DocumentReferenceMock = {
+  id: string;
+};
+
+type QuerySnapshotMock<T> = {
+  docs: DocumentSnapshotMock<T>[];
+};
+
 export type TypedCollectionList<T> = { id: string; data: T }[];
 
 type TypedCollectionGroupList<T> = {
@@ -72,13 +81,23 @@ export abstract class DataStoreAgent<
   T extends {},
   D extends string,
   C extends string | never,
-  Dr,
+  Dr extends DocumentReferenceMock,
   Cr
 > {
   public readonly scheme: DataStoreScheme<T, D, C>;
 
   public constructor(scheme: DataStoreScheme<T, D, C>) {
     this.scheme = scheme;
+  }
+
+  protected get converter(): {
+    toFirestore: (d: T) => T;
+    fromFirestore: (s: DocumentSnapshotMock<Object>) => T;
+  } {
+    return {
+      toFirestore: (d: T) => d,
+      fromFirestore: s => this.scheme.parse(s.data())
+    };
   }
 
   private calcCollectionParam(opts: Record<C, string>) {
@@ -140,19 +159,22 @@ export abstract class DataStoreAgent<
     id?: string;
   }): Dr;
 
-  protected abstract newDocId(args: { collectionPath: string }): string;
+  protected newDocId({ collectionPath }: { collectionPath: string }) {
+    const documentRef = this.documentReference({ collectionPath });
+    return documentRef.id;
+  }
 
   protected abstract setDoc(args: {
     ref: Dr;
     data: Object;
     merge?: boolean;
-  }): Promise<string>;
+  }): Promise<void>;
 
   protected abstract getDoc(r: Dr): Promise<DocumentSnapshotMock<T>>;
 
   protected abstract deleteDoc(r: Dr): Promise<void>;
 
-  protected abstract getQueryDocs(r: Cr): Promise<DocumentSnapshotMock<T>[]>;
+  protected abstract getQueryDocs(r: Cr): Promise<QuerySnapshotMock<T>>;
 
   protected abstract getQueryCount(r: Cr): Promise<number>;
 
@@ -209,28 +231,31 @@ export abstract class DataStoreAgent<
     }
   ) {
     const { data, merge } = opts;
+    const ref = this.singleItemReference(opts);
     return this.setDoc({
-      ref: this.singleItemReference(opts),
+      ref,
       data,
       merge
-    }).then(() => data);
+    }).then(() => ref.id);
   }
 
   public addItem(opts: Record<C, string> & { data: T }) {
     const { data } = opts;
+    const ref = this.singleNewItemReference(opts);
     return this.setDoc({
-      ref: this.singleNewItemReference(opts),
+      ref,
       data
-    });
+    }).then(() => ref.id);
   }
 
   public mergeItem(opts: Record<D | C, string> & { data: Partial<T> }) {
     const { data } = opts;
+    const ref = this.singleItemReference(opts);
     return this.setDoc({
-      ref: this.singleItemReference(opts),
+      ref,
       data: data as Object,
       merge: true
-    });
+    }).then(() => ref.id);
   }
 
   public deleteItem(opts: Record<D | C, string>) {
@@ -256,8 +281,8 @@ export abstract class DataStoreAgent<
   ) {
     const { query } = opts;
     const ref = this.listQueryReference(opts, query);
-    const docs = await this.getQueryDocs(ref);
-    return this.parseCollectionSnapshot(docs);
+    const snapshot = await this.getQueryDocs(ref);
+    return this.parseCollectionSnapshot(snapshot.docs);
   }
 
   public async fetchListCount(
@@ -271,8 +296,8 @@ export abstract class DataStoreAgent<
 
   public async fetchGroupList(query?: QueryFormula<T>[]) {
     const ref = this.groupQueryReference(query);
-    const docs = await this.getQueryDocs(ref);
-    return this.parseCollectionGroupSnapshot(docs);
+    const snapshot = await this.getQueryDocs(ref);
+    return this.parseCollectionGroupSnapshot(snapshot.docs);
   }
 
   public fetchGroupListCount(query?: QueryFormula<T>[]) {
@@ -312,14 +337,22 @@ export abstract class DataStoreAgent<
   }
 }
 
-export interface TransactionGetStepParams<T extends {}, Dr, Cr> {
+export interface TransactionGetStepParams<
+  T extends {},
+  Dr extends DocumentReferenceMock,
+  Cr
+> {
   get: <D extends string, C extends string>(
     s: DataStoreAgent<T, D, C, Dr, Cr>,
     o: Record<D | C, string>
   ) => Promise<T | undefined>;
 }
 
-export interface TransactionSetStepParams<T extends {}, Dr, Cr> {
+export interface TransactionSetStepParams<
+  T extends {},
+  Dr extends DocumentReferenceMock,
+  Cr
+> {
   set: <D extends string, C extends string>(
     s: DataStoreAgent<T, D, C, Dr, Cr>,
     args: Parameters<DataStoreAgent<T, D, C, Dr, Cr>["setItem"]>[0]

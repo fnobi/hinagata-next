@@ -15,8 +15,7 @@ import {
   type Query,
   type DocumentReference,
   runTransaction,
-  getCountFromServer,
-  type FirestoreDataConverter
+  getCountFromServer
 } from "firebase/firestore";
 import { parseString } from "~/common/lib/parser-helper";
 import {
@@ -40,13 +39,6 @@ export class ClientDataStoreAgent<
   DocumentReference<T, DocumentData>,
   Query<T, DocumentData>
 > {
-  private get converter(): FirestoreDataConverter<T> {
-    return {
-      toFirestore: (d: T) => d,
-      fromFirestore: (s, o) => this.scheme.parse(s.data(o))
-    };
-  }
-
   protected collectionReference({
     collectionPath
   }: {
@@ -74,12 +66,7 @@ export class ClientDataStoreAgent<
     return id ? doc(collectionRef, id) : doc(collectionRef);
   }
 
-  protected override newDocId(opts: { collectionPath: string }) {
-    const documentRef = this.documentReference(opts);
-    return documentRef.id;
-  }
-
-  protected override async setDoc({
+  protected override setDoc({
     ref,
     data,
     merge
@@ -88,8 +75,7 @@ export class ClientDataStoreAgent<
     data: Object;
     merge?: boolean;
   }) {
-    await setDoc(ref, data, { merge });
-    return ref.id;
+    return setDoc(ref, data, { merge });
   }
 
   protected getDoc(r: DocumentReference<T, DocumentData>) {
@@ -101,7 +87,7 @@ export class ClientDataStoreAgent<
   }
 
   protected getQueryDocs(r: Query<T, DocumentData>) {
-    return getDocs(r).then(snapshot => snapshot.docs);
+    return getDocs(r);
   }
 
   protected async getQueryCount(r: Query<T, DocumentData>) {
@@ -167,10 +153,7 @@ export class ClientDataStoreAgent<
   ) {
     return runTransaction(firebaseFirestore(), async t => {
       const r = await getStep({
-        get: async (s, o) => {
-          const dd = await t.get(s.singleItemReference(o));
-          return dd.data();
-        }
+        get: (a, o) => t.get(a.singleItemReference(o)).then(s => s.data())
       });
       return setStep(r, {
         set: (s, args) =>

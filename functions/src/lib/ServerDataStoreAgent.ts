@@ -2,8 +2,7 @@ import {
   type DocumentData,
   type DocumentReference,
   type Query,
-  type Firestore,
-  type FirestoreDataConverter
+  type Firestore
 } from "firebase-admin/firestore";
 import {
   DataStoreAgent,
@@ -36,13 +35,6 @@ export class ServerDataStoreAgent<
     this.adapter = adapter;
   }
 
-  private get converter(): FirestoreDataConverter<T> {
-    return {
-      toFirestore: (d: T) => d,
-      fromFirestore: s => this.scheme.parse(s.data())
-    };
-  }
-
   protected collectionReference({
     collectionPath
   }: {
@@ -70,11 +62,6 @@ export class ServerDataStoreAgent<
     return id ? collectionRef.doc(id) : collectionRef.doc();
   }
 
-  protected override newDocId(opts: { collectionPath: string }) {
-    const documentRef = this.documentReference(opts);
-    return documentRef.id;
-  }
-
   protected async setDoc({
     ref,
     data,
@@ -85,7 +72,6 @@ export class ServerDataStoreAgent<
     merge?: boolean;
   }) {
     await ref.set(data, { merge });
-    return ref.id;
   }
 
   protected getDoc(r: DocumentReference<T, DocumentData>) {
@@ -97,7 +83,7 @@ export class ServerDataStoreAgent<
   }
 
   protected getQueryDocs(r: Query<T, DocumentData>) {
-    return r.get().then(snapshot => snapshot.docs);
+    return r.get();
   }
 
   protected async getQueryCount(r: Query) {
