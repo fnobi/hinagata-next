@@ -11,7 +11,6 @@ import {
   getDoc,
   deleteDoc,
   collectionGroup,
-  type DocumentData,
   type Query,
   type DocumentReference,
   runTransaction,
@@ -27,15 +26,12 @@ import {
 } from "~/common/lib/DataStoreAgent";
 import { firebaseFirestore } from "~/common/lib/firebase-app";
 
-type Dr = DocumentReference<DocumentData, DocumentData>;
-type Cr = Query<DocumentData, DocumentData>;
-
 // eslint-disable-next-line import/prefer-default-export
 export class ClientDataStoreAgent<
   T extends {},
   D extends string,
   C extends string
-> extends DataStoreAgent<T, D, C, Dr, Cr> {
+> extends DataStoreAgent<T, D, C, DocumentReference, Query> {
   protected collectionReference({
     collectionPath
   }: {
@@ -64,26 +60,26 @@ export class ClientDataStoreAgent<
     data,
     merge
   }: {
-    ref: Dr;
+    ref: DocumentReference;
     data: Object;
     merge?: boolean;
   }) {
     return setDoc(ref, data, { merge });
   }
 
-  protected getDoc(r: Dr) {
+  protected getDoc(r: DocumentReference) {
     return getDoc(r.withConverter(this.converter));
   }
 
-  protected async deleteDoc(r: Dr) {
+  protected async deleteDoc(r: DocumentReference) {
     await deleteDoc(r);
   }
 
-  protected getQueryDocs(r: Cr) {
+  protected getQueryDocs(r: Query) {
     return getDocs(r.withConverter(this.converter));
   }
 
-  protected async getQueryCount(r: Cr) {
+  protected async getQueryCount(r: Query) {
     const snapshot = await getCountFromServer(r);
     return snapshot.data().count;
   }
@@ -93,7 +89,7 @@ export class ClientDataStoreAgent<
     handler,
     onError
   }: {
-    ref: Dr;
+    ref: DocumentReference;
     handler: (d: Object | undefined) => void;
     onError: (e: unknown) => void;
   }) {
@@ -105,7 +101,7 @@ export class ClientDataStoreAgent<
     handler,
     onError
   }: {
-    ref: Cr;
+    ref: Query;
     handler: (l: DocumentSnapshotMock<T>[]) => void;
     onError: (e: unknown) => void;
   }) {
@@ -116,7 +112,7 @@ export class ClientDataStoreAgent<
     );
   }
 
-  protected applyQueryFormula(ref: Cr, q: QueryFormula<T>[] = []): Cr {
+  protected applyQueryFormula(ref: Query, q: QueryFormula<T>[] = []): Query {
     return q.length
       ? query(
           ref,
@@ -137,8 +133,10 @@ export class ClientDataStoreAgent<
   }
 
   public static runTransaction<M, R>(
-    getStep: (o: TransactionGetStepParams<Dr, Cr>) => Promise<M>,
-    setStep: (p: M, m: TransactionSetStepParams<Dr, Cr>) => R
+    getStep: (
+      o: TransactionGetStepParams<DocumentReference, Query>
+    ) => Promise<M>,
+    setStep: (p: M, m: TransactionSetStepParams<DocumentReference, Query>) => R
   ) {
     return runTransaction(firebaseFirestore(), async t => {
       const r = await getStep({
