@@ -24,7 +24,7 @@
 
 - Firestore SDK を直接使わず、必ず `ClientDataStoreAgent`（`~/common/lib/ClientDataStoreAgent`）経由でアクセスする
 - スキーマ定義は `~/features/schema/app-data-store-scheme.ts` に `DataStoreScheme` として追加する
-  - `withConverter` は使わず、`parse` 関数を scheme に持たせる
+  - `parse` 関数を scheme に持たせる（`withConverter` は `DataStoreAgent` が内部的に使用）
   - 型定義ファイル（`~/features/schema/*.ts` や `~/common/schema/*.ts`）に対応する `parseXxx` 関数も合わせて定義する
   - サブコレクションは `parentCollection` で親 scheme を参照して階層を表現する
 - `ClientDataStoreAgent` インスタンスはコンポーネントの外（モジュールレベル）で生成する
