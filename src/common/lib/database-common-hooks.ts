@@ -41,7 +41,7 @@ export const useDataStoreSingleItem = <
     return dataStore.subscribeItem({
       ...params,
       handler: v => {
-        setRemoteValue(v);
+        setRemoteValue(v || null);
         setHasLoaded(true);
       },
       onError: e => onError(extractFirebaseError(e))
