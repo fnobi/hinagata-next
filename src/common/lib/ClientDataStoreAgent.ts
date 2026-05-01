@@ -104,7 +104,7 @@ export class ClientDataStoreAgent<
     return getDocs(r).then(snapshot => snapshot.docs);
   }
 
-  protected async getQueryCount(r: Query) {
+  protected async getQueryCount(r: Query<T, DocumentData>) {
     const snapshot = await getCountFromServer(r);
     return snapshot.data().count;
   }
@@ -115,7 +115,7 @@ export class ClientDataStoreAgent<
     onError
   }: {
     ref: DocumentReference<T, DocumentData>;
-    handler: (d: Object | null) => void;
+    handler: (d: Object | undefined) => void;
     onError: (e: unknown) => void;
   }) {
     return onSnapshot(ref, handler, onError);
@@ -169,7 +169,7 @@ export class ClientDataStoreAgent<
       const r = await getStep({
         get: async (s, o) => {
           const dd = await t.get(s.singleItemReference(o));
-          return s.parseDocumentSnapshot(dd);
+          return dd.data();
         }
       });
       return setStep(r, {

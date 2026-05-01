@@ -111,7 +111,7 @@ export class ServerDataStoreAgent<
     onError
   }: {
     ref: DocumentReference<T, DocumentData>;
-    handler: (d: Object | null) => void;
+    handler: (d: Object | undefined) => void;
     onError: (e: unknown) => void;
   }) {
     return ref.onSnapshot(handler, onError);
@@ -167,8 +167,7 @@ export class ServerDataStoreAgent<
   ) {
     return adapter().runTransaction(async t => {
       const r = await getStep({
-        get: async (s, o) =>
-          s.parseDocumentSnapshot(await t.get(s.singleItemReference(o)))
+        get: (a, o) => t.get(a.singleItemReference(o)).then(s => s.data())
       });
       return setStep(r, {
         set: (s, args) =>

@@ -1,5 +1,6 @@
 import { compact } from "~/common/lib/array-util";
 
+// NOTE: client/server両方の DocumentSnapshot<T, DocumentData> を満たす型
 export type DocumentSnapshotMock<T> = {
   id: string;
   ref: { path: string };
@@ -93,21 +94,16 @@ export abstract class DataStoreAgent<
     };
   }
 
-  public parseDocumentSnapshot(snapshot: DocumentSnapshotMock<T>) {
-    const d = snapshot.data();
-    return d || null;
-  }
-
   protected parseCollectionSnapshot(
     docs: DocumentSnapshotMock<T>[]
   ): TypedCollectionList<T> {
     return compact(
       docs.map(d => {
-        const data = this.parseDocumentSnapshot(d);
-        return data
+        const dd = d.data();
+        return dd
           ? {
               id: d.id,
-              data
+              data: dd
             }
           : null;
       })
@@ -119,8 +115,8 @@ export abstract class DataStoreAgent<
   ): TypedCollectionGroupList<T> {
     return compact(
       docs.map(d => {
-        const data = this.parseDocumentSnapshot(d);
-        return data
+        const dd = d.data();
+        return dd
           ? {
               fullPath: d.ref.path,
               ids: d.ref.path
@@ -128,7 +124,7 @@ export abstract class DataStoreAgent<
                 .reduce<
                   string[]
                 >((prev, curr, i) => (i % 2 === 0 ? prev : [...prev, curr]), []),
-              data
+              data: dd
             }
           : null;
       })
@@ -202,10 +198,8 @@ export abstract class DataStoreAgent<
     return this.applyQueryFormula(this.collectionGroupReference(), query);
   }
 
-  public async fetchItem(opts: Record<D | C, string>): Promise<T | null> {
-    return this.parseDocumentSnapshot(
-      await this.getDoc(this.singleItemReference(opts))
-    );
+  public async fetchItem(opts: Record<D | C, string>): Promise<T | undefined> {
+    return this.getDoc(this.singleItemReference(opts)).then(s => s.data());
   }
 
   public setItem(
@@ -245,14 +239,14 @@ export abstract class DataStoreAgent<
 
   public subscribeItem(
     opts: Record<D | C, string> & {
-      handler: (d: T | null) => void;
+      handler: (d: T | undefined) => void;
       onError: (e: unknown) => void;
     }
   ) {
     const { handler, onError } = opts;
     return this.subscribeDoc({
       ref: this.singleItemReference(opts),
-      handler: snapshot => handler(this.parseDocumentSnapshot(snapshot)),
+      handler: snapshot => handler(snapshot.data()),
       onError
     });
   }
@@ -322,7 +316,7 @@ export interface TransactionGetStepParams<T extends {}, Dr, Cr> {
   get: <D extends string, C extends string>(
     s: DataStoreAgent<T, D, C, Dr, Cr>,
     o: Record<D | C, string>
-  ) => Promise<T | null>;
+  ) => Promise<T | undefined>;
 }
 
 export interface TransactionSetStepParams<T extends {}, Dr, Cr> {
