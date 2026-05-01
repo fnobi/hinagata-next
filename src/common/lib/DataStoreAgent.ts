@@ -90,7 +90,7 @@ export abstract class DataStoreAgent<
     this.scheme = scheme;
   }
 
-  protected get converter(): {
+  public get converter(): {
     toFirestore: (d: T) => T;
     fromFirestore: (s: DocumentSnapshotMock<Object>) => T;
   } {
@@ -337,37 +337,25 @@ export abstract class DataStoreAgent<
   }
 }
 
-export interface TransactionGetStepParams {
-  get: <
-    T extends {},
-    D extends string,
-    C extends string,
-    Dr extends DocumentReferenceMock,
-    Cr
-  >(
+export interface TransactionGetStepParams<
+  Dr extends DocumentReferenceMock,
+  Cr
+> {
+  get: <T extends {}, D extends string, C extends string>(
     s: DataStoreAgent<T, D, C, Dr, Cr>,
     o: Record<D | C, string>
   ) => Promise<T | undefined>;
 }
 
-export interface TransactionSetStepParams {
-  set: <
-    T extends {},
-    D extends string,
-    C extends string,
-    Dr extends DocumentReferenceMock,
-    Cr
-  >(
+export interface TransactionSetStepParams<
+  Dr extends DocumentReferenceMock,
+  Cr
+> {
+  set: <T extends {}, D extends string, C extends string>(
     s: DataStoreAgent<T, D, C, Dr, Cr>,
     args: Parameters<DataStoreAgent<T, D, C, Dr, Cr>["setItem"]>[0]
   ) => void;
-  delete: <
-    T extends {},
-    D extends string,
-    C extends string,
-    Dr extends DocumentReferenceMock,
-    Cr
-  >(
+  delete: <T extends {}, D extends string, C extends string>(
     s: DataStoreAgent<T, D, C, Dr, Cr>,
     args: Parameters<DataStoreAgent<T, D, C, Dr, Cr>["deleteItem"]>[0]
   ) => void;

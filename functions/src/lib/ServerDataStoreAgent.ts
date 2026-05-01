@@ -15,14 +15,14 @@ import {
 } from "~/common/lib/DataStoreAgent";
 import { parseString } from "~/common/lib/parser-helper";
 
-type Dr<T> = DocumentReference<T, DocumentData>;
-type Cr<T> = Query<T, DocumentData>;
+type Dr = DocumentReference<DocumentData, DocumentData>;
+type Cr = Query<DocumentData, DocumentData>;
 
 export class ServerDataStoreAgent<
   T extends {},
   D extends string,
   C extends string
-> extends DataStoreAgent<T, D, C, Dr<T>, Cr<T>> {
+> extends DataStoreAgent<T, D, C, Dr, Cr> {
   private adapter: () => Firestore;
 
   public constructor(
@@ -65,26 +65,26 @@ export class ServerDataStoreAgent<
     data,
     merge
   }: {
-    ref: Dr<T>;
+    ref: Dr;
     data: PartialWithFieldValue<T>;
     merge?: boolean;
   }) {
-    await ref.set(data, { merge });
+    await ref.withConverter(this.converter).set(data, { merge });
   }
 
-  protected getDoc(r: Dr<T>) {
-    return r.get();
+  protected getDoc(r: Dr) {
+    return r.withConverter(this.converter).get();
   }
 
-  protected async deleteDoc(r: Dr<T>) {
+  protected async deleteDoc(r: Dr) {
     await r.delete();
   }
 
-  protected getQueryDocs(r: Cr<T>) {
-    return r.get();
+  protected getQueryDocs(r: Cr) {
+    return r.withConverter(this.converter).get();
   }
 
-  protected async getQueryCount(r: Cr<T>) {
+  protected async getQueryCount(r: Cr) {
     const snapshot = await r.count().get();
     return snapshot.data().count;
   }
@@ -94,7 +94,7 @@ export class ServerDataStoreAgent<
     handler,
     onError
   }: {
-    ref: Dr<T>;
+    ref: Dr;
     handler: (d: Object | undefined) => void;
     onError: (e: unknown) => void;
   }) {
@@ -106,14 +106,16 @@ export class ServerDataStoreAgent<
     handler,
     onError
   }: {
-    ref: Cr<T>;
+    ref: Cr;
     handler: (l: DocumentSnapshotMock<T>[]) => void;
     onError: (e: unknown) => void;
   }) {
-    return ref.onSnapshot(snapshot => handler(snapshot.docs), onError);
+    return ref
+      .withConverter(this.converter)
+      .onSnapshot(snapshot => handler(snapshot.docs), onError);
   }
 
-  protected applyQueryFormula(ref: Cr<T>, query: QueryFormula<T>[] = []) {
+  protected applyQueryFormula(ref: Cr, query: QueryFormula<T>[] = []) {
     return query.reduce((prev, l) => {
       switch (l[0]) {
         case "limit":
@@ -130,12 +132,15 @@ export class ServerDataStoreAgent<
 
   public static runTransaction<M, R>(
     adapter: () => Firestore,
-    getStep: (o: TransactionGetStepParams) => Promise<M>,
-    setStep: (p: M, m: TransactionSetStepParams) => R
+    getStep: (o: TransactionGetStepParams<Dr, Cr>) => Promise<M>,
+    setStep: (p: M, m: TransactionSetStepParams<Dr, Cr>) => R
   ) {
     return adapter().runTransaction(async t => {
       const r = await getStep({
-        get: (a, o) => t.get(a.singleItemReference(o)).then(s => s.data())
+        get: (a, o) =>
+          t
+            .get(a.singleItemReference(o).withConverter(a.converter))
+            .then(s => s.data())
       });
       return setStep(r, {
         set: (s, args) =>

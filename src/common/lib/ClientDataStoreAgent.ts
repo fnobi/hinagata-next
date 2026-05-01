@@ -27,29 +27,25 @@ import {
 } from "~/common/lib/DataStoreAgent";
 import { firebaseFirestore } from "~/common/lib/firebase-app";
 
-type Dr<T> = DocumentReference<T, DocumentData>;
-type Cr<T> = Query<T, DocumentData>;
+type Dr = DocumentReference<DocumentData, DocumentData>;
+type Cr = Query<DocumentData, DocumentData>;
 
 // eslint-disable-next-line import/prefer-default-export
 export class ClientDataStoreAgent<
   T extends {},
   D extends string,
   C extends string
-> extends DataStoreAgent<T, D, C, Dr<T>, Cr<T>> {
+> extends DataStoreAgent<T, D, C, Dr, Cr> {
   protected collectionReference({
     collectionPath
   }: {
     collectionPath: string;
   }) {
-    return collection(firebaseFirestore(), collectionPath).withConverter(
-      this.converter
-    );
+    return collection(firebaseFirestore(), collectionPath);
   }
 
   protected collectionGroupReference() {
-    return collectionGroup(firebaseFirestore(), this.scheme.name).withConverter(
-      this.converter
-    );
+    return collectionGroup(firebaseFirestore(), this.scheme.name);
   }
 
   protected documentReference({
@@ -68,26 +64,26 @@ export class ClientDataStoreAgent<
     data,
     merge
   }: {
-    ref: Dr<T>;
+    ref: Dr;
     data: Object;
     merge?: boolean;
   }) {
     return setDoc(ref, data, { merge });
   }
 
-  protected getDoc(r: Dr<T>) {
-    return getDoc(r);
+  protected getDoc(r: Dr) {
+    return getDoc(r.withConverter(this.converter));
   }
 
-  protected async deleteDoc(r: Dr<T>) {
+  protected async deleteDoc(r: Dr) {
     await deleteDoc(r);
   }
 
-  protected getQueryDocs(r: Cr<T>) {
-    return getDocs(r);
+  protected getQueryDocs(r: Cr) {
+    return getDocs(r.withConverter(this.converter));
   }
 
-  protected async getQueryCount(r: Cr<T>) {
+  protected async getQueryCount(r: Cr) {
     const snapshot = await getCountFromServer(r);
     return snapshot.data().count;
   }
@@ -97,7 +93,7 @@ export class ClientDataStoreAgent<
     handler,
     onError
   }: {
-    ref: Dr<T>;
+    ref: Dr;
     handler: (d: Object | undefined) => void;
     onError: (e: unknown) => void;
   }) {
@@ -109,14 +105,18 @@ export class ClientDataStoreAgent<
     handler,
     onError
   }: {
-    ref: Cr<T>;
+    ref: Cr;
     handler: (l: DocumentSnapshotMock<T>[]) => void;
     onError: (e: unknown) => void;
   }) {
-    return onSnapshot(ref, snapshot => handler(snapshot.docs), onError);
+    return onSnapshot(
+      ref.withConverter(this.converter),
+      snapshot => handler(snapshot.docs),
+      onError
+    );
   }
 
-  protected applyQueryFormula(ref: Cr<T>, q: QueryFormula<T>[] = []): Cr<T> {
+  protected applyQueryFormula(ref: Cr, q: QueryFormula<T>[] = []): Cr {
     return q.length
       ? query(
           ref,
@@ -137,12 +137,15 @@ export class ClientDataStoreAgent<
   }
 
   public static runTransaction<M, R>(
-    getStep: (o: TransactionGetStepParams) => Promise<M>,
-    setStep: (p: M, m: TransactionSetStepParams) => R
+    getStep: (o: TransactionGetStepParams<Dr, Cr>) => Promise<M>,
+    setStep: (p: M, m: TransactionSetStepParams<Dr, Cr>) => R
   ) {
     return runTransaction(firebaseFirestore(), async t => {
       const r = await getStep({
-        get: (a, o) => t.get(a.singleItemReference(o)).then(s => s.data())
+        get: (a, o) =>
+          t
+            .get(a.singleItemReference(o).withConverter(a.converter))
+            .then(s => s.data())
       });
       return setStep(r, {
         set: (s, args) =>
