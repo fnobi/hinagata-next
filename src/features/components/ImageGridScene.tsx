@@ -8,15 +8,42 @@ const COLS = 6;
 const ROWS = 2;
 const TOTAL = COLS * ROWS;
 
+const CELL_DRAG_TYPE = "application/x-cell-index";
+
 interface CellProps {
   index: number;
   src: string | null;
+  isBeingDragged: boolean;
   onFileDrop: (index: number, file: File) => void;
+  onCellDragStart: (index: number) => void;
+  onCellSwap: (fromIndex: number, toIndex: number) => void;
+  onDragEnd: () => void;
 }
 
-const GridCell = ({ index, src, onFileDrop }: CellProps) => {
+const GridCell = ({
+  index,
+  src,
+  isBeingDragged,
+  onFileDrop,
+  onCellDragStart,
+  onCellSwap,
+  onDragEnd
+}: CellProps) => {
   const [isDragOver, setIsDragOver] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const handleDragStart = useCallback(
+    (e: React.DragEvent) => {
+      if (!src) {
+        e.preventDefault();
+        return;
+      }
+      e.dataTransfer.setData(CELL_DRAG_TYPE, String(index));
+      e.dataTransfer.effectAllowed = "move";
+      onCellDragStart(index);
+    },
+    [src, index, onCellDragStart]
+  );
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -24,20 +51,26 @@ const GridCell = ({ index, src, onFileDrop }: CellProps) => {
   }, []);
 
   const handleDragLeave = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragOver(false);
+    if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+      setIsDragOver(false);
+    }
   }, []);
 
   const handleDrop = useCallback(
     (e: React.DragEvent) => {
       e.preventDefault();
       setIsDragOver(false);
-      const file = e.dataTransfer.files[0];
-      if (file && file.type.startsWith("image/")) {
-        onFileDrop(index, file);
+      const cellIndexStr = e.dataTransfer.getData(CELL_DRAG_TYPE);
+      if (cellIndexStr !== "") {
+        onCellSwap(parseInt(cellIndexStr, 10), index);
+      } else {
+        const file = e.dataTransfer.files[0];
+        if (file && file.type.startsWith("image/")) {
+          onFileDrop(index, file);
+        }
       }
     },
-    [index, onFileDrop]
+    [index, onFileDrop, onCellSwap]
   );
 
   const handleClick = useCallback(() => {
@@ -55,8 +88,12 @@ const GridCell = ({ index, src, onFileDrop }: CellProps) => {
 
   return (
     <CellRoot
+      draggable={!!src}
       isDragOver={isDragOver}
       hasSrc={!!src}
+      isBeingDragged={isBeingDragged}
+      onDragStart={handleDragStart}
+      onDragEnd={onDragEnd}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
@@ -81,6 +118,7 @@ const ImageGridScene = () => {
   const [images, setImages] = useState<(string | null)[]>(
     Array(TOTAL).fill(null)
   );
+  const [dragSourceIndex, setDragSourceIndex] = useState<number | null>(null);
 
   const handleFileDrop = useCallback((index: number, file: File) => {
     const url = URL.createObjectURL(file);
@@ -91,6 +129,24 @@ const ImageGridScene = () => {
       next[index] = url;
       return next;
     });
+  }, []);
+
+  const handleCellDragStart = useCallback((index: number) => {
+    setDragSourceIndex(index);
+  }, []);
+
+  const handleCellSwap = useCallback((fromIndex: number, toIndex: number) => {
+    if (fromIndex === toIndex) return;
+    setImages(prev => {
+      const next = [...prev];
+      [next[fromIndex], next[toIndex]] = [next[toIndex], next[fromIndex]];
+      return next;
+    });
+    setDragSourceIndex(null);
+  }, []);
+
+  const handleDragEnd = useCallback(() => {
+    setDragSourceIndex(null);
   }, []);
 
   const handleClear = useCallback(() => {
@@ -107,13 +163,24 @@ const ImageGridScene = () => {
       <GridWrapper>
         <Grid>
           {images.map((src, i) => (
-            <GridCell key={i} index={i} src={src} onFileDrop={handleFileDrop} />
+            <GridCell
+              key={i}
+              index={i}
+              src={src}
+              isBeingDragged={dragSourceIndex === i}
+              onFileDrop={handleFileDrop}
+              onCellDragStart={handleCellDragStart}
+              onCellSwap={handleCellSwap}
+              onDragEnd={handleDragEnd}
+            />
           ))}
         </Grid>
       </GridWrapper>
       <Controls>
         <ClearButton onClick={handleClear}>クリア</ClearButton>
-        <Note>各セルに画像をドラッグ＆ドロップ、またはクリックして選択</Note>
+        <Note>
+          各セルに画像をD&Dまたはクリックして配置 / セル間でD&Dして入れ替え
+        </Note>
       </Controls>
     </Root>
   );
@@ -151,26 +218,27 @@ const Grid = styled.div({
   gap: 2
 });
 
-const CellRoot = styled.div<{ isDragOver: boolean; hasSrc: boolean }>(
+const CellRoot = styled.div<{
+  isDragOver: boolean;
+  hasSrc: boolean;
+  isBeingDragged: boolean;
+}>(
   {
     position: "relative",
     overflow: "hidden",
-    cursor: "pointer",
     backgroundColor: "#2a2a2a",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    transition: "background-color 0.15s"
+    transition: "background-color 0.15s, opacity 0.15s"
   },
-  ({ isDragOver, hasSrc }) =>
+  ({ isDragOver, hasSrc, isBeingDragged }) =>
     css({
-      backgroundColor: isDragOver
-        ? "#3a5f8a"
-        : hasSrc
-          ? "#000"
-          : "#2a2a2a",
+      cursor: hasSrc ? "grab" : "pointer",
+      backgroundColor: isDragOver ? "#3a5f8a" : hasSrc ? "#000" : "#2a2a2a",
       outline: isDragOver ? "2px solid #5a9fd4" : "none",
-      outlineOffset: -2
+      outlineOffset: -2,
+      opacity: isBeingDragged ? 0.35 : 1
     })
 );
 
