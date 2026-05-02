@@ -1,6 +1,6 @@
-const { existsSync } = require("fs");
-const { rename, mkdir, rm, rmdir } = require("fs/promises");
-const path = require("path");
+import { existsSync } from "fs";
+import { rename, mkdir, rm, rmdir } from "fs/promises";
+import path from "path";
 
 const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH || "";
 const EXPORT_DIR = "out";
