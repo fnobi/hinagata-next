@@ -4,5 +4,6 @@ node_modules
 .DS_Store
 next-env.d.ts
 dist
+.env.local
 *.tsbuildinfo
-.env*.local
+.firebase

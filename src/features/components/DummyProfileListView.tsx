@@ -1,14 +1,14 @@
 import MockListView from "~/common/components/MockListView";
 import type DummyProfile from "~/features/schema/DummyProfile";
 
-const DummyProfileListView = ({
+const DummyProfileListView = <T extends number | string>({
   list,
   onEdit,
   onDelete
 }: {
-  list: { id: number; data: DummyProfile }[];
-  onEdit: (id: number) => void;
-  onDelete: (id: number) => void;
+  list: { id: T; data: DummyProfile }[];
+  onEdit: (id: T) => void;
+  onDelete: (id: T) => void;
 }) => (
   <MockListView
     dataList={list.map(({ id, data }) => ({

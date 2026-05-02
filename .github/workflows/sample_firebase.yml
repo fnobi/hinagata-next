@@ -7,12 +7,19 @@ on:
 
 env:
   ACTIONS_INSTALL_COMMAND: pnpm install
-  ACTIONS_BUILD_COMMAND: pnpm run build
+  ACTIONS_BUILD_COMMAND: npm run build
   ACTIONS_BUILD_DIST: dist
-  ACTIONS_LOCK_FILE: pnpm-lock.yaml
+  ACTIONS_LOCK_FILE: pnpm-lock.json
 
   NEXT_PUBLIC_SITE_ORIGIN: https://example.com
+  NEXT_PUBLIC_FIREBASE_API_KEY: "XXXXXXXXXXXXXXXXX"
+  NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: "xxxxxxxxxx.firebaseapp.com"
+  NEXT_PUBLIC_FIREBASE_PROJECT_ID: "xxxxxxxxxx"
+  NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: "xxxxxxxxxx.firebasestorage.app"
+  NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: "000000000000"
+  NEXT_PUBLIC_FIREBASE_APP_ID: "0:000000000000:xxx:0000000000000000000000"
 
+  GOOGLE_APPLICATION_CREDENTIALS: /home/runner/credentials.json
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -23,6 +30,10 @@ jobs:
         with:
           node-version-file: .node-version
 
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.33.2
+
       - uses: actions/cache@v4
         with:
           path: node_modules
@@ -32,8 +43,14 @@ jobs:
       - name: install dependencies
         run: ${{ env.ACTIONS_INSTALL_COMMAND }}
 
+      - name: install functions dependencies
+        run: pnpm install --prefix functions
+
       - name: build
         run: ${{ env.ACTIONS_BUILD_COMMAND }}
 
-      - name: firebase deploy
-        run: npx firebase deploy --only hosting
+      - name: setup gcp credentials
+        run: echo ${{ secrets.GCP_CREDENTIALS_PROD }} | base64 --decode > ${{ env.GOOGLE_APPLICATION_CREDENTIALS }}
+
+      - name: deploy firebase
+        run: npx firebase deploy --project ${{ env.NEXT_PUBLIC_FIREBASE_PROJECT_ID }}
