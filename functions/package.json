@@ -1,0 +1,30 @@
+{
+  "name": "functions",
+  "scripts": {
+    "lint": "eslint --fix ./src",
+    "build": "tsc && tsc-alias",
+    "serve": "npm run build && firebase emulators:start --only functions",
+    "shell": "npm run build && firebase functions:shell",
+    "start": "npm run shell",
+    "deploy": "firebase deploy --only functions",
+    "logs": "firebase functions:log",
+    "make-index": "node scripts/make-index"
+  },
+  "main": "lib/functions/src/index.js",
+  "dependencies": {
+    "@google-cloud/functions-framework": "^5.0.2",
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "firebase-admin": "^12.2.0",
+    "firebase-functions": "^4.1.1",
+    "mkdirp": "^1.0.4"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.7",
+    "@types/node": "^20.14.10",
+    "firebase-functions-test": "^0.2.0",
+    "tsc-alias": "^1.8.10",
+    "typescript": "^5.7.3"
+  },
+  "private": true
+}
