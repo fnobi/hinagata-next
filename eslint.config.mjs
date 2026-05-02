@@ -138,6 +138,7 @@ export default [
         ]
       ],
       "no-undef": 1,
+      "react/self-closing-comp": ["error", { component: true, html: true }],
       "react/no-array-index-key": 0,
       "react/require-default-props": [1, { ignoreFunctionalComponents: true }],
       "react/function-component-definition": [
