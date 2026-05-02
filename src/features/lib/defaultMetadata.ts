@@ -2,7 +2,7 @@ import { type Metadata } from "next";
 import makeMetadata from "~/common/lib/makeMetadata";
 import { PAGE_TOP } from "~/features/lib/page-path";
 import ASSETS_OGP from "~/assets/meta/ogp.png";
-import ASSETS_ICON from "~/assets/meta/icon_prompt-holder.png";
+import ASSETS_ICON from "~/assets/meta/favicon.ico";
 
 const DEFAULT_TITLE = "prompt-holder";
 const DEFAULT_DESCRIPTION = "Awsome next.js project.";
@@ -17,8 +17,7 @@ export const defaultMetadata: Metadata = makeMetadata({
   description: DEFAULT_DESCRIPTION,
   shareImageAsset: ASSETS_OGP,
   keywords: DEFAULT_KEYWORDS,
-  faviconUrl: ASSETS_ICON.src,
-  appleIconUrl: ASSETS_ICON.src
+  faviconUrl: ASSETS_ICON.src
 });
 
 export const makeSubPageMetadata = ({

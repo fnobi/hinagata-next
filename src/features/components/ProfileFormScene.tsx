@@ -83,7 +83,7 @@ const ProfileFormScene = () => {
 
   return (
     <>
-      <MockStaticLayout>
+      <MockStaticLayout title="profiles">
         {formId && currentFormData ? (
           <DummyProfileForm
             defaultValue={currentFormData}

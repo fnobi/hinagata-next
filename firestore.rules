@@ -5,9 +5,6 @@ service cloud.firestore {
     match /profiles/{userId} {
       allow read: if true;
       allow write: if request.auth.uid == userId;
-      match /myPrompts/{promptId} {
-        allow read, write: if request.auth.uid == userId;
-      }
     }
   }
 }

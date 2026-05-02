@@ -1,5 +1,5 @@
-import PromptGeneratorScene from "~/features/components/PromptGeneratorScene";
+import ProfileFormScene from "~/features/components/ProfileFormScene";
 
-const PagePromptGenerator = () => <PromptGeneratorScene />;
+const PageProfileForm = () => <ProfileFormScene />;
 
-export default PagePromptGenerator;
+export default PageProfileForm;
