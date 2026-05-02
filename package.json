@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "next",
-    "build": "next build && node scripts/make-dist-dir",
+    "build": "next build && npx tsx cli/make-dist-dir.ts",
     "lint": "eslint --ext .ts,.tsx,.js --fix src",
     "test": "jest",
     "find-deadcode": "ts-prune | grep -v src/pages | grep -v src/lib"
@@ -43,6 +43,7 @@
     "sharp": "^0.32.6",
     "ts-jest": "^29.4.9",
     "ts-prune": "^0.10.3",
+    "tsx": "^4.21.0",
     "typescript": "^6.0.3"
   },
   "dependencies": {

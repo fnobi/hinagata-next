@@ -1,9 +1,9 @@
 .next
+out
 node_modules
 .DS_Store
-yarn.lock
 next-env.d.ts
 dist
-tsconfig.tsbuildinfo
 .env.local
+*.tsbuildinfo
 .firebase
