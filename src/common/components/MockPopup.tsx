@@ -7,6 +7,7 @@ import PopupBase from "~/common/components/PopupBase";
 
 const PopupBody = styled.div({
   backgroundColor: PRIMITIVE_COLOR.WHITE,
+  color: PRIMITIVE_COLOR.BLACK,
   padding: em(1),
   textAlign: "center"
 });
