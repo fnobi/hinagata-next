@@ -4,7 +4,7 @@ import { PAGE_TOP } from "~/features/lib/page-path";
 import ASSETS_OGP from "~/assets/meta/ogp.png";
 import ASSETS_ICON from "~/assets/meta/favicon.ico";
 
-const DEFAULT_TITLE = "prompt-holder";
+const DEFAULT_TITLE = "hinagata-next";
 const DEFAULT_DESCRIPTION = "Awsome next.js project.";
 const DEFAULT_KEYWORDS = ["react", "typescript", "next.js"];
 

@@ -1,5 +1,5 @@
 {
-  "name": "prompt-holder",
+  "name": "hinagata-next",
   "version": "1.0.0",
   "description": "Awsome next.js project.",
   "main": "index.js",
@@ -59,10 +59,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/fnobi/prompt-holder.git"
+    "url": "git+https://github.com/fnobi/hinagata-next.git"
   },
   "bugs": {
-    "url": "https://github.com/fnobi/prompt-holder/issues"
+    "url": "https://github.com/fnobi/hinagata-next/issues"
   },
-  "homepage": "https://github.com/fnobi/prompt-holder#readme"
+  "homepage": "https://github.com/fnobi/hinagata-next#readme"
 }

@@ -1,4 +1,4 @@
-# prompt-holder
+# hinagata-next
 
 ## 使用言語 / フレームワーク / ライブラリ
 
