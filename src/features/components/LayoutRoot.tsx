@@ -237,13 +237,13 @@ const LayoutRoot = ({ children }: { children: ReactNode }) => {
         ) : (
           <SidebarButton
             type="button"
-            onClick={() => {
-              const a = firebaseAuth();
-              const p = new GoogleAuthProvider();
-              signInWithPopup(a, p).catch(e => {
-                console.log(e);
-              });
-            }}
+            onClick={() =>
+              signInWithPopup(firebaseAuth(), new GoogleAuthProvider()).catch(
+                e => {
+                  console.log(e);
+                }
+              )
+            }
           >
             ログイン
           </SidebarButton>
