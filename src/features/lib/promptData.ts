@@ -480,6 +480,72 @@ const PROMPT_CATEGORIES: PromptCategory[] = [
         description: "フィルムカメラ特有の粒子感と色味を持つ質感"
       }
     ]
+  },
+  {
+    id: "video",
+    label: "動画生成",
+    items: [
+      {
+        id: "slow-motion",
+        label: "スローモーション",
+        value: "slow motion, 240fps, ultra slow motion",
+        description: "通常より遅いフレームレートで動きを強調する表現"
+      },
+      {
+        id: "time-lapse",
+        label: "タイムラプス",
+        value: "time-lapse, timelapse, fast motion",
+        description: "長時間の変化を短時間で見せる早回し映像"
+      },
+      {
+        id: "camera-pan",
+        label: "カメラパン",
+        value: "camera panning, horizontal pan shot",
+        description: "カメラを水平方向にスライドさせながら撮影"
+      },
+      {
+        id: "zoom-in",
+        label: "ズームイン",
+        value: "slow zoom in, camera zooming in, dolly zoom",
+        description: "被写体に徐々に近づくズームイン映像"
+      },
+      {
+        id: "dolly-shot",
+        label: "ドリーショット",
+        value: "dolly shot, tracking shot, camera moving forward",
+        description: "カメラが前進・後退しながら撮影するシネマティックな動き"
+      },
+      {
+        id: "orbit",
+        label: "オービット",
+        value: "orbital camera movement, rotating around subject, 360 degree view",
+        description: "被写体の周りをカメラが回転する動き"
+      },
+      {
+        id: "seamless-loop",
+        label: "シームレスループ",
+        value: "seamless loop, infinite loop, looping animation",
+        description: "始点と終点がつながって無限にループする映像"
+      },
+      {
+        id: "handheld",
+        label: "手持ち撮影",
+        value: "handheld camera, shaky camera, documentary style",
+        description: "手持ちカメラの揺れで臨場感やリアリティを演出"
+      },
+      {
+        id: "cinematic-video",
+        label: "シネマティック映像",
+        value: "cinematic video, film look, anamorphic lens flare",
+        description: "映画のような映像品質とルックスを持つ動画"
+      },
+      {
+        id: "aerial",
+        label: "ドローン映像",
+        value: "aerial footage, drone shot, bird's eye video",
+        description: "ドローンを使った空撮映像"
+      }
+    ]
   }
 ];
 
