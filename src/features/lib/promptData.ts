@@ -544,6 +544,12 @@ const PROMPT_CATEGORIES: PromptCategory[] = [
         label: "ドローン映像",
         value: "aerial footage, drone shot, bird's eye video",
         description: "ドローンを使った空撮映像"
+      },
+      {
+        id: "static-camera",
+        label: "カメラ固定",
+        value: "static camera, fixed camera angle, no camera movement, locked-off shot",
+        description: "カメラを一切動かさず固定した状態で撮影。意図しないカメラワークを防ぐ"
       }
     ]
   }
