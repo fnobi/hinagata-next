@@ -72,7 +72,7 @@ const ProfileFormScene = () => {
   );
 
   if (statusError) {
-    return <ErrorScene error={statusError}></ErrorScene>;
+    return <ErrorScene error={statusError} />;
   }
 
   return (
@@ -123,12 +123,12 @@ const ProfileFormScene = () => {
                 />
               </>
             ) : (
-              <InlineLoading></InlineLoading>
+              <InlineLoading />
             )}
           </>
         )}
       </MockStaticLayout>
-      {isLoading ? <LoadingPopup></LoadingPopup> : null}
+      {isLoading ? <LoadingPopup /> : null}
       {operationError ? (
         <ErrorPopup
           error={operationError}
