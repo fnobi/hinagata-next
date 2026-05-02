@@ -8,8 +8,6 @@ import { useDataStoreList } from "~/common/lib/database-common-hooks";
 import { ClientDataStoreAgent } from "~/common/lib/ClientDataStoreAgent";
 import { useAuthorizedUser } from "~/common/lib/firebase-auth-tools";
 import { firebaseAuth } from "~/common/lib/firebase-app";
-import MockPopup from "~/common/components/MockPopup";
-import MockCenteringLayout from "~/common/components/MockCenteringLayout";
 import { profileDataStoreScheme } from "~/features/schema/app-data-store-scheme";
 import type DummyProfile from "~/features/schema/DummyProfile";
 import DummyProfileForm from "~/features/components/DummyProfileForm";
@@ -17,6 +15,10 @@ import DummyProfileListView from "~/features/components/DummyProfileListView";
 import { parseDummyProfile } from "~/features/schema/DummyProfile";
 import useAsyncHandler from "~/features/lib/useAsyncHandler";
 import { type AppErrorParameter } from "~/features/schema/AppErrorParameter";
+import ErrorScene from "~/features/components/ErrorScene";
+import ErrorPopup from "~/features/components/ErrorPopup";
+import LoadingPopup from "~/features/components/LoadingPopup";
+import InlineLoading from "~/features/components/InlineLoading";
 
 const profileDataStore = new ClientDataStoreAgent(profileDataStoreScheme);
 
@@ -70,15 +72,7 @@ const ProfileFormScene = () => {
   );
 
   if (statusError) {
-    return (
-      <MockCenteringLayout>
-        <div>
-          ERROR:
-          <br />
-          {statusError.type}
-        </div>
-      </MockCenteringLayout>
-    );
+    return <ErrorScene error={statusError}></ErrorScene>;
   }
 
   return (
@@ -129,20 +123,17 @@ const ProfileFormScene = () => {
                 />
               </>
             ) : (
-              <p>loading...</p>
+              <InlineLoading></InlineLoading>
             )}
           </>
         )}
       </MockStaticLayout>
-      {isLoading ? <MockPopup>loading...</MockPopup> : null}
+      {isLoading ? <LoadingPopup></LoadingPopup> : null}
       {operationError ? (
-        <MockPopup onClose={() => setOperationError(null)}>
-          <p>
-            ERROR:
-            <br />
-            {operationError.type}
-          </p>
-        </MockPopup>
+        <ErrorPopup
+          error={operationError}
+          onClose={() => setOperationError(null)}
+        />
       ) : null}
     </>
   );
