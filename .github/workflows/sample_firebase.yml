@@ -9,7 +9,7 @@ env:
   ACTIONS_INSTALL_COMMAND: pnpm install
   ACTIONS_BUILD_COMMAND: npm run build
   ACTIONS_BUILD_DIST: dist
-  ACTIONS_LOCK_FILE: pnpm-lock.json
+  ACTIONS_LOCK_FILE: pnpm-lock.yaml
 
   NEXT_PUBLIC_SITE_ORIGIN: https://example.com
   NEXT_PUBLIC_FIREBASE_API_KEY: "XXXXXXXXXXXXXXXXX"
@@ -45,6 +45,9 @@ jobs:
 
       - name: install functions dependencies
         run: pnpm install --prefix functions
+
+      - name: lint
+        run: npx eslint --ext .ts,.tsx,.js src
 
       - name: build
         run: ${{ env.ACTIONS_BUILD_COMMAND }}
