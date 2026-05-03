@@ -8,6 +8,7 @@ const nextConfig: NextConfig = {
   trailingSlash: true,
   transpilePackages: ["@emotion/react", "@emotion/styled", "@emotion/cache"],
   turbopack: {
+    root: __dirname,
     rules: {
       "*.mp4": { type: "asset" },
       "*.webm": { type: "asset" },
