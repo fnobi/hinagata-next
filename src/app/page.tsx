@@ -1,4 +1,4 @@
-import ProfileFormScene from "~/features/components/ProfileFormScene";
+import ProfileFormScene from "~/features/components/_provider/ProfileFormScene";
 
 const PageProfileForm = () => <ProfileFormScene />;
 
