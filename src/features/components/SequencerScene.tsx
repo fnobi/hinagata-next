@@ -316,11 +316,18 @@ export default function SequencerScene() {
     const key = cellKey(step, midi);
     setGrid(prev => {
       const next = new Set(prev);
-      if (next.has(key)) next.delete(key);
-      else next.add(key);
+      if (next.has(key)) {
+        next.delete(key);
+      } else {
+        next.add(key);
+        // Preview the note once when placing it
+        const ctx = getCtx();
+        const note = SEQUENCER_NOTES.find(n => n.midi === midi);
+        if (note) playNoteAudio(ctx, note.freq, ctx.currentTime, 0.4);
+      }
       return next;
     });
-  }, []);
+  }, [getCtx]);
 
   return (
     <Root>
