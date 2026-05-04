@@ -1,5 +1,5 @@
-import ProfileFormScene from "~/features/components/_provider/ProfileFormScene";
+import IdeationScene from "~/features/components/IdeationScene";
 
-const PageProfileForm = () => <ProfileFormScene />;
+const Page = () => <IdeationScene />;
 
-export default PageProfileForm;
+export default Page;
