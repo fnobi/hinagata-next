@@ -134,7 +134,8 @@ const KeywordChip = styled.div<{ isDragging: boolean }>(({ isDragging }) => ({
   transform: "translate(-50%, -50%)",
   transition: isDragging ? "none" : "box-shadow 0.15s",
   zIndex: isDragging ? 5 : 2,
-  letterSpacing: "0.02em"
+  letterSpacing: "0.02em",
+  touchAction: "none"
 }));
 
 const AddButton = styled.button(buttonReset, {
@@ -249,32 +250,26 @@ const IdeationScene = () => {
   const [inputText, setInputText] = useState("");
   const canvasRef = useRef<HTMLDivElement>(null);
 
-  const handleChipMouseDown = useCallback(
-    (e: React.MouseEvent, id: number) => {
-      e.preventDefault();
-      e.stopPropagation();
+  const startDrag = useCallback(
+    (clientX: number, clientY: number, id: number) => {
       const kw = keywords.find(k => k.id === id);
       if (!kw) return;
       setDragging({
         keywordId: id,
-        offsetX: e.clientX - kw.x,
-        offsetY: e.clientY - kw.y
+        offsetX: clientX - kw.x,
+        offsetY: clientY - kw.y
       });
     },
     [keywords]
   );
 
-  const handleMouseMove = useCallback(
-    (e: React.MouseEvent) => {
+  const moveDrag = useCallback(
+    (clientX: number, clientY: number) => {
       if (!dragging) return;
       setKeywords(kws =>
         kws.map(k =>
           k.id === dragging.keywordId
-            ? {
-                ...k,
-                x: e.clientX - dragging.offsetX,
-                y: e.clientY - dragging.offsetY
-              }
+            ? { ...k, x: clientX - dragging.offsetX, y: clientY - dragging.offsetY }
             : k
         )
       );
@@ -282,9 +277,42 @@ const IdeationScene = () => {
     [dragging]
   );
 
-  const handleMouseUp = useCallback(() => {
+  const endDrag = useCallback(() => {
     setDragging(null);
   }, []);
+
+  const handleChipMouseDown = useCallback(
+    (e: React.MouseEvent, id: number) => {
+      e.preventDefault();
+      e.stopPropagation();
+      startDrag(e.clientX, e.clientY, id);
+    },
+    [startDrag]
+  );
+
+  const handleMouseMove = useCallback(
+    (e: React.MouseEvent) => moveDrag(e.clientX, e.clientY),
+    [moveDrag]
+  );
+
+  const handleChipTouchStart = useCallback(
+    (e: React.TouchEvent, id: number) => {
+      e.stopPropagation();
+      const t = e.touches[0];
+      startDrag(t.clientX, t.clientY, id);
+    },
+    [startDrag]
+  );
+
+  const handleTouchMove = useCallback(
+    (e: React.TouchEvent) => {
+      const t = e.touches[0];
+      moveDrag(t.clientX, t.clientY);
+    },
+    [moveDrag]
+  );
+
+  const handleMouseUp = endDrag;
 
   const handleAdd = useCallback(() => {
     const text = inputText.trim();
@@ -320,6 +348,9 @@ const IdeationScene = () => {
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseUp}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={endDrag}
+        onTouchCancel={endDrag}
       >
         {/* Quadrant backgrounds */}
         <QuadGrid>
@@ -366,6 +397,7 @@ const IdeationScene = () => {
             isDragging={dragging?.keywordId === kw.id}
             style={{ left: kw.x, top: kw.y }}
             onMouseDown={e => handleChipMouseDown(e, kw.id)}
+            onTouchStart={e => handleChipTouchStart(e, kw.id)}
           >
             {kw.text}
           </KeywordChip>
