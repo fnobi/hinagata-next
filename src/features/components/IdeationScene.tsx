@@ -2,150 +2,174 @@
 
 import styled from "@emotion/styled";
 import { useState, useRef, useCallback } from "react";
-import { buttonReset, percent, px } from "~/common/lib/css-util";
+import { buttonReset, px } from "~/common/lib/css-util";
 
-type Keyword = {
+type RowType = "抽象" | "具体";
+
+type Row = {
   id: number;
-  text: string;
-  x: number;
-  y: number;
+  type: RowType;
+  keywordA: string;
+  keywordB: string;
 };
 
 type DragState = {
-  keywordId: number;
-  offsetX: number;
-  offsetY: number;
+  fromId: number;
+  dropIndex: number;
 };
 
-const Canvas = styled.div({
-  position: "fixed",
-  inset: 0,
-  overflow: "hidden",
-  userSelect: "none",
-  background: "#f8f7f4"
+type FormState = {
+  id: number | null; // null = new row
+  type: RowType;
+  keywordA: string;
+  keywordB: string;
+};
+
+const INITIAL_ROWS: Row[] = [
+  { id: 1, type: "抽象", keywordA: "自由", keywordB: "秩序" },
+  { id: 2, type: "具体", keywordA: "遊び", keywordB: "仕事" },
+  { id: 3, type: "抽象", keywordA: "夢", keywordB: "現実" }
+];
+
+// 4-column grid shared between header and rows
+const GRID_COLS = "40px 1fr 1fr 48px";
+
+// ──────────────────────────────────────────────────────────────
+// Styled components
+// ──────────────────────────────────────────────────────────────
+
+const Root = styled.div({
+  display: "flex",
+  flexDirection: "column",
+  height: "100dvh",
+  background: "#f8f7f4",
+  overflow: "hidden"
 });
 
-const QuadGrid = styled.div({
-  position: "absolute",
-  inset: 0,
+const ColHeader = styled.div({
   display: "grid",
-  gridTemplateColumns: "1fr 1fr",
-  gridTemplateRows: "1fr 1fr",
-  pointerEvents: "none"
+  gridTemplateColumns: GRID_COLS,
+  borderBottom: "1.5px solid rgba(0,0,0,0.13)",
+  background: "#fff",
+  flexShrink: 0
 });
 
-const QuadCell = styled.div<{ bg: string }>(({ bg }) => ({
-  backgroundColor: bg,
-  position: "relative"
-}));
+const ColHeaderLabel = styled.div<{ borderLeft?: boolean }>(
+  ({ borderLeft }) => ({
+    padding: px(13, 16),
+    fontSize: px(11),
+    fontWeight: 800,
+    letterSpacing: "0.12em",
+    color: "rgba(0,0,0,0.38)",
+    borderLeft: borderLeft ? "1px solid rgba(0,0,0,0.1)" : "none"
+  })
+);
 
-const QuadLabel = styled.div<{
-  vAlign: "top" | "bottom";
-  hAlign: "left" | "right";
-}>(({ vAlign, hAlign }) => ({
-  position: "absolute",
-  [vAlign]: px(16),
-  [hAlign]: px(20),
-  fontSize: px(11),
-  fontWeight: 700,
-  letterSpacing: "0.06em",
-  color: "rgba(0,0,0,0.22)",
-  textTransform: "uppercase"
-}));
-
-const DividerH = styled.div({
-  position: "absolute",
-  left: 0,
-  right: 0,
-  top: percent(50),
-  height: px(1),
-  backgroundColor: "rgba(0,0,0,0.18)",
-  pointerEvents: "none"
+const RowList = styled.div({
+  flex: 1,
+  overflowY: "auto",
+  WebkitOverflowScrolling: "touch"
 });
 
-const DividerV = styled.div({
-  position: "absolute",
-  top: 0,
-  bottom: 0,
-  left: percent(50),
-  width: px(1),
-  backgroundColor: "rgba(0,0,0,0.18)",
-  pointerEvents: "none"
+const RowWrap = styled.div<{ faded: boolean; dropLineBefore: boolean }>(
+  ({ faded, dropLineBefore }) => ({
+    opacity: faded ? 0.28 : 1,
+    position: "relative",
+    "&::before": dropLineBefore
+      ? {
+          content: '""',
+          position: "absolute",
+          top: -1,
+          left: px(40),
+          right: 0,
+          height: px(2),
+          background: "#222",
+          zIndex: 3,
+          pointerEvents: "none"
+        }
+      : {}
+  })
+);
+
+const RowGrid = styled.div({
+  display: "grid",
+  gridTemplateColumns: GRID_COLS,
+  alignItems: "stretch",
+  borderBottom: "1px solid rgba(0,0,0,0.07)",
+  background: "#fff",
+  minHeight: px(54),
+  cursor: "pointer",
+  "&:active": { background: "#f5f4f0" }
 });
 
-const AxisLabelH = styled.div<{ side: "top" | "bottom" }>(({ side }) => ({
-  position: "absolute",
-  left: percent(50),
-  [side]: px(20),
-  transform: "translateX(-50%)",
-  fontSize: px(12),
-  fontWeight: 800,
-  letterSpacing: "0.12em",
-  color: "rgba(0,0,0,0.4)",
-  pointerEvents: "none",
-  textTransform: "uppercase"
+const Handle = styled.div({
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  color: "rgba(0,0,0,0.2)",
+  fontSize: px(16),
+  cursor: "grab",
+  touchAction: "none",
+  userSelect: "none",
+  "&:active": { cursor: "grabbing" }
+});
+
+const KeyCell = styled.div<{ borderLeft?: boolean }>(({ borderLeft }) => ({
+  display: "flex",
+  alignItems: "center",
+  gap: px(8),
+  padding: px(12, 14),
+  fontSize: px(15),
+  fontWeight: 600,
+  color: "#222",
+  borderLeft: borderLeft ? "1px solid rgba(0,0,0,0.1)" : "none",
+  minWidth: 0
 }));
 
-const AxisLabelV = styled.div<{ side: "left" | "right" }>(({ side }) => ({
-  position: "absolute",
-  top: percent(50),
-  [side]: px(20),
-  transform: `translateY(-50%) rotate(${side === "left" ? -90 : 90}deg)`,
-  fontSize: px(12),
-  fontWeight: 800,
-  letterSpacing: "0.12em",
-  color: "rgba(0,0,0,0.4)",
-  pointerEvents: "none",
-  textTransform: "uppercase"
-}));
-
-const GroupTagTop = styled.div({
-  position: "absolute",
-  left: percent(50),
-  top: percent(50),
-  transform: "translate(-50%, calc(-100% - 8px))",
+const Badge = styled.span<{ kind: RowType }>(({ kind }) => ({
+  flexShrink: 0,
   fontSize: px(10),
   fontWeight: 700,
-  letterSpacing: "0.1em",
-  color: "rgba(0,0,0,0.3)",
-  pointerEvents: "none",
-  backgroundColor: "rgba(255,255,255,0.7)",
-  padding: px(2, 8),
-  borderRadius: px(4)
-});
-
-const GroupTagBottom = styled(GroupTagTop)({
-  transform: "translate(-50%, 8px)"
-});
-
-const KeywordChip = styled.div<{ isDragging: boolean }>(({ isDragging }) => ({
-  position: "absolute",
-  padding: px(7, 16),
-  borderRadius: px(24),
-  backgroundColor: "#fff",
-  border: "1.5px solid #222",
-  fontSize: px(14),
-  fontWeight: 700,
-  cursor: isDragging ? "grabbing" : "grab",
-  boxShadow: isDragging
-    ? "0 8px 24px rgba(0,0,0,0.2)"
-    : "0 2px 8px rgba(0,0,0,0.1)",
-  whiteSpace: "nowrap",
-  transform: "translate(-50%, -50%)",
-  transition: isDragging ? "none" : "box-shadow 0.15s",
-  zIndex: isDragging ? 5 : 2,
-  letterSpacing: "0.02em",
-  touchAction: "none"
+  padding: px(2, 6),
+  borderRadius: px(4),
+  background:
+    kind === "抽象"
+      ? "rgba(100,140,255,0.14)"
+      : "rgba(60,200,150,0.14)",
+  color: kind === "抽象" ? "#3355cc" : "#1a8860"
 }));
 
-const AddButton = styled.button(buttonReset, {
+const KeyText = styled.span({
+  overflow: "hidden",
+  textOverflow: "ellipsis",
+  whiteSpace: "nowrap"
+});
+
+const EditIconBtn = styled.button(buttonReset, {
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  color: "rgba(0,0,0,0.22)",
+  fontSize: px(17),
+  width: "100%",
+  height: "100%",
+  "&:hover": { color: "#222" }
+});
+
+const TrailingDropLine = styled.div({
+  height: px(2),
+  background: "#222",
+  marginLeft: px(40)
+});
+
+const Fab = styled.button(buttonReset, {
   position: "fixed",
   bottom: px(32),
   right: px(32),
   width: px(56),
   height: px(56),
-  borderRadius: percent(50),
-  backgroundColor: "#222",
+  borderRadius: "50%",
+  background: "#222",
   color: "#fff",
   fontSize: px(26),
   lineHeight: 1,
@@ -153,284 +177,354 @@ const AddButton = styled.button(buttonReset, {
   alignItems: "center",
   justifyContent: "center",
   boxShadow: "0 4px 20px rgba(0,0,0,0.25)",
-  cursor: "pointer",
   zIndex: 10,
-  transition: "transform 0.12s, background 0.12s",
-  "&:hover": {
-    backgroundColor: "#444",
-    transform: "scale(1.06)"
-  },
-  "&:active": {
-    transform: "scale(0.96)"
-  }
+  "&:active": { transform: "scale(0.94)" }
 });
 
+// Bottom sheet modal
 const Overlay = styled.div({
   position: "fixed",
   inset: 0,
-  backgroundColor: "rgba(0,0,0,0.35)",
+  background: "rgba(0,0,0,0.4)",
   display: "flex",
-  alignItems: "center",
+  alignItems: "flex-end",
   justifyContent: "center",
   zIndex: 20
 });
 
-const InputBox = styled.div({
-  backgroundColor: "#fff",
-  borderRadius: px(14),
-  padding: px(28, 28, 20),
+const Sheet = styled.div({
+  background: "#fff",
+  borderRadius: px(16, 16, 0, 0),
+  padding: px(28, 24, 48),
+  width: "100%",
+  maxWidth: px(640),
   display: "flex",
   flexDirection: "column",
-  gap: px(14),
-  minWidth: px(300),
-  boxShadow: "0 8px 40px rgba(0,0,0,0.2)"
+  gap: px(18)
 });
 
-const InputTitle = styled.p({
+const SheetTitle = styled.p({
   margin: 0,
-  fontSize: px(15),
+  fontSize: px(16),
   fontWeight: 800,
-  letterSpacing: "0.04em",
   color: "#222"
 });
 
-const TextInput = styled.input({
+const Field = styled.div({
+  display: "flex",
+  flexDirection: "column",
+  gap: px(6)
+});
+
+const FieldLabel = styled.label({
+  fontSize: px(11),
+  fontWeight: 700,
+  letterSpacing: "0.1em",
+  color: "rgba(0,0,0,0.38)",
+  textTransform: "uppercase"
+});
+
+const TypeRow = styled.div({
+  display: "flex",
+  gap: px(8)
+});
+
+const TypeBtn = styled.button<{ active: boolean }>(
+  buttonReset,
+  ({ active }) => ({
+    flex: 1,
+    padding: px(10, 0),
+    borderRadius: px(8),
+    border: "1.5px solid",
+    borderColor: active ? "#222" : "rgba(0,0,0,0.18)",
+    background: active ? "#222" : "transparent",
+    color: active ? "#fff" : "rgba(0,0,0,0.42)",
+    fontSize: px(14),
+    fontWeight: 700,
+    cursor: "pointer"
+  })
+);
+
+const Input = styled.input({
   border: "1.5px solid #ddd",
   borderRadius: px(8),
-  padding: px(9, 12),
+  padding: px(11, 12),
   fontSize: px(16),
-  outline: "none",
   fontFamily: "inherit",
-  transition: "border-color 0.15s",
-  "&:focus": {
-    borderColor: "#222"
-  },
-  "&::placeholder": {
-    color: "#bbb"
-  }
+  outline: "none",
+  "&:focus": { borderColor: "#222" },
+  "&::placeholder": { color: "#ccc" }
 });
 
-const SubmitButton = styled.button(buttonReset, {
-  backgroundColor: "#222",
+const Actions = styled.div({
+  display: "flex",
+  gap: px(8),
+  marginTop: px(4)
+});
+
+const SaveBtn = styled.button(buttonReset, {
+  flex: 1,
+  padding: px(12, 0),
+  background: "#222",
   color: "#fff",
   borderRadius: px(8),
-  padding: px(9, 16),
   fontSize: px(15),
   fontWeight: 700,
-  cursor: "pointer",
   textAlign: "center",
-  transition: "background 0.12s",
-  "&:hover": {
-    backgroundColor: "#444"
-  },
-  "&:disabled": {
-    opacity: 0.4,
-    pointerEvents: "none"
-  }
+  "&:disabled": { opacity: 0.35, pointerEvents: "none" }
 });
 
-const QUAD_COLORS = [
-  "rgba(100, 140, 255, 0.07)", // A × 抽象 (top-left)
-  "rgba(60,  200, 150, 0.07)", // A × 具体 (top-right)
-  "rgba(255, 160,  80, 0.07)", // B × 抽象 (bottom-left)
-  "rgba(200,  80, 200, 0.07)"  // B × 具体 (bottom-right)
-];
+const CancelBtn = styled.button(buttonReset, {
+  padding: px(12, 16),
+  border: "1.5px solid rgba(0,0,0,0.18)",
+  borderRadius: px(8),
+  fontSize: px(15),
+  fontWeight: 600,
+  color: "rgba(0,0,0,0.5)",
+  cursor: "pointer"
+});
 
-const INITIAL_KEYWORDS: Keyword[] = [
-  { id: 1, text: "自由", x: 180, y: 180 },
-  { id: 2, text: "秩序", x: 180, y: 420 },
-  { id: 3, text: "遊び", x: 560, y: 160 },
-  { id: 4, text: "仕事", x: 560, y: 400 }
-];
+const DeleteBtn = styled.button(buttonReset, {
+  padding: px(12, 16),
+  border: "1.5px solid rgba(200,50,50,0.3)",
+  borderRadius: px(8),
+  fontSize: px(15),
+  fontWeight: 600,
+  color: "rgba(200,50,50,0.8)",
+  cursor: "pointer"
+});
+
+// ──────────────────────────────────────────────────────────────
+// Component
+// ──────────────────────────────────────────────────────────────
 
 const IdeationScene = () => {
-  const [keywords, setKeywords] = useState<Keyword[]>(INITIAL_KEYWORDS);
-  const [dragging, setDragging] = useState<DragState | null>(null);
-  const [showInput, setShowInput] = useState(false);
-  const [inputText, setInputText] = useState("");
-  const canvasRef = useRef<HTMLDivElement>(null);
+  const [rows, setRows] = useState<Row[]>(INITIAL_ROWS);
+  const [drag, setDrag] = useState<DragState | null>(null);
+  const [form, setForm] = useState<FormState | null>(null);
+  const rowEls = useRef<Map<number, HTMLDivElement>>(new Map());
 
-  const startDrag = useCallback(
-    (clientX: number, clientY: number, id: number) => {
-      const kw = keywords.find(k => k.id === id);
-      if (!kw) return;
-      setDragging({
-        keywordId: id,
-        offsetX: clientX - kw.x,
-        offsetY: clientY - kw.y
-      });
+  // Compute insertion index from pointer Y position
+  const dropIndexAt = useCallback(
+    (clientY: number) => {
+      for (let i = 0; i < rows.length; i++) {
+        const el = rowEls.current.get(rows[i].id);
+        if (!el) continue;
+        const { top, height } = el.getBoundingClientRect();
+        if (clientY < top + height / 2) return i;
+      }
+      return rows.length;
     },
-    [keywords]
+    [rows]
   );
 
-  const moveDrag = useCallback(
-    (clientX: number, clientY: number) => {
-      if (!dragging) return;
-      setKeywords(kws =>
-        kws.map(k =>
-          k.id === dragging.keywordId
-            ? { ...k, x: clientX - dragging.offsetX, y: clientY - dragging.offsetY }
-            : k
-        )
-      );
-    },
-    [dragging]
-  );
-
-  const endDrag = useCallback(() => {
-    setDragging(null);
-  }, []);
-
-  const handleChipMouseDown = useCallback(
-    (e: React.MouseEvent, id: number) => {
+  // ── Drag-to-reorder (pointer capture on handle) ───────────
+  const onHandleDown = useCallback(
+    (e: React.PointerEvent, id: number) => {
       e.preventDefault();
       e.stopPropagation();
-      startDrag(e.clientX, e.clientY, id);
+      (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+      setDrag({ fromId: id, dropIndex: rows.findIndex(r => r.id === id) });
     },
-    [startDrag]
+    [rows]
   );
 
-  const handleMouseMove = useCallback(
-    (e: React.MouseEvent) => moveDrag(e.clientX, e.clientY),
-    [moveDrag]
-  );
-
-  const handleChipTouchStart = useCallback(
-    (e: React.TouchEvent, id: number) => {
-      e.stopPropagation();
-      const t = e.touches[0];
-      startDrag(t.clientX, t.clientY, id);
+  const onHandleMove = useCallback(
+    (e: React.PointerEvent) => {
+      if (!drag) return;
+      setDrag(d => (d ? { ...d, dropIndex: dropIndexAt(e.clientY) } : null));
     },
-    [startDrag]
+    [drag, dropIndexAt]
   );
 
-  const handleTouchMove = useCallback(
-    (e: React.TouchEvent) => {
-      const t = e.touches[0];
-      moveDrag(t.clientX, t.clientY);
-    },
-    [moveDrag]
+  const onHandleUp = useCallback(() => {
+    if (!drag) return;
+    const { fromId, dropIndex } = drag;
+    setRows(prev => {
+      const fi = prev.findIndex(r => r.id === fromId);
+      if (fi < 0) return prev;
+      const next = [...prev];
+      const [row] = next.splice(fi, 1);
+      next.splice(dropIndex > fi ? dropIndex - 1 : dropIndex, 0, row);
+      return next;
+    });
+    setDrag(null);
+  }, [drag]);
+
+  // ── Form (add / edit) ─────────────────────────────────────
+  const openAdd = useCallback(
+    () => setForm({ id: null, type: "抽象", keywordA: "", keywordB: "" }),
+    []
   );
 
-  const handleMouseUp = endDrag;
-
-  const handleAdd = useCallback(() => {
-    const text = inputText.trim();
-    if (!text) return;
-    const canvas = canvasRef.current;
-    const cx = canvas ? canvas.clientWidth / 2 : 400;
-    const cy = canvas ? canvas.clientHeight / 2 : 300;
-    setKeywords(kws => [
-      ...kws,
-      {
-        id: Date.now(),
-        text,
-        x: cx + (Math.random() - 0.5) * 240,
-        y: cy + (Math.random() - 0.5) * 160
-      }
-    ]);
-    setInputText("");
-    setShowInput(false);
-  }, [inputText]);
-
-  const handleInputKeyDown = useCallback(
-    (e: React.KeyboardEvent) => {
-      if (e.key === "Enter") handleAdd();
-      if (e.key === "Escape") setShowInput(false);
-    },
-    [handleAdd]
+  const openEdit = useCallback(
+    (row: Row) =>
+      setForm({
+        id: row.id,
+        type: row.type,
+        keywordA: row.keywordA,
+        keywordB: row.keywordB
+      }),
+    []
   );
+
+  const closeForm = useCallback(() => setForm(null), []);
+
+  const saveForm = useCallback(() => {
+    if (!form) return;
+    const a = form.keywordA.trim();
+    const b = form.keywordB.trim();
+    if (!a && !b) return;
+    if (form.id === null) {
+      setRows(prev => [
+        ...prev,
+        { id: Date.now(), type: form.type, keywordA: a, keywordB: b }
+      ]);
+    } else {
+      setRows(prev =>
+        prev.map(r =>
+          r.id === form.id
+            ? { ...r, type: form.type, keywordA: a, keywordB: b }
+            : r
+        )
+      );
+    }
+    setForm(null);
+  }, [form]);
+
+  const deleteRow = useCallback(() => {
+    if (!form || form.id === null) return;
+    setRows(prev => prev.filter(r => r.id !== form.id));
+    setForm(null);
+  }, [form]);
 
   return (
-    <>
-      <Canvas
-        ref={canvasRef}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseUp}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={endDrag}
-        onTouchCancel={endDrag}
-      >
-        {/* Quadrant backgrounds */}
-        <QuadGrid>
-          <QuadCell bg={QUAD_COLORS[0]}>
-            <QuadLabel vAlign="top" hAlign="left">
-              A × 抽象
-            </QuadLabel>
-          </QuadCell>
-          <QuadCell bg={QUAD_COLORS[1]}>
-            <QuadLabel vAlign="top" hAlign="right">
-              A × 具体
-            </QuadLabel>
-          </QuadCell>
-          <QuadCell bg={QUAD_COLORS[2]}>
-            <QuadLabel vAlign="bottom" hAlign="left">
-              B × 抽象
-            </QuadLabel>
-          </QuadCell>
-          <QuadCell bg={QUAD_COLORS[3]}>
-            <QuadLabel vAlign="bottom" hAlign="right">
-              B × 具体
-            </QuadLabel>
-          </QuadCell>
-        </QuadGrid>
+    <Root>
+      {/* ── Column headers ───────────────────────────────── */}
+      <ColHeader>
+        <div />
+        <ColHeaderLabel>グループ A</ColHeaderLabel>
+        <ColHeaderLabel borderLeft>グループ B</ColHeaderLabel>
+        <div />
+      </ColHeader>
 
-        {/* Dividers */}
-        <DividerH />
-        <DividerV />
-
-        {/* Axis labels */}
-        <AxisLabelH side="top">グループ A</AxisLabelH>
-        <AxisLabelH side="bottom">グループ B</AxisLabelH>
-        <AxisLabelV side="left">抽象</AxisLabelV>
-        <AxisLabelV side="right">具体</AxisLabelV>
-
-        {/* Center cross tags */}
-        <GroupTagTop>グループ A</GroupTagTop>
-        <GroupTagBottom>グループ B</GroupTagBottom>
-
-        {/* Keywords */}
-        {keywords.map(kw => (
-          <KeywordChip
-            key={kw.id}
-            isDragging={dragging?.keywordId === kw.id}
-            style={{ left: kw.x, top: kw.y }}
-            onMouseDown={e => handleChipMouseDown(e, kw.id)}
-            onTouchStart={e => handleChipTouchStart(e, kw.id)}
+      {/* ── Row list ─────────────────────────────────────── */}
+      <RowList>
+        {rows.map((row, i) => (
+          <RowWrap
+            key={row.id}
+            faded={drag?.fromId === row.id}
+            dropLineBefore={
+              drag !== null &&
+              drag.fromId !== row.id &&
+              drag.dropIndex === i
+            }
+            ref={el => {
+              if (el) rowEls.current.set(row.id, el);
+              else rowEls.current.delete(row.id);
+            }}
           >
-            {kw.text}
-          </KeywordChip>
+            <RowGrid onClick={() => !drag && openEdit(row)}>
+              <Handle
+                onPointerDown={e => onHandleDown(e, row.id)}
+                onPointerMove={onHandleMove}
+                onPointerUp={onHandleUp}
+                onClick={e => e.stopPropagation()}
+              >
+                ≡
+              </Handle>
+              <KeyCell>
+                <Badge kind={row.type}>{row.type}</Badge>
+                <KeyText>{row.keywordA}</KeyText>
+              </KeyCell>
+              <KeyCell borderLeft>
+                <KeyText>{row.keywordB}</KeyText>
+              </KeyCell>
+              <EditIconBtn
+                onClick={e => {
+                  e.stopPropagation();
+                  openEdit(row);
+                }}
+              >
+                ✎
+              </EditIconBtn>
+            </RowGrid>
+          </RowWrap>
         ))}
-      </Canvas>
 
-      {/* FAB */}
-      <AddButton onClick={() => setShowInput(true)}>＋</AddButton>
+        {/* Drop line after last row */}
+        {drag?.dropIndex === rows.length && <TrailingDropLine />}
+      </RowList>
 
-      {/* Add keyword dialog */}
-      {showInput && (
-        <Overlay
-          onClick={() => {
-            setShowInput(false);
-            setInputText("");
-          }}
-        >
-          <InputBox onClick={e => e.stopPropagation()}>
-            <InputTitle>キーワードを追加</InputTitle>
-            <TextInput
-              autoFocus
-              value={inputText}
-              onChange={e => setInputText(e.target.value)}
-              onKeyDown={handleInputKeyDown}
-              placeholder="例: 自由、孤独、リズム…"
-            />
-            <SubmitButton disabled={!inputText.trim()} onClick={handleAdd}>
-              追加する
-            </SubmitButton>
-          </InputBox>
+      {/* ── FAB ──────────────────────────────────────────── */}
+      <Fab onClick={openAdd}>＋</Fab>
+
+      {/* ── Add / Edit bottom sheet ───────────────────────── */}
+      {form && (
+        <Overlay onClick={closeForm}>
+          <Sheet onClick={e => e.stopPropagation()}>
+            <SheetTitle>
+              {form.id === null ? "行を追加" : "行を編集"}
+            </SheetTitle>
+
+            <Field>
+              <FieldLabel>種類</FieldLabel>
+              <TypeRow>
+                {(["抽象", "具体"] as RowType[]).map(t => (
+                  <TypeBtn
+                    key={t}
+                    active={form.type === t}
+                    onClick={() =>
+                      setForm(f => (f ? { ...f, type: t } : f))
+                    }
+                  >
+                    {t}
+                  </TypeBtn>
+                ))}
+              </TypeRow>
+            </Field>
+
+            <Field>
+              <FieldLabel>グループ A</FieldLabel>
+              <Input
+                autoFocus
+                value={form.keywordA}
+                onChange={e =>
+                  setForm(f => (f ? { ...f, keywordA: e.target.value } : f))
+                }
+                onKeyDown={e => e.key === "Enter" && saveForm()}
+                placeholder="キーワードを入力…"
+              />
+            </Field>
+
+            <Field>
+              <FieldLabel>グループ B</FieldLabel>
+              <Input
+                value={form.keywordB}
+                onChange={e =>
+                  setForm(f => (f ? { ...f, keywordB: e.target.value } : f))
+                }
+                onKeyDown={e => e.key === "Enter" && saveForm()}
+                placeholder="キーワードを入力…"
+              />
+            </Field>
+
+            <Actions>
+              <SaveBtn
+                disabled={!form.keywordA.trim() && !form.keywordB.trim()}
+                onClick={saveForm}
+              >
+                保存
+              </SaveBtn>
+              {form.id !== null && (
+                <DeleteBtn onClick={deleteRow}>削除</DeleteBtn>
+              )}
+              <CancelBtn onClick={closeForm}>キャンセル</CancelBtn>
+            </Actions>
+          </Sheet>
         </Overlay>
       )}
-    </>
+    </Root>
   );
 };
 
