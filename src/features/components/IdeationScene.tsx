@@ -4,11 +4,8 @@ import styled from "@emotion/styled";
 import { useState, useRef, useCallback } from "react";
 import { buttonReset, px } from "~/common/lib/css-util";
 
-type RowType = "抽象" | "具体";
-
 type Row = {
   id: number;
-  type: RowType;
   keywordA: string;
   keywordB: string;
 };
@@ -20,15 +17,14 @@ type DragState = {
 
 type FormState = {
   id: number | null; // null = new row
-  type: RowType;
   keywordA: string;
   keywordB: string;
 };
 
 const INITIAL_ROWS: Row[] = [
-  { id: 1, type: "抽象", keywordA: "自由", keywordB: "秩序" },
-  { id: 2, type: "具体", keywordA: "遊び", keywordB: "仕事" },
-  { id: 3, type: "抽象", keywordA: "夢", keywordB: "現実" }
+  { id: 1, keywordA: "自由", keywordB: "秩序" },
+  { id: 2, keywordA: "遊び", keywordB: "仕事" },
+  { id: 3, keywordA: "夢", keywordB: "現実" }
 ];
 
 // 4-column grid shared between header and rows
@@ -54,16 +50,43 @@ const ColHeader = styled.div({
   flexShrink: 0
 });
 
-const ColHeaderLabel = styled.div<{ borderLeft?: boolean }>(
+const ColHeaderCell = styled.div<{ borderLeft?: boolean }>(
   ({ borderLeft }) => ({
-    padding: px(13, 16),
-    fontSize: px(11),
-    fontWeight: 800,
-    letterSpacing: "0.12em",
-    color: "rgba(0,0,0,0.38)",
-    borderLeft: borderLeft ? "1px solid rgba(0,0,0,0.1)" : "none"
+    display: "flex",
+    alignItems: "center",
+    borderLeft: borderLeft ? "1px solid rgba(0,0,0,0.1)" : "none",
+    minWidth: 0
   })
 );
+
+const ColHeaderLabel = styled.button(buttonReset, {
+  flex: 1,
+  padding: px(13, 16),
+  fontSize: px(11),
+  fontWeight: 800,
+  letterSpacing: "0.12em",
+  color: "rgba(0,0,0,0.38)",
+  textAlign: "left",
+  cursor: "text",
+  overflow: "hidden",
+  textOverflow: "ellipsis",
+  whiteSpace: "nowrap",
+  "&:hover": { color: "rgba(0,0,0,0.6)" }
+});
+
+const ColHeaderInput = styled.input({
+  flex: 1,
+  padding: px(13, 16),
+  fontSize: px(11),
+  fontWeight: 800,
+  letterSpacing: "0.12em",
+  color: "#222",
+  border: "none",
+  outline: "none",
+  background: "rgba(0,0,0,0.04)",
+  fontFamily: "inherit",
+  minWidth: 0
+});
 
 const RowList = styled.div({
   flex: 1,
@@ -117,26 +140,12 @@ const Handle = styled.div({
 const KeyCell = styled.div<{ borderLeft?: boolean }>(({ borderLeft }) => ({
   display: "flex",
   alignItems: "center",
-  gap: px(8),
   padding: px(12, 14),
   fontSize: px(15),
   fontWeight: 600,
   color: "#222",
   borderLeft: borderLeft ? "1px solid rgba(0,0,0,0.1)" : "none",
   minWidth: 0
-}));
-
-const Badge = styled.span<{ kind: RowType }>(({ kind }) => ({
-  flexShrink: 0,
-  fontSize: px(10),
-  fontWeight: 700,
-  padding: px(2, 6),
-  borderRadius: px(4),
-  background:
-    kind === "抽象"
-      ? "rgba(100,140,255,0.14)"
-      : "rgba(60,200,150,0.14)",
-  color: kind === "抽象" ? "#3355cc" : "#1a8860"
 }));
 
 const KeyText = styled.span({
@@ -224,26 +233,6 @@ const FieldLabel = styled.label({
   textTransform: "uppercase"
 });
 
-const TypeRow = styled.div({
-  display: "flex",
-  gap: px(8)
-});
-
-const TypeBtn = styled.button<{ active: boolean }>(
-  buttonReset,
-  ({ active }) => ({
-    flex: 1,
-    padding: px(10, 0),
-    borderRadius: px(8),
-    border: "1.5px solid",
-    borderColor: active ? "#222" : "rgba(0,0,0,0.18)",
-    background: active ? "#222" : "transparent",
-    color: active ? "#fff" : "rgba(0,0,0,0.42)",
-    fontSize: px(14),
-    fontWeight: 700,
-    cursor: "pointer"
-  })
-);
 
 const Input = styled.input({
   border: "1.5px solid #ddd",
@@ -302,7 +291,23 @@ const IdeationScene = () => {
   const [rows, setRows] = useState<Row[]>(INITIAL_ROWS);
   const [drag, setDrag] = useState<DragState | null>(null);
   const [form, setForm] = useState<FormState | null>(null);
+  const [labelA, setLabelA] = useState("グループ A");
+  const [labelB, setLabelB] = useState("グループ B");
+  const [editingHeader, setEditingHeader] = useState<"A" | "B" | null>(null);
+  const [headerDraft, setHeaderDraft] = useState("");
   const rowEls = useRef<Map<number, HTMLDivElement>>(new Map());
+
+  const startEditHeader = useCallback((which: "A" | "B") => {
+    setHeaderDraft(which === "A" ? labelA : labelB);
+    setEditingHeader(which);
+  }, [labelA, labelB]);
+
+  const commitHeader = useCallback(() => {
+    const v = headerDraft.trim();
+    if (editingHeader === "A") setLabelA(v || "グループ A");
+    if (editingHeader === "B") setLabelB(v || "グループ B");
+    setEditingHeader(null);
+  }, [editingHeader, headerDraft]);
 
   // Compute insertion index from pointer Y position
   const dropIndexAt = useCallback(
@@ -353,18 +358,13 @@ const IdeationScene = () => {
 
   // ── Form (add / edit) ─────────────────────────────────────
   const openAdd = useCallback(
-    () => setForm({ id: null, type: "抽象", keywordA: "", keywordB: "" }),
+    () => setForm({ id: null, keywordA: "", keywordB: "" }),
     []
   );
 
   const openEdit = useCallback(
     (row: Row) =>
-      setForm({
-        id: row.id,
-        type: row.type,
-        keywordA: row.keywordA,
-        keywordB: row.keywordB
-      }),
+      setForm({ id: row.id, keywordA: row.keywordA, keywordB: row.keywordB }),
     []
   );
 
@@ -376,16 +376,11 @@ const IdeationScene = () => {
     const b = form.keywordB.trim();
     if (!a && !b) return;
     if (form.id === null) {
-      setRows(prev => [
-        ...prev,
-        { id: Date.now(), type: form.type, keywordA: a, keywordB: b }
-      ]);
+      setRows(prev => [...prev, { id: Date.now(), keywordA: a, keywordB: b }]);
     } else {
       setRows(prev =>
         prev.map(r =>
-          r.id === form.id
-            ? { ...r, type: form.type, keywordA: a, keywordB: b }
-            : r
+          r.id === form.id ? { ...r, keywordA: a, keywordB: b } : r
         )
       );
     }
@@ -403,8 +398,36 @@ const IdeationScene = () => {
       {/* ── Column headers ───────────────────────────────── */}
       <ColHeader>
         <div />
-        <ColHeaderLabel>グループ A</ColHeaderLabel>
-        <ColHeaderLabel borderLeft>グループ B</ColHeaderLabel>
+        <ColHeaderCell>
+          {editingHeader === "A" ? (
+            <ColHeaderInput
+              autoFocus
+              value={headerDraft}
+              onChange={e => setHeaderDraft(e.target.value)}
+              onBlur={commitHeader}
+              onKeyDown={e => e.key === "Enter" && commitHeader()}
+            />
+          ) : (
+            <ColHeaderLabel onClick={() => startEditHeader("A")}>
+              {labelA}
+            </ColHeaderLabel>
+          )}
+        </ColHeaderCell>
+        <ColHeaderCell borderLeft>
+          {editingHeader === "B" ? (
+            <ColHeaderInput
+              autoFocus
+              value={headerDraft}
+              onChange={e => setHeaderDraft(e.target.value)}
+              onBlur={commitHeader}
+              onKeyDown={e => e.key === "Enter" && commitHeader()}
+            />
+          ) : (
+            <ColHeaderLabel onClick={() => startEditHeader("B")}>
+              {labelB}
+            </ColHeaderLabel>
+          )}
+        </ColHeaderCell>
         <div />
       </ColHeader>
 
@@ -434,7 +457,6 @@ const IdeationScene = () => {
                 ≡
               </Handle>
               <KeyCell>
-                <Badge kind={row.type}>{row.type}</Badge>
                 <KeyText>{row.keywordA}</KeyText>
               </KeyCell>
               <KeyCell borderLeft>
@@ -468,24 +490,7 @@ const IdeationScene = () => {
             </SheetTitle>
 
             <Field>
-              <FieldLabel>種類</FieldLabel>
-              <TypeRow>
-                {(["抽象", "具体"] as RowType[]).map(t => (
-                  <TypeBtn
-                    key={t}
-                    active={form.type === t}
-                    onClick={() =>
-                      setForm(f => (f ? { ...f, type: t } : f))
-                    }
-                  >
-                    {t}
-                  </TypeBtn>
-                ))}
-              </TypeRow>
-            </Field>
-
-            <Field>
-              <FieldLabel>グループ A</FieldLabel>
+              <FieldLabel>{labelA}</FieldLabel>
               <Input
                 autoFocus
                 value={form.keywordA}
@@ -498,7 +503,7 @@ const IdeationScene = () => {
             </Field>
 
             <Field>
-              <FieldLabel>グループ B</FieldLabel>
+              <FieldLabel>{labelB}</FieldLabel>
               <Input
                 value={form.keywordB}
                 onChange={e =>
