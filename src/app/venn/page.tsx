@@ -1,5 +1,5 @@
 import VennDiagramScene from "~/features/components/venn/VennDiagramScene";
 
-const PageTop = () => <VennDiagramScene />;
+const PageVenn = () => <VennDiagramScene />;
 
-export default PageTop;
+export default PageVenn;
