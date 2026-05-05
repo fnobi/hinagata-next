@@ -1,7 +1,11 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import type { VennDiagramData, VennKeyword, VennRegion } from "~/features/schema/VennDiagram";
+import {
+  type VennDiagramData,
+  type VennKeyword,
+  type VennRegion
+} from "~/features/schema/VennDiagram";
 import { defaultVennDiagramData } from "~/features/schema/VennDiagram";
 
 const STORAGE_KEY = "venn-diagram-data";
@@ -9,7 +13,9 @@ const STORAGE_KEY = "venn-diagram-data";
 const loadFromStorage = (): VennDiagramData => {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return defaultVennDiagramData();
+    if (!raw) {
+      return defaultVennDiagramData();
+    }
     return JSON.parse(raw) as VennDiagramData;
   } catch {
     return defaultVennDiagramData();
@@ -28,6 +34,7 @@ const useVennDiagramStorage = () => {
   const [data, setData] = useState<VennDiagramData>(defaultVennDiagramData);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setData(loadFromStorage());
   }, []);
 

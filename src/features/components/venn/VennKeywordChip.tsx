@@ -47,7 +47,13 @@ const DeleteBtn = styled.button({
   alignItems: "center"
 });
 
-const VennKeywordChip = ({ id, text, onDragStart, onDragEnd, onDelete }: Props) => {
+const VennKeywordChip = ({
+  id,
+  text,
+  onDragStart,
+  onDragEnd,
+  onDelete
+}: Props) => {
   const touchRef = useRef<{ startX: number; startY: number } | null>(null);
 
   const handleTouchStart = useCallback(
@@ -68,12 +74,9 @@ const VennKeywordChip = ({ id, text, onDragStart, onDragEnd, onDelete }: Props) 
     [id, onDragEnd]
   );
 
-  const handleMouseDown = useCallback(
-    (e: React.MouseEvent) => {
-      onDragStart(id);
-    },
-    [id, onDragStart]
-  );
+  const handleMouseDown = useCallback(() => {
+    onDragStart(id);
+  }, [id, onDragStart]);
 
   const handleMouseUp = useCallback(
     (e: React.MouseEvent) => {

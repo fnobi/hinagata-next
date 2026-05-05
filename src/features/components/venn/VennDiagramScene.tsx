@@ -3,7 +3,7 @@
 import styled from "@emotion/styled";
 import { useState, useRef, useCallback } from "react";
 import useVennDiagramStorage from "~/features/lib/useVennDiagramStorage";
-import type { VennRegion } from "~/features/schema/VennDiagram";
+import { type VennRegion } from "~/features/schema/VennDiagram";
 import VennKeywordChip from "~/features/components/venn/VennKeywordChip";
 
 // Layout constants (vw-based for mobile responsiveness)
@@ -16,7 +16,6 @@ const CY_B = 97; // vw
 const OVERLAP_TOP = CY_B - R; // 53vw
 const OVERLAP_BOT = CY_A + R; // 91vw
 const TOTAL_H = CY_B + R; // 141vw
-
 
 const Wrapper = styled.div({
   minHeight: "100dvh",
@@ -51,7 +50,7 @@ const SvgBg = styled.svg({
 });
 
 const RegionArea = styled.div<{ region: VennRegion; isOver: boolean }>(
-  ({ region, isOver }) => ({
+  ({ isOver }) => ({
     position: "absolute",
     left: 0,
     right: 0,
@@ -177,8 +176,14 @@ type DragState = {
 };
 
 const VennDiagramScene = () => {
-  const { data, setGroupAName, setGroupBName, addKeyword, moveKeyword, deleteKeyword } =
-    useVennDiagramStorage();
+  const {
+    data,
+    setGroupAName,
+    setGroupBName,
+    addKeyword,
+    moveKeyword,
+    deleteKeyword
+  } = useVennDiagramStorage();
 
   const [addingRegion, setAddingRegion] = useState<VennRegion | null>(null);
   const [inputText, setInputText] = useState("");
@@ -189,21 +194,34 @@ const VennDiagramScene = () => {
   const regionRefs = useRef<Partial<Record<VennRegion, HTMLDivElement>>>({});
 
   // Convert clientY to vw units relative to container
-  const getRegionFromPoint = useCallback((x: number, y: number): VennRegion | null => {
-    const el = document.elementFromPoint(x, y);
-    if (!el) return null;
-    const region = (el as HTMLElement).dataset?.region as VennRegion | undefined;
-    if (region) return region;
-    // Walk up to find data-region
-    const parent = (el as HTMLElement).closest("[data-region]");
-    if (parent) return (parent as HTMLElement).dataset.region as VennRegion;
-    return null;
-  }, []);
+  const getRegionFromPoint = useCallback(
+    (x: number, y: number): VennRegion | null => {
+      const el = document.elementFromPoint(x, y);
+      if (!el) {
+        return null;
+      }
+      const region = (el as HTMLElement).dataset?.region as
+        | VennRegion
+        | undefined;
+      if (region) {
+        return region;
+      }
+      // Walk up to find data-region
+      const parent = (el as HTMLElement).closest("[data-region]");
+      if (parent) {
+        return (parent as HTMLElement).dataset.region as VennRegion;
+      }
+      return null;
+    },
+    []
+  );
 
   const handleDragStart = useCallback(
     (id: string) => {
       const kw = data.keywords.find(k => k.id === id);
-      if (!kw) return;
+      if (!kw) {
+        return;
+      }
       setDragState({ id, text: kw.text, x: 0, y: 0 });
     },
     [data.keywords]
@@ -211,7 +229,9 @@ const VennDiagramScene = () => {
 
   const handleTouchMove = useCallback(
     (e: React.TouchEvent) => {
-      if (!dragState) return;
+      if (!dragState) {
+        return;
+      }
       const t = e.touches[0];
       setDragState(s => (s ? { ...s, x: t.clientX, y: t.clientY } : null));
       const region = getRegionFromPoint(t.clientX, t.clientY);
@@ -222,7 +242,9 @@ const VennDiagramScene = () => {
 
   const handleMouseMove = useCallback(
     (e: React.MouseEvent) => {
-      if (!dragState) return;
+      if (!dragState) {
+        return;
+      }
       setDragState(s => (s ? { ...s, x: e.clientX, y: e.clientY } : null));
       const region = getRegionFromPoint(e.clientX, e.clientY);
       setOverRegion(region);
@@ -233,7 +255,9 @@ const VennDiagramScene = () => {
   const handleDragEnd = useCallback(
     (id: string, x: number, y: number) => {
       const region = getRegionFromPoint(x, y);
-      if (region) moveKeyword(id, region);
+      if (region) {
+        moveKeyword(id, region);
+      }
       setDragState(null);
       setOverRegion(null);
     },
@@ -242,7 +266,9 @@ const VennDiagramScene = () => {
 
   const handleRegionClick = useCallback(
     (region: VennRegion) => {
-      if (dragState) return;
+      if (dragState) {
+        return;
+      }
       setAddingRegion(region);
       setInputText("");
     },
@@ -250,7 +276,9 @@ const VennDiagramScene = () => {
   );
 
   const handleAddSubmit = useCallback(() => {
-    if (!inputText.trim() || !addingRegion) return;
+    if (!inputText.trim() || !addingRegion) {
+      return;
+    }
     addKeyword(inputText.trim(), addingRegion);
     setAddingRegion(null);
     setInputText("");
@@ -290,10 +318,7 @@ const VennDiagramScene = () => {
         />
       </GroupNameRow>
 
-      <DiagramContainer
-        ref={containerRef}
-        style={{ paddingBottom: `${vbH}%` }}
-      >
+      <DiagramContainer ref={containerRef} style={{ paddingBottom: `${vbH}%` }}>
         {/* SVG background circles */}
         <SvgBg viewBox={`0 0 100 ${vbH}`} preserveAspectRatio="none">
           <defs>
@@ -337,7 +362,7 @@ const VennDiagramScene = () => {
         <div
           style={{
             position: "absolute",
-            top: `${(CY_A - R + 2) / vbH * 100}%`,
+            top: `${((CY_A - R + 2) / vbH) * 100}%`,
             left: 0,
             right: 0,
             display: "flex",
@@ -345,14 +370,16 @@ const VennDiagramScene = () => {
             pointerEvents: "none"
           }}
         >
-          <GroupLabel color="rgba(60,100,200,0.9)">{data.groupAName}</GroupLabel>
+          <GroupLabel color="rgba(60,100,200,0.9)">
+            {data.groupAName}
+          </GroupLabel>
         </div>
 
         {/* Group B label */}
         <div
           style={{
             position: "absolute",
-            top: `${(CY_B + R - 10) / vbH * 100}%`,
+            top: `${((CY_B + R - 10) / vbH) * 100}%`,
             left: 0,
             right: 0,
             display: "flex",
@@ -368,10 +395,14 @@ const VennDiagramScene = () => {
           data-region="a"
           region="a"
           isOver={overRegion === "a"}
-          ref={el => { if (el) regionRefs.current.a = el; }}
+          ref={el => {
+            if (el) {
+              regionRefs.current.a = el;
+            }
+          }}
           style={{
-            top: `${(CY_A - R + 14) / vbH * 100}%`,
-            height: `${(OVERLAP_TOP - (CY_A - R + 14)) / vbH * 100}%`
+            top: `${((CY_A - R + 14) / vbH) * 100}%`,
+            height: `${((OVERLAP_TOP - (CY_A - R + 14)) / vbH) * 100}%`
           }}
           onClick={() => handleRegionClick("a")}
         >
@@ -395,10 +426,14 @@ const VennDiagramScene = () => {
           data-region="both"
           region="both"
           isOver={overRegion === "both"}
-          ref={el => { if (el) regionRefs.current.both = el; }}
+          ref={el => {
+            if (el) {
+              regionRefs.current.both = el;
+            }
+          }}
           style={{
-            top: `${OVERLAP_TOP / vbH * 100}%`,
-            height: `${(OVERLAP_BOT - OVERLAP_TOP) / vbH * 100}%`
+            top: `${(OVERLAP_TOP / vbH) * 100}%`,
+            height: `${((OVERLAP_BOT - OVERLAP_TOP) / vbH) * 100}%`
           }}
           onClick={() => handleRegionClick("both")}
         >
@@ -412,9 +447,7 @@ const VennDiagramScene = () => {
               onDelete={deleteKeyword}
             />
           ))}
-          {keywordsByRegion("both").length === 0 && (
-            <AddHint>共通領域</AddHint>
-          )}
+          {keywordsByRegion("both").length === 0 && <AddHint>共通領域</AddHint>}
         </RegionArea>
 
         {/* Region B-only */}
@@ -422,10 +455,14 @@ const VennDiagramScene = () => {
           data-region="b"
           region="b"
           isOver={overRegion === "b"}
-          ref={el => { if (el) regionRefs.current.b = el; }}
+          ref={el => {
+            if (el) {
+              regionRefs.current.b = el;
+            }
+          }}
           style={{
-            top: `${OVERLAP_BOT / vbH * 100}%`,
-            height: `${(CY_B + R - 14 - OVERLAP_BOT) / vbH * 100}%`
+            top: `${(OVERLAP_BOT / vbH) * 100}%`,
+            height: `${((CY_B + R - 14 - OVERLAP_BOT) / vbH) * 100}%`
           }}
           onClick={() => handleRegionClick("b")}
         >
