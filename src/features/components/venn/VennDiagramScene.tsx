@@ -465,17 +465,25 @@ const VennDiagramScene = () => {
                   : "共通"}
               」にキーワードを追加
             </ModalTitle>
-            <ModalInput
-              autoFocus
-              value={inputText}
-              onChange={e => setInputText(e.target.value)}
-              placeholder="キーワードを入力..."
-              onKeyDown={e => {
-                if (e.key === "Enter") handleAddSubmit();
-                if (e.key === "Escape") setAddingRegion(null);
+            <form
+              onSubmit={e => {
+                e.preventDefault();
+                handleAddSubmit();
               }}
-            />
-            <ModalButton onClick={handleAddSubmit}>追加する</ModalButton>
+            >
+              <ModalInput
+                autoFocus
+                value={inputText}
+                onChange={e => setInputText(e.target.value)}
+                placeholder="キーワードを入力..."
+                onKeyDown={e => {
+                  if (e.key === "Escape") {
+                    setAddingRegion(null);
+                  }
+                }}
+              />
+              <ModalButton onClick={handleAddSubmit}>追加する</ModalButton>
+            </form>
           </ModalSheet>
         </ModalOverlay>
       )}
