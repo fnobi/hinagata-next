@@ -1,7 +1,13 @@
 "use client";
 
 import { useState, useCallback, useEffect, useRef } from "react";
-import { useJsApiLoader, GoogleMap, Marker, InfoWindow } from "@react-google-maps/api";
+import {
+  useJsApiLoader,
+  GoogleMap,
+  OverlayViewF,
+  OVERLAY_MOUSE_TARGET,
+  InfoWindow
+} from "@react-google-maps/api";
 import styled from "@emotion/styled";
 import { HERITAGE_SITES, type HeritageSite } from "~/features/schema/HeritageSite";
 
@@ -40,15 +46,34 @@ const NIGHT_STYLE: google.maps.MapTypeStyle[] = [
   }
 ];
 
-// google.maps.SymbolPath.CIRCLE = 0
-const MARKER_ICON: google.maps.Symbol = {
-  path: 0 as google.maps.SymbolPath,
-  fillColor: "#e0aa3e",
-  fillOpacity: 1,
-  strokeColor: "#111",
-  strokeWeight: 1.5,
-  scale: 6
-};
+const PIN_OFFSET = () => ({ x: -6, y: -6 });
+
+const SitePin = ({
+  site,
+  onClick
+}: {
+  site: HeritageSite;
+  onClick: () => void;
+}) => (
+  <OverlayViewF
+    position={{ lat: site.lat, lng: site.lng }}
+    mapPaneName={OVERLAY_MOUSE_TARGET}
+    getPixelPositionOffset={PIN_OFFSET}
+  >
+    <div
+      onClick={onClick}
+      style={{
+        width: 12,
+        height: 12,
+        borderRadius: "50%",
+        background: "#e0aa3e",
+        border: "2px solid #111",
+        cursor: "pointer",
+        boxShadow: "0 1px 4px rgba(0,0,0,0.6)"
+      }}
+    />
+  </OverlayViewF>
+);
 
 const Overlay = styled.div({
   width: "100%",
@@ -161,12 +186,7 @@ const HeritageMap = ({ focusRequest, onPlayVideo }: Props) => {
       }}
     >
       {HERITAGE_SITES.map(site => (
-        <Marker
-          key={site.nameEn}
-          position={{ lat: site.lat, lng: site.lng }}
-          icon={MARKER_ICON}
-          onClick={() => setInfoSite(site)}
-        />
+        <SitePin key={site.nameEn} site={site} onClick={() => setInfoSite(site)} />
       ))}
       {infoSite && (
         <InfoWindow
