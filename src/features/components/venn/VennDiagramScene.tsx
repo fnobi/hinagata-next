@@ -5,6 +5,7 @@ import { useState, useRef, useCallback } from "react";
 import useVennDiagramStorage from "~/features/lib/useVennDiagramStorage";
 import { type VennRegion } from "~/features/schema/VennDiagram";
 import VennKeywordChip from "~/features/components/venn/VennKeywordChip";
+import { responsiveUnit } from "~/features/lib/emotion-mixin";
 
 // Layout constants (vw-based for mobile responsiveness)
 // Two circles of radius 44vw, centered at x=50vw
@@ -26,18 +27,29 @@ const Wrapper = styled.div({
   padding: "16px 0 40px"
 });
 
-const Title = styled.h1({
-  fontSize: 18,
-  fontWeight: 700,
-  color: "#444",
-  marginBottom: 20,
-  letterSpacing: 0.5
-});
+const Title = styled.h1(
+  {
+    fontWeight: 700,
+    color: "#444",
+    letterSpacing: 0.5
+  },
+  responsiveUnit(u => ({
+    fontSize: u(18),
+    marginBottom: u(20)
+  }))
+);
+
+const DiagramSection = styled.div(
+  {
+    width: "100%"
+  },
+  responsiveUnit(u => ({
+    maxWidth: u(480)
+  }))
+);
 
 const DiagramContainer = styled.div({
-  position: "relative",
-  width: "100%",
-  maxWidth: 480
+  position: "relative"
 });
 
 const SvgBg = styled.svg({
@@ -73,36 +85,49 @@ const AddHint = styled.span({
   userSelect: "none"
 });
 
-const GroupNameRow = styled.div({
-  width: "100%",
-  maxWidth: 480,
-  display: "flex",
-  gap: 12,
-  marginBottom: 12,
-  padding: "0 16px"
-});
+const GroupNameRow = styled.div(
+  {
+    width: "100%",
+    display: "flex"
+  },
+  responsiveUnit(u => ({
+    maxWidth: u(480),
+    gap: u(12),
+    marginBottom: u(12),
+    padding: u(0, 16)
+  }))
+);
 
-const GroupNameInput = styled.input<{ accent: string }>(({ accent }) => ({
-  flex: 1,
-  border: `2px solid ${accent}`,
-  borderRadius: 8,
-  padding: "6px 10px",
-  fontSize: 14,
-  fontWeight: 700,
-  color: "#333",
-  background: "rgba(255,255,255,0.8)",
-  outline: "none",
-  textAlign: "center"
-}));
+const GroupNameInput = styled.input<{ accent: string }>(
+  ({ accent }) => ({
+    flex: 1,
+    border: `0 solid ${accent}`,
+    fontWeight: 700,
+    color: "#333",
+    background: "rgba(255,255,255,0.8)",
+    outline: "none",
+    textAlign: "center"
+  }),
+  responsiveUnit(u => ({
+    borderWidth: u(2),
+    borderRadius: u(8),
+    padding: u(6, 10),
+    fontSize: u(14)
+  }))
+);
 
-const GroupLabel = styled.div<{ color: string }>(({ color }) => ({
-  fontSize: 13,
-  fontWeight: 700,
-  color,
-  letterSpacing: 0.5,
-  pointerEvents: "none",
-  userSelect: "none"
-}));
+const GroupLabel = styled.div<{ color: string }>(
+  ({ color }) => ({
+    fontWeight: 700,
+    color,
+    letterSpacing: 0.5,
+    pointerEvents: "none",
+    userSelect: "none"
+  }),
+  responsiveUnit(u => ({
+    fontSize: u(13)
+  }))
+);
 
 // Modal
 const ModalOverlay = styled.div({
@@ -318,169 +343,178 @@ const VennDiagramScene = () => {
         />
       </GroupNameRow>
 
-      <DiagramContainer ref={containerRef} style={{ paddingBottom: `${vbH}%` }}>
-        {/* SVG background circles */}
-        <SvgBg viewBox={`0 0 100 ${vbH}`} preserveAspectRatio="none">
-          <defs>
-            <clipPath id="clip-a-only">
-              <circle cx="50" cy={CY_A} r={R} />
-            </clipPath>
-            <clipPath id="clip-b-only">
-              <circle cx="50" cy={CY_B} r={R} />
-            </clipPath>
-          </defs>
-          {/* Circle A fill */}
-          <circle
-            cx="50"
-            cy={CY_A}
-            r={R}
-            fill="rgba(100,140,255,0.12)"
-            stroke="rgba(80,120,220,0.45)"
-            strokeWidth="0.8"
-          />
-          {/* Circle B fill */}
-          <circle
-            cx="50"
-            cy={CY_B}
-            r={R}
-            fill="rgba(255,130,100,0.12)"
-            stroke="rgba(200,90,70,0.45)"
-            strokeWidth="0.8"
-          />
-          {/* Intersection highlight */}
-          <rect
-            x="0"
-            y={OVERLAP_TOP}
-            width="100"
-            height={OVERLAP_BOT - OVERLAP_TOP}
-            fill="rgba(140,100,255,0.1)"
-            clipPath="url(#clip-a-only)"
-          />
-        </SvgBg>
-
-        {/* Group A label */}
-        <div
-          style={{
-            position: "absolute",
-            top: `${((CY_A - R + 2) / vbH) * 100}%`,
-            left: 0,
-            right: 0,
-            display: "flex",
-            justifyContent: "center",
-            pointerEvents: "none"
-          }}
+      <DiagramSection>
+        <DiagramContainer
+          ref={containerRef}
+          style={{ paddingBottom: `${vbH}%` }}
         >
-          <GroupLabel color="rgba(60,100,200,0.9)">
-            {data.groupAName}
-          </GroupLabel>
-        </div>
-
-        {/* Group B label */}
-        <div
-          style={{
-            position: "absolute",
-            top: `${((CY_B + R - 10) / vbH) * 100}%`,
-            left: 0,
-            right: 0,
-            display: "flex",
-            justifyContent: "center",
-            pointerEvents: "none"
-          }}
-        >
-          <GroupLabel color="rgba(200,80,60,0.9)">{data.groupBName}</GroupLabel>
-        </div>
-
-        {/* Region A-only */}
-        <RegionArea
-          data-region="a"
-          region="a"
-          isOver={overRegion === "a"}
-          ref={el => {
-            if (el) {
-              regionRefs.current.a = el;
-            }
-          }}
-          style={{
-            top: `${((CY_A - R + 14) / vbH) * 100}%`,
-            height: `${((OVERLAP_TOP - (CY_A - R + 14)) / vbH) * 100}%`
-          }}
-          onClick={() => handleRegionClick("a")}
-        >
-          {keywordsByRegion("a").map(kw => (
-            <VennKeywordChip
-              key={kw.id}
-              id={kw.id}
-              text={kw.text}
-              onDragStart={handleDragStart}
-              onDragEnd={handleDragEnd}
-              onDelete={deleteKeyword}
+          {/* SVG background circles */}
+          <SvgBg viewBox={`0 0 100 ${vbH}`} preserveAspectRatio="none">
+            <defs>
+              <clipPath id="clip-a-only">
+                <circle cx="50" cy={CY_A} r={R} />
+              </clipPath>
+              <clipPath id="clip-b-only">
+                <circle cx="50" cy={CY_B} r={R} />
+              </clipPath>
+            </defs>
+            {/* Circle A fill */}
+            <circle
+              cx="50"
+              cy={CY_A}
+              r={R}
+              fill="rgba(100,140,255,0.12)"
+              stroke="rgba(80,120,220,0.45)"
+              strokeWidth="0.8"
             />
-          ))}
-          {keywordsByRegion("a").length === 0 && (
-            <AddHint>タップしてキーワードを追加</AddHint>
-          )}
-        </RegionArea>
-
-        {/* Region Intersection */}
-        <RegionArea
-          data-region="both"
-          region="both"
-          isOver={overRegion === "both"}
-          ref={el => {
-            if (el) {
-              regionRefs.current.both = el;
-            }
-          }}
-          style={{
-            top: `${(OVERLAP_TOP / vbH) * 100}%`,
-            height: `${((OVERLAP_BOT - OVERLAP_TOP) / vbH) * 100}%`
-          }}
-          onClick={() => handleRegionClick("both")}
-        >
-          {keywordsByRegion("both").map(kw => (
-            <VennKeywordChip
-              key={kw.id}
-              id={kw.id}
-              text={kw.text}
-              onDragStart={handleDragStart}
-              onDragEnd={handleDragEnd}
-              onDelete={deleteKeyword}
+            {/* Circle B fill */}
+            <circle
+              cx="50"
+              cy={CY_B}
+              r={R}
+              fill="rgba(255,130,100,0.12)"
+              stroke="rgba(200,90,70,0.45)"
+              strokeWidth="0.8"
             />
-          ))}
-          {keywordsByRegion("both").length === 0 && <AddHint>共通領域</AddHint>}
-        </RegionArea>
-
-        {/* Region B-only */}
-        <RegionArea
-          data-region="b"
-          region="b"
-          isOver={overRegion === "b"}
-          ref={el => {
-            if (el) {
-              regionRefs.current.b = el;
-            }
-          }}
-          style={{
-            top: `${(OVERLAP_BOT / vbH) * 100}%`,
-            height: `${((CY_B + R - 14 - OVERLAP_BOT) / vbH) * 100}%`
-          }}
-          onClick={() => handleRegionClick("b")}
-        >
-          {keywordsByRegion("b").map(kw => (
-            <VennKeywordChip
-              key={kw.id}
-              id={kw.id}
-              text={kw.text}
-              onDragStart={handleDragStart}
-              onDragEnd={handleDragEnd}
-              onDelete={deleteKeyword}
+            {/* Intersection highlight */}
+            <rect
+              x="0"
+              y={OVERLAP_TOP}
+              width="100"
+              height={OVERLAP_BOT - OVERLAP_TOP}
+              fill="rgba(140,100,255,0.1)"
+              clipPath="url(#clip-a-only)"
             />
-          ))}
-          {keywordsByRegion("b").length === 0 && (
-            <AddHint>タップしてキーワードを追加</AddHint>
-          )}
-        </RegionArea>
-      </DiagramContainer>
+          </SvgBg>
+
+          {/* Group A label */}
+          <div
+            style={{
+              position: "absolute",
+              top: `${((CY_A - R + 2) / vbH) * 100}%`,
+              left: 0,
+              right: 0,
+              display: "flex",
+              justifyContent: "center",
+              pointerEvents: "none"
+            }}
+          >
+            <GroupLabel color="rgba(60,100,200,0.9)">
+              {data.groupAName}
+            </GroupLabel>
+          </div>
+
+          {/* Group B label */}
+          <div
+            style={{
+              position: "absolute",
+              top: `${((CY_B + R - 10) / vbH) * 100}%`,
+              left: 0,
+              right: 0,
+              display: "flex",
+              justifyContent: "center",
+              pointerEvents: "none"
+            }}
+          >
+            <GroupLabel color="rgba(200,80,60,0.9)">
+              {data.groupBName}
+            </GroupLabel>
+          </div>
+
+          {/* Region A-only */}
+          <RegionArea
+            data-region="a"
+            region="a"
+            isOver={overRegion === "a"}
+            ref={el => {
+              if (el) {
+                regionRefs.current.a = el;
+              }
+            }}
+            style={{
+              top: `${((CY_A - R + 14) / vbH) * 100}%`,
+              height: `${((OVERLAP_TOP - (CY_A - R + 14)) / vbH) * 100}%`
+            }}
+            onClick={() => handleRegionClick("a")}
+          >
+            {keywordsByRegion("a").map(kw => (
+              <VennKeywordChip
+                key={kw.id}
+                id={kw.id}
+                text={kw.text}
+                onDragStart={handleDragStart}
+                onDragEnd={handleDragEnd}
+                onDelete={deleteKeyword}
+              />
+            ))}
+            {keywordsByRegion("a").length === 0 && (
+              <AddHint>タップしてキーワードを追加</AddHint>
+            )}
+          </RegionArea>
+
+          {/* Region Intersection */}
+          <RegionArea
+            data-region="both"
+            region="both"
+            isOver={overRegion === "both"}
+            ref={el => {
+              if (el) {
+                regionRefs.current.both = el;
+              }
+            }}
+            style={{
+              top: `${(OVERLAP_TOP / vbH) * 100}%`,
+              height: `${((OVERLAP_BOT - OVERLAP_TOP) / vbH) * 100}%`
+            }}
+            onClick={() => handleRegionClick("both")}
+          >
+            {keywordsByRegion("both").map(kw => (
+              <VennKeywordChip
+                key={kw.id}
+                id={kw.id}
+                text={kw.text}
+                onDragStart={handleDragStart}
+                onDragEnd={handleDragEnd}
+                onDelete={deleteKeyword}
+              />
+            ))}
+            {keywordsByRegion("both").length === 0 && (
+              <AddHint>共通領域</AddHint>
+            )}
+          </RegionArea>
+
+          {/* Region B-only */}
+          <RegionArea
+            data-region="b"
+            region="b"
+            isOver={overRegion === "b"}
+            ref={el => {
+              if (el) {
+                regionRefs.current.b = el;
+              }
+            }}
+            style={{
+              top: `${(OVERLAP_BOT / vbH) * 100}%`,
+              height: `${((CY_B + R - 14 - OVERLAP_BOT) / vbH) * 100}%`
+            }}
+            onClick={() => handleRegionClick("b")}
+          >
+            {keywordsByRegion("b").map(kw => (
+              <VennKeywordChip
+                key={kw.id}
+                id={kw.id}
+                text={kw.text}
+                onDragStart={handleDragStart}
+                onDragEnd={handleDragEnd}
+                onDelete={deleteKeyword}
+              />
+            ))}
+            {keywordsByRegion("b").length === 0 && (
+              <AddHint>タップしてキーワードを追加</AddHint>
+            )}
+          </RegionArea>
+        </DiagramContainer>
+      </DiagramSection>
 
       {/* Drag ghost */}
       {dragState && dragState.x !== 0 && (
