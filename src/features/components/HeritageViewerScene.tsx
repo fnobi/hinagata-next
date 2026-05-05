@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import styled from "@emotion/styled";
 import { HERITAGE_SITES, type HeritageSite } from "~/features/schema/HeritageSite";
+import HeritageMap, { type FocusRequest } from "~/features/components/HeritageMap";
 
 const VIDEO_ID = "3_zB4k1rcVk";
 
@@ -11,12 +12,11 @@ const Root = styled.div({
   height: "100dvh",
   background: "#0e0e0e",
   color: "#f0f0f0",
-  fontFamily: "sans-serif",
   overflow: "hidden"
 });
 
 const Sidebar = styled.div({
-  width: 280,
+  width: 260,
   flexShrink: 0,
   display: "flex",
   flexDirection: "column",
@@ -25,29 +25,29 @@ const Sidebar = styled.div({
 });
 
 const SidebarHeader = styled.div({
-  padding: "20px 16px 12px",
+  padding: "18px 16px 12px",
   borderBottom: "1px solid #2a2a2a",
   flexShrink: 0
 });
 
 const SidebarTitle = styled.h1({
-  fontSize: 14,
+  fontSize: 13,
   fontWeight: 700,
   letterSpacing: "0.08em",
-  color: "#ccc",
+  color: "#bbb",
   margin: 0
 });
 
 const SidebarCount = styled.p({
   fontSize: 11,
-  color: "#666",
+  color: "#555",
   margin: "4px 0 0"
 });
 
 const SiteList = styled.ul({
   listStyle: "none",
   margin: 0,
-  padding: "8px 0",
+  padding: "6px 0",
   overflowY: "auto",
   flex: 1,
   scrollbarWidth: "thin",
@@ -56,7 +56,7 @@ const SiteList = styled.ul({
 
 const SiteItem = styled.li<{ active: boolean }>(({ active }) => ({
   cursor: "pointer",
-  padding: "10px 16px",
+  padding: "9px 16px",
   borderLeft: active ? "3px solid #e0aa3e" : "3px solid transparent",
   background: active ? "rgba(224,170,62,0.08)" : "transparent",
   transition: "background 0.15s",
@@ -67,91 +67,91 @@ const SiteItem = styled.li<{ active: boolean }>(({ active }) => ({
 
 const SiteNameJa = styled.span<{ active: boolean }>(({ active }) => ({
   display: "block",
-  fontSize: 13,
+  fontSize: 12,
   fontWeight: active ? 700 : 400,
-  color: active ? "#e0aa3e" : "#ddd",
+  color: active ? "#e0aa3e" : "#ccc",
   lineHeight: 1.4
 }));
 
 const SiteNameEn = styled.span({
   display: "block",
-  fontSize: 11,
-  color: "#666",
-  marginTop: 2
+  fontSize: 10,
+  color: "#555",
+  marginTop: 1
 });
 
-const Main = styled.div({
+const MapArea = styled.div({
   flex: 1,
-  display: "flex",
-  flexDirection: "column",
   overflow: "hidden"
 });
 
-const PlayerArea = styled.div({
-  flex: 1,
-  position: "relative",
-  background: "#000"
-});
-
-const IframeWrapper = styled.div({
-  position: "absolute",
-  inset: 0
-});
-
-const StyledIframe = styled.iframe({
-  width: "100%",
-  height: "100%",
-  border: "none",
-  display: "block"
-});
-
-const EmptyState = styled.div({
-  position: "absolute",
-  inset: 0,
+const VideoPanel = styled.div({
+  width: 420,
+  flexShrink: 0,
   display: "flex",
   flexDirection: "column",
-  alignItems: "center",
-  justifyContent: "center",
-  gap: 12
+  borderLeft: "1px solid #2a2a2a",
+  background: "#0a0a0a"
 });
 
-const EmptyIcon = styled.div({
-  fontSize: 48,
-  opacity: 0.3
-});
-
-const EmptyText = styled.p({
-  fontSize: 14,
-  color: "#555",
-  margin: 0
-});
-
-const InfoBar = styled.div({
-  flexShrink: 0,
-  padding: "12px 24px",
-  borderTop: "1px solid #1a1a1a",
-  background: "#121212",
+const VideoPanelHeader = styled.div({
+  padding: "10px 14px",
+  borderBottom: "1px solid #1a1a1a",
   display: "flex",
-  alignItems: "baseline",
-  gap: 12
+  alignItems: "center",
+  gap: 8,
+  flexShrink: 0
 });
 
-const InfoNameJa = styled.span({
-  fontSize: 18,
+const VideoNameJa = styled.span({
+  fontSize: 15,
   fontWeight: 700,
   color: "#f0f0f0"
 });
 
-const InfoNameEn = styled.span({
-  fontSize: 13,
-  color: "#888"
+const VideoNameEn = styled.span({
+  fontSize: 11,
+  color: "#666",
+  marginLeft: 6
+});
+
+const CloseButton = styled.button({
+  marginLeft: "auto",
+  background: "none",
+  border: "none",
+  color: "#555",
+  cursor: "pointer",
+  fontSize: 15,
+  padding: "2px 4px",
+  lineHeight: 1,
+  "&:hover": { color: "#ccc" }
+});
+
+const IframeWrapper = styled.div({
+  flex: 1,
+  background: "#000",
+  "& iframe": {
+    width: "100%",
+    height: "100%",
+    border: "none",
+    display: "block"
+  }
 });
 
 const buildEmbedUrl = (site: HeritageSite) =>
   `https://www.youtube.com/embed/${VIDEO_ID}?start=${site.startSec}&autoplay=1`;
 
 const HeritageViewerScene = () => {
-  const [selected, setSelected] = useState<HeritageSite | null>(null);
+  const [focusRequest, setFocusRequest] = useState<FocusRequest | null>(null);
+  const [videoSite, setVideoSite] = useState<HeritageSite | null>(null);
+
+  const handleListClick = useCallback((site: HeritageSite) => {
+    setFocusRequest({ site, id: Date.now() });
+  }, []);
+
+  const handlePlayVideo = useCallback((site: HeritageSite) => {
+    setVideoSite(site);
+  }, []);
 
   return (
     <Root>
@@ -162,13 +162,9 @@ const HeritageViewerScene = () => {
         </SidebarHeader>
         <SiteList>
           {HERITAGE_SITES.map(site => {
-            const active = selected?.nameEn === site.nameEn;
+            const active = videoSite?.nameEn === site.nameEn;
             return (
-              <SiteItem
-                key={site.nameEn}
-                active={active}
-                onClick={() => setSelected(site)}
-              >
+              <SiteItem key={site.nameEn} active={active} onClick={() => handleListClick(site)}>
                 <SiteNameJa active={active}>{site.nameJa}</SiteNameJa>
                 <SiteNameEn>{site.nameEn}</SiteNameEn>
               </SiteItem>
@@ -176,32 +172,31 @@ const HeritageViewerScene = () => {
           })}
         </SiteList>
       </Sidebar>
-      <Main>
-        <PlayerArea>
-          {selected ? (
-            <IframeWrapper>
-              <StyledIframe
-                key={selected.nameEn}
-                src={buildEmbedUrl(selected)}
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-                title={selected.nameJa}
-              />
-            </IframeWrapper>
-          ) : (
-            <EmptyState>
-              <EmptyIcon>🌍</EmptyIcon>
-              <EmptyText>左のリストから場所を選んでください</EmptyText>
-            </EmptyState>
-          )}
-        </PlayerArea>
-        {selected && (
-          <InfoBar>
-            <InfoNameJa>{selected.nameJa}</InfoNameJa>
-            <InfoNameEn>{selected.nameEn}</InfoNameEn>
-          </InfoBar>
-        )}
-      </Main>
+
+      <MapArea>
+        <HeritageMap focusRequest={focusRequest} onPlayVideo={handlePlayVideo} />
+      </MapArea>
+
+      {videoSite && (
+        <VideoPanel>
+          <VideoPanelHeader>
+            <div>
+              <VideoNameJa>{videoSite.nameJa}</VideoNameJa>
+              <VideoNameEn>{videoSite.nameEn}</VideoNameEn>
+            </div>
+            <CloseButton onClick={() => setVideoSite(null)}>✕</CloseButton>
+          </VideoPanelHeader>
+          <IframeWrapper>
+            <iframe
+              key={videoSite.nameEn}
+              src={buildEmbedUrl(videoSite)}
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+              title={videoSite.nameJa}
+            />
+          </IframeWrapper>
+        </VideoPanel>
+      )}
     </Root>
   );
 };
