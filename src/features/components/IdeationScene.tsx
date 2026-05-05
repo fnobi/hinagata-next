@@ -6,8 +6,8 @@ import { buttonReset, px } from "~/common/lib/css-util";
 
 type Row = {
   id: number;
-  keywordA: string;
-  keywordB: string;
+  keywordA: string[];
+  keywordB: string[];
 };
 
 type DragState = {
@@ -15,20 +15,20 @@ type DragState = {
   dropIndex: number;
 };
 
-type FormState = {
-  id: number | null; // null = new row
-  keywordA: string;
-  keywordB: string;
+type CellEditState = {
+  rowId: number;
+  side: "A" | "B";
+  draft: string[];
+  inputValue: string;
 };
 
 const INITIAL_ROWS: Row[] = [
-  { id: 1, keywordA: "自由", keywordB: "秩序" },
-  { id: 2, keywordA: "遊び", keywordB: "仕事" },
-  { id: 3, keywordA: "夢", keywordB: "現実" }
+  { id: 1, keywordA: ["自由"], keywordB: ["秩序"] },
+  { id: 2, keywordA: ["遊び"], keywordB: ["仕事"] },
+  { id: 3, keywordA: ["夢"], keywordB: ["現実"] }
 ];
 
-// 4-column grid shared between header and rows
-const GRID_COLS = "40px 1fr 1fr 48px";
+const GRID_COLS = "40px 1fr 1fr";
 
 // ──────────────────────────────────────────────────────────────
 // Styled components
@@ -120,9 +120,7 @@ const RowGrid = styled.div({
   alignItems: "stretch",
   borderBottom: "1px solid rgba(0,0,0,0.07)",
   background: "#fff",
-  minHeight: px(54),
-  cursor: "pointer",
-  "&:active": { background: "#f5f4f0" }
+  minHeight: px(54)
 });
 
 const Handle = styled.div({
@@ -139,30 +137,49 @@ const Handle = styled.div({
 
 const KeyCell = styled.div<{ borderLeft?: boolean }>(({ borderLeft }) => ({
   display: "flex",
-  alignItems: "center",
-  padding: px(12, 14),
-  fontSize: px(15),
-  fontWeight: 600,
-  color: "#222",
+  alignItems: "flex-start",
+  gap: px(8),
+  padding: px(10, 8, 10, 14),
   borderLeft: borderLeft ? "1px solid rgba(0,0,0,0.1)" : "none",
   minWidth: 0
 }));
 
-const KeyText = styled.span({
-  overflow: "hidden",
-  textOverflow: "ellipsis",
+const ChipsArea = styled.div({
+  flex: 1,
+  display: "flex",
+  flexWrap: "wrap",
+  gap: px(5),
+  paddingTop: px(3),
+  minWidth: 0
+});
+
+const Chip = styled.span({
+  display: "inline-flex",
+  alignItems: "center",
+  padding: px(4, 10),
+  borderRadius: px(14),
+  background: "rgba(0,0,0,0.07)",
+  fontSize: px(13),
+  fontWeight: 600,
+  color: "#333",
+  lineHeight: 1.3,
   whiteSpace: "nowrap"
 });
 
-const EditIconBtn = styled.button(buttonReset, {
+const CellEditBtn = styled.button(buttonReset, {
+  flexShrink: 0,
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
+  width: px(32),
+  height: px(32),
+  borderRadius: px(6),
   color: "rgba(0,0,0,0.22)",
-  fontSize: px(17),
-  width: "100%",
-  height: "100%",
-  "&:hover": { color: "#222" }
+  fontSize: px(15),
+  cursor: "pointer",
+  marginTop: px(1),
+  "&:hover": { color: "#222", background: "rgba(0,0,0,0.05)" },
+  "&:active": { background: "rgba(0,0,0,0.09)" }
 });
 
 const TrailingDropLine = styled.div({
@@ -190,7 +207,7 @@ const Fab = styled.button(buttonReset, {
   "&:active": { transform: "scale(0.94)" }
 });
 
-// Bottom sheet modal
+// Bottom sheet
 const Overlay = styled.div({
   position: "fixed",
   inset: 0,
@@ -219,22 +236,45 @@ const SheetTitle = styled.p({
   color: "#222"
 });
 
-const Field = styled.div({
+const DraftChipList = styled.div({
   display: "flex",
-  flexDirection: "column",
-  gap: px(6)
+  flexWrap: "wrap",
+  gap: px(8),
+  minHeight: px(36)
 });
 
-const FieldLabel = styled.label({
-  fontSize: px(11),
-  fontWeight: 700,
-  letterSpacing: "0.1em",
-  color: "rgba(0,0,0,0.38)",
-  textTransform: "uppercase"
+const DraftChip = styled.span({
+  display: "inline-flex",
+  alignItems: "center",
+  gap: px(2),
+  padding: px(5, 4, 5, 12),
+  borderRadius: px(16),
+  background: "rgba(0,0,0,0.07)",
+  fontSize: px(14),
+  fontWeight: 600,
+  color: "#333"
 });
 
+const RemoveChipBtn = styled.button(buttonReset, {
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  width: px(22),
+  height: px(22),
+  borderRadius: "50%",
+  fontSize: px(12),
+  color: "rgba(0,0,0,0.35)",
+  cursor: "pointer",
+  "&:hover": { background: "rgba(0,0,0,0.1)", color: "#222" }
+});
+
+const AddKwRow = styled.div({
+  display: "flex",
+  gap: px(8)
+});
 
 const Input = styled.input({
+  flex: 1,
   border: "1.5px solid #ddd",
   borderRadius: px(8),
   padding: px(11, 12),
@@ -243,6 +283,18 @@ const Input = styled.input({
   outline: "none",
   "&:focus": { borderColor: "#222" },
   "&::placeholder": { color: "#ccc" }
+});
+
+const AddKwBtn = styled.button(buttonReset, {
+  flexShrink: 0,
+  padding: px(11, 16),
+  borderRadius: px(8),
+  background: "#f0f0ee",
+  fontSize: px(14),
+  fontWeight: 700,
+  color: "#444",
+  cursor: "pointer",
+  "&:hover": { background: "#e4e4e0" }
 });
 
 const Actions = styled.div({
@@ -260,7 +312,7 @@ const SaveBtn = styled.button(buttonReset, {
   fontSize: px(15),
   fontWeight: 700,
   textAlign: "center",
-  "&:disabled": { opacity: 0.35, pointerEvents: "none" }
+  cursor: "pointer"
 });
 
 const CancelBtn = styled.button(buttonReset, {
@@ -290,17 +342,21 @@ const DeleteBtn = styled.button(buttonReset, {
 const IdeationScene = () => {
   const [rows, setRows] = useState<Row[]>(INITIAL_ROWS);
   const [drag, setDrag] = useState<DragState | null>(null);
-  const [form, setForm] = useState<FormState | null>(null);
+  const [cellEdit, setCellEdit] = useState<CellEditState | null>(null);
   const [labelA, setLabelA] = useState("グループ A");
   const [labelB, setLabelB] = useState("グループ B");
   const [editingHeader, setEditingHeader] = useState<"A" | "B" | null>(null);
   const [headerDraft, setHeaderDraft] = useState("");
   const rowEls = useRef<Map<number, HTMLDivElement>>(new Map());
 
-  const startEditHeader = useCallback((which: "A" | "B") => {
-    setHeaderDraft(which === "A" ? labelA : labelB);
-    setEditingHeader(which);
-  }, [labelA, labelB]);
+  // ── Header editing ────────────────────────────────────────
+  const startEditHeader = useCallback(
+    (which: "A" | "B") => {
+      setHeaderDraft(which === "A" ? labelA : labelB);
+      setEditingHeader(which);
+    },
+    [labelA, labelB]
+  );
 
   const commitHeader = useCallback(() => {
     const v = headerDraft.trim();
@@ -309,7 +365,7 @@ const IdeationScene = () => {
     setEditingHeader(null);
   }, [editingHeader, headerDraft]);
 
-  // Compute insertion index from pointer Y position
+  // ── Drag-to-reorder ───────────────────────────────────────
   const dropIndexAt = useCallback(
     (clientY: number) => {
       for (let i = 0; i < rows.length; i++) {
@@ -323,7 +379,6 @@ const IdeationScene = () => {
     [rows]
   );
 
-  // ── Drag-to-reorder (pointer capture on handle) ───────────
   const onHandleDown = useCallback(
     (e: React.PointerEvent, id: number) => {
       e.preventDefault();
@@ -356,42 +411,63 @@ const IdeationScene = () => {
     setDrag(null);
   }, [drag]);
 
-  // ── Form (add / edit) ─────────────────────────────────────
-  const openAdd = useCallback(
-    () => setForm({ id: null, keywordA: "", keywordB: "" }),
-    []
+  // ── Row operations ────────────────────────────────────────
+  const addRow = useCallback(() => {
+    setRows(prev => [...prev, { id: Date.now(), keywordA: [], keywordB: [] }]);
+  }, []);
+
+  // ── Cell editing ──────────────────────────────────────────
+  const openCellEdit = useCallback(
+    (rowId: number, side: "A" | "B") => {
+      const row = rows.find(r => r.id === rowId);
+      if (!row) return;
+      setCellEdit({
+        rowId,
+        side,
+        draft: side === "A" ? [...row.keywordA] : [...row.keywordB],
+        inputValue: ""
+      });
+    },
+    [rows]
   );
 
-  const openEdit = useCallback(
-    (row: Row) =>
-      setForm({ id: row.id, keywordA: row.keywordA, keywordB: row.keywordB }),
-    []
-  );
+  const addDraftKeyword = useCallback(() => {
+    if (!cellEdit) return;
+    const kw = cellEdit.inputValue.trim();
+    if (!kw) return;
+    setCellEdit(s =>
+      s ? { ...s, draft: [...s.draft, kw], inputValue: "" } : s
+    );
+  }, [cellEdit]);
 
-  const closeForm = useCallback(() => setForm(null), []);
+  const removeDraftKeyword = useCallback((index: number) => {
+    setCellEdit(s =>
+      s ? { ...s, draft: s.draft.filter((_, i) => i !== index) } : s
+    );
+  }, []);
 
-  const saveForm = useCallback(() => {
-    if (!form) return;
-    const a = form.keywordA.trim();
-    const b = form.keywordB.trim();
-    if (!a && !b) return;
-    if (form.id === null) {
-      setRows(prev => [...prev, { id: Date.now(), keywordA: a, keywordB: b }]);
-    } else {
-      setRows(prev =>
-        prev.map(r =>
-          r.id === form.id ? { ...r, keywordA: a, keywordB: b } : r
-        )
-      );
-    }
-    setForm(null);
-  }, [form]);
+  const saveCellEdit = useCallback(() => {
+    if (!cellEdit) return;
+    const { rowId, side, draft } = cellEdit;
+    setRows(prev =>
+      prev.map(r =>
+        r.id === rowId
+          ? side === "A"
+            ? { ...r, keywordA: draft }
+            : { ...r, keywordB: draft }
+          : r
+      )
+    );
+    setCellEdit(null);
+  }, [cellEdit]);
 
   const deleteRow = useCallback(() => {
-    if (!form || form.id === null) return;
-    setRows(prev => prev.filter(r => r.id !== form.id));
-    setForm(null);
-  }, [form]);
+    if (!cellEdit) return;
+    setRows(prev => prev.filter(r => r.id !== cellEdit.rowId));
+    setCellEdit(null);
+  }, [cellEdit]);
+
+  const closeEdit = useCallback(() => setCellEdit(null), []);
 
   return (
     <Root>
@@ -428,7 +504,6 @@ const IdeationScene = () => {
             </ColHeaderLabel>
           )}
         </ColHeaderCell>
-        <div />
       </ColHeader>
 
       {/* ── Row list ─────────────────────────────────────── */}
@@ -447,84 +522,82 @@ const IdeationScene = () => {
               else rowEls.current.delete(row.id);
             }}
           >
-            <RowGrid onClick={() => !drag && openEdit(row)}>
+            <RowGrid>
               <Handle
                 onPointerDown={e => onHandleDown(e, row.id)}
                 onPointerMove={onHandleMove}
                 onPointerUp={onHandleUp}
-                onClick={e => e.stopPropagation()}
               >
                 ≡
               </Handle>
               <KeyCell>
-                <KeyText>{row.keywordA}</KeyText>
+                <ChipsArea>
+                  {row.keywordA.map((kw, ki) => (
+                    <Chip key={ki}>{kw}</Chip>
+                  ))}
+                </ChipsArea>
+                <CellEditBtn onClick={() => openCellEdit(row.id, "A")}>
+                  ✎
+                </CellEditBtn>
               </KeyCell>
               <KeyCell borderLeft>
-                <KeyText>{row.keywordB}</KeyText>
+                <ChipsArea>
+                  {row.keywordB.map((kw, ki) => (
+                    <Chip key={ki}>{kw}</Chip>
+                  ))}
+                </ChipsArea>
+                <CellEditBtn onClick={() => openCellEdit(row.id, "B")}>
+                  ✎
+                </CellEditBtn>
               </KeyCell>
-              <EditIconBtn
-                onClick={e => {
-                  e.stopPropagation();
-                  openEdit(row);
-                }}
-              >
-                ✎
-              </EditIconBtn>
             </RowGrid>
           </RowWrap>
         ))}
 
-        {/* Drop line after last row */}
         {drag?.dropIndex === rows.length && <TrailingDropLine />}
       </RowList>
 
       {/* ── FAB ──────────────────────────────────────────── */}
-      <Fab onClick={openAdd}>＋</Fab>
+      <Fab onClick={addRow}>＋</Fab>
 
-      {/* ── Add / Edit bottom sheet ───────────────────────── */}
-      {form && (
-        <Overlay onClick={closeForm}>
+      {/* ── Cell edit bottom sheet ────────────────────────── */}
+      {cellEdit && (
+        <Overlay onClick={closeEdit}>
           <Sheet onClick={e => e.stopPropagation()}>
             <SheetTitle>
-              {form.id === null ? "行を追加" : "行を編集"}
+              {cellEdit.side === "A" ? labelA : labelB}を編集
             </SheetTitle>
 
-            <Field>
-              <FieldLabel>{labelA}</FieldLabel>
+            <DraftChipList>
+              {cellEdit.draft.map((kw, i) => (
+                <DraftChip key={i}>
+                  {kw}
+                  <RemoveChipBtn onClick={() => removeDraftKeyword(i)}>
+                    ×
+                  </RemoveChipBtn>
+                </DraftChip>
+              ))}
+            </DraftChipList>
+
+            <AddKwRow>
               <Input
                 autoFocus
-                value={form.keywordA}
+                value={cellEdit.inputValue}
                 onChange={e =>
-                  setForm(f => (f ? { ...f, keywordA: e.target.value } : f))
+                  setCellEdit(s =>
+                    s ? { ...s, inputValue: e.target.value } : s
+                  )
                 }
-                onKeyDown={e => e.key === "Enter" && saveForm()}
-                placeholder="キーワードを入力…"
+                onKeyDown={e => e.key === "Enter" && addDraftKeyword()}
+                placeholder="キーワードを入力して追加…"
               />
-            </Field>
-
-            <Field>
-              <FieldLabel>{labelB}</FieldLabel>
-              <Input
-                value={form.keywordB}
-                onChange={e =>
-                  setForm(f => (f ? { ...f, keywordB: e.target.value } : f))
-                }
-                onKeyDown={e => e.key === "Enter" && saveForm()}
-                placeholder="キーワードを入力…"
-              />
-            </Field>
+              <AddKwBtn onClick={addDraftKeyword}>追加</AddKwBtn>
+            </AddKwRow>
 
             <Actions>
-              <SaveBtn
-                disabled={!form.keywordA.trim() && !form.keywordB.trim()}
-                onClick={saveForm}
-              >
-                保存
-              </SaveBtn>
-              {form.id !== null && (
-                <DeleteBtn onClick={deleteRow}>削除</DeleteBtn>
-              )}
-              <CancelBtn onClick={closeForm}>キャンセル</CancelBtn>
+              <SaveBtn onClick={saveCellEdit}>保存</SaveBtn>
+              <DeleteBtn onClick={deleteRow}>行を削除</DeleteBtn>
+              <CancelBtn onClick={closeEdit}>キャンセル</CancelBtn>
             </Actions>
           </Sheet>
         </Overlay>
