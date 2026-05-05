@@ -41,6 +41,7 @@
   "include": [
     "next-env.d.ts",
     "src/**/*",
+    "cli/**/*",
     "typings/**/*.d.ts",
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts"

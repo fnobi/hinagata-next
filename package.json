@@ -54,6 +54,7 @@
     "css-transform-builder": "^1.1.2",
     "emotion-reset": "^3.0.1",
     "firebase": "^12.12.1",
+    "googleapis": "^171.4.0",
     "next": "^16.2.4",
     "react": "^19.2.5",
     "zustand": "^5.0.12"
