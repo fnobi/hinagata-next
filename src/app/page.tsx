@@ -1,5 +1,5 @@
-import ProfileFormScene from "~/features/components/_provider/ProfileFormScene";
+import VennDiagramScene from "~/features/components/venn/VennDiagramScene";
 
-const PageProfileForm = () => <ProfileFormScene />;
+const PageTop = () => <VennDiagramScene />;
 
-export default PageProfileForm;
+export default PageTop;
