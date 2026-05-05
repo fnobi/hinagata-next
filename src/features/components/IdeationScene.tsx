@@ -1,7 +1,7 @@
 "use client";
 
 import styled from "@emotion/styled";
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { buttonReset, px } from "~/common/lib/css-util";
 
 type Row = {
@@ -27,6 +27,25 @@ const INITIAL_ROWS: Row[] = [
   { id: 2, keywordA: ["遊び"], keywordB: ["仕事"] },
   { id: 3, keywordA: ["夢"], keywordB: ["現実"] }
 ];
+
+const STORAGE_KEY = "ideation-data";
+
+type StoredData = { rows: Row[]; labelA: string; labelB: string };
+
+const loadStored = (): StoredData => {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      const p = JSON.parse(raw);
+      return {
+        rows: p.rows ?? INITIAL_ROWS,
+        labelA: p.labelA ?? "グループ A",
+        labelB: p.labelB ?? "グループ B"
+      };
+    }
+  } catch {}
+  return { rows: INITIAL_ROWS, labelA: "グループ A", labelB: "グループ B" };
+};
 
 const GRID_COLS = "40px 1fr 1fr";
 
@@ -340,11 +359,17 @@ const DeleteBtn = styled.button(buttonReset, {
 // ──────────────────────────────────────────────────────────────
 
 const IdeationScene = () => {
-  const [rows, setRows] = useState<Row[]>(INITIAL_ROWS);
+  const [rows, setRows] = useState<Row[]>(() => loadStored().rows);
   const [drag, setDrag] = useState<DragState | null>(null);
   const [cellEdit, setCellEdit] = useState<CellEditState | null>(null);
-  const [labelA, setLabelA] = useState("グループ A");
-  const [labelB, setLabelB] = useState("グループ B");
+  const [labelA, setLabelA] = useState(() => loadStored().labelA);
+  const [labelB, setLabelB] = useState(() => loadStored().labelB);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ rows, labelA, labelB }));
+    } catch {}
+  }, [rows, labelA, labelB]);
   const [editingHeader, setEditingHeader] = useState<"A" | "B" | null>(null);
   const [headerDraft, setHeaderDraft] = useState("");
   const rowEls = useRef<Map<number, HTMLDivElement>>(new Map());
