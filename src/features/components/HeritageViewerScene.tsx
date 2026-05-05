@@ -82,21 +82,22 @@ const SiteNameEn = styled.span({
 
 const MapArea = styled.div({
   flex: 1,
-  overflow: "hidden"
+  overflow: "hidden",
+  position: "relative"
 });
 
-const VideoPanel = styled.div({
-  width: 420,
-  flexShrink: 0,
+const VideoOverlay = styled.div({
+  position: "absolute",
+  inset: 0,
   display: "flex",
   flexDirection: "column",
-  borderLeft: "1px solid #2a2a2a",
-  background: "#0a0a0a"
+  background: "#000",
+  zIndex: 10
 });
 
-const VideoPanelHeader = styled.div({
+const VideoOverlayHeader = styled.div({
   padding: "10px 14px",
-  borderBottom: "1px solid #1a1a1a",
+  background: "rgba(0,0,0,0.85)",
   display: "flex",
   alignItems: "center",
   gap: 8,
@@ -119,17 +120,16 @@ const CloseButton = styled.button({
   marginLeft: "auto",
   background: "none",
   border: "none",
-  color: "#555",
+  color: "#888",
   cursor: "pointer",
-  fontSize: 15,
+  fontSize: 18,
   padding: "2px 4px",
   lineHeight: 1,
-  "&:hover": { color: "#ccc" }
+  "&:hover": { color: "#fff" }
 });
 
 const IframeWrapper = styled.div({
   flex: 1,
-  background: "#000",
   "& iframe": {
     width: "100%",
     height: "100%",
@@ -175,28 +175,27 @@ const HeritageViewerScene = () => {
 
       <MapArea>
         <HeritageMap focusRequest={focusRequest} onPlayVideo={handlePlayVideo} />
+        {videoSite && (
+          <VideoOverlay>
+            <VideoOverlayHeader>
+              <div>
+                <VideoNameJa>{videoSite.nameJa}</VideoNameJa>
+                <VideoNameEn>{videoSite.nameEn}</VideoNameEn>
+              </div>
+              <CloseButton onClick={() => setVideoSite(null)}>✕</CloseButton>
+            </VideoOverlayHeader>
+            <IframeWrapper>
+              <iframe
+                key={videoSite.nameEn}
+                src={buildEmbedUrl(videoSite)}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                title={videoSite.nameJa}
+              />
+            </IframeWrapper>
+          </VideoOverlay>
+        )}
       </MapArea>
-
-      {videoSite && (
-        <VideoPanel>
-          <VideoPanelHeader>
-            <div>
-              <VideoNameJa>{videoSite.nameJa}</VideoNameJa>
-              <VideoNameEn>{videoSite.nameEn}</VideoNameEn>
-            </div>
-            <CloseButton onClick={() => setVideoSite(null)}>✕</CloseButton>
-          </VideoPanelHeader>
-          <IframeWrapper>
-            <iframe
-              key={videoSite.nameEn}
-              src={buildEmbedUrl(videoSite)}
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-              title={videoSite.nameJa}
-            />
-          </IframeWrapper>
-        </VideoPanel>
-      )}
     </Root>
   );
 };

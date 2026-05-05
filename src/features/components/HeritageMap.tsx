@@ -130,7 +130,7 @@ const InfoBox = ({
 );
 
 const HeritageMap = ({ focusRequest, onPlayVideo }: Props) => {
-  const { isLoaded } = useJsApiLoader({ googleMapsApiKey: API_KEY });
+  const { isLoaded } = useJsApiLoader({ googleMapsApiKey: API_KEY, language: "ja" });
   const mapRef = useRef<google.maps.Map | null>(null);
   const [infoSite, setInfoSite] = useState<HeritageSite | null>(null);
 
