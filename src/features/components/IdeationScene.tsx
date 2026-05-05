@@ -22,6 +22,17 @@ type CellEditState = {
   inputValue: string;
 };
 
+type ChipDragState = {
+  fromRowId: number;
+  fromSide: "A" | "B";
+  fromIndex: number;
+  keyword: string;
+  x: number;
+  y: number;
+  targetRowId: number | null;
+  targetSide: "A" | "B" | null;
+};
+
 const INITIAL_ROWS: Row[] = [
   { id: 1, keywordA: ["自由"], keywordB: ["秩序"] },
   { id: 2, keywordA: ["遊び"], keywordB: ["仕事"] },
@@ -154,14 +165,20 @@ const Handle = styled.div({
   "&:active": { cursor: "grabbing" }
 });
 
-const KeyCell = styled.div<{ borderLeft?: boolean }>(({ borderLeft }) => ({
-  display: "flex",
-  alignItems: "flex-start",
-  gap: px(8),
-  padding: px(10, 8, 10, 14),
-  borderLeft: borderLeft ? "1px solid rgba(0,0,0,0.1)" : "none",
-  minWidth: 0
-}));
+const KeyCell = styled.div<{ borderLeft?: boolean; isDropTarget?: boolean }>(
+  ({ borderLeft, isDropTarget }) => ({
+    display: "flex",
+    alignItems: "flex-start",
+    gap: px(8),
+    padding: px(10, 8, 10, 14),
+    borderLeft: borderLeft ? "1px solid rgba(0,0,0,0.1)" : "none",
+    minWidth: 0,
+    transition: "background 0.1s",
+    background: isDropTarget ? "rgba(100,140,255,0.1)" : "transparent",
+    outline: isDropTarget ? `2px solid rgba(100,140,255,0.5)` : "none",
+    outlineOffset: "-2px"
+  })
+);
 
 const ChipsArea = styled.div({
   flex: 1,
@@ -182,7 +199,27 @@ const Chip = styled.span({
   fontWeight: 600,
   color: "#333",
   lineHeight: 1.3,
-  whiteSpace: "nowrap"
+  whiteSpace: "nowrap",
+  cursor: "grab",
+  touchAction: "none",
+  userSelect: "none",
+  "&:active": { cursor: "grabbing" }
+});
+
+const GhostChip = styled.div({
+  position: "fixed",
+  pointerEvents: "none",
+  zIndex: 100,
+  padding: px(4, 10),
+  borderRadius: px(14),
+  background: "#222",
+  color: "#fff",
+  fontSize: px(13),
+  fontWeight: 600,
+  lineHeight: 1.3,
+  whiteSpace: "nowrap",
+  transform: "translate(-50%, -50%)",
+  boxShadow: "0 4px 16px rgba(0,0,0,0.3)"
 });
 
 const CellEditBtn = styled.button(buttonReset, {
@@ -226,7 +263,6 @@ const Fab = styled.button(buttonReset, {
   "&:active": { transform: "scale(0.94)" }
 });
 
-// Bottom sheet
 const Overlay = styled.div({
   position: "fixed",
   inset: 0,
@@ -362,17 +398,20 @@ const IdeationScene = () => {
   const [rows, setRows] = useState<Row[]>(() => loadStored().rows);
   const [drag, setDrag] = useState<DragState | null>(null);
   const [cellEdit, setCellEdit] = useState<CellEditState | null>(null);
+  const [chipDrag, setChipDrag] = useState<ChipDragState | null>(null);
   const [labelA, setLabelA] = useState(() => loadStored().labelA);
   const [labelB, setLabelB] = useState(() => loadStored().labelB);
+  const [editingHeader, setEditingHeader] = useState<"A" | "B" | null>(null);
+  const [headerDraft, setHeaderDraft] = useState("");
+  const rowEls = useRef<Map<number, HTMLDivElement>>(new Map());
+  // key: `${rowId}-${"A"|"B"}`
+  const cellEls = useRef<Map<string, HTMLDivElement>>(new Map());
 
   useEffect(() => {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify({ rows, labelA, labelB }));
     } catch {}
   }, [rows, labelA, labelB]);
-  const [editingHeader, setEditingHeader] = useState<"A" | "B" | null>(null);
-  const [headerDraft, setHeaderDraft] = useState("");
-  const rowEls = useRef<Map<number, HTMLDivElement>>(new Map());
 
   // ── Header editing ────────────────────────────────────────
   const startEditHeader = useCallback(
@@ -390,7 +429,7 @@ const IdeationScene = () => {
     setEditingHeader(null);
   }, [editingHeader, headerDraft]);
 
-  // ── Drag-to-reorder ───────────────────────────────────────
+  // ── Row drag-to-reorder ───────────────────────────────────
   const dropIndexAt = useCallback(
     (clientY: number) => {
       for (let i = 0; i < rows.length; i++) {
@@ -436,6 +475,90 @@ const IdeationScene = () => {
     setDrag(null);
   }, [drag]);
 
+  // ── Chip drag-to-move ─────────────────────────────────────
+  const getTargetCell = useCallback(
+    (clientX: number, clientY: number): { rowId: number; side: "A" | "B" } | null => {
+      for (const [key, el] of cellEls.current) {
+        const { left, right, top, bottom } = el.getBoundingClientRect();
+        if (clientX >= left && clientX <= right && clientY >= top && clientY <= bottom) {
+          const dash = key.indexOf("-");
+          return { rowId: Number(key.slice(0, dash)), side: key.slice(dash + 1) as "A" | "B" };
+        }
+      }
+      return null;
+    },
+    []
+  );
+
+  const startChipDrag = useCallback(
+    (e: React.PointerEvent, rowId: number, side: "A" | "B", index: number, keyword: string) => {
+      e.preventDefault();
+      e.stopPropagation();
+      (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+      setChipDrag({
+        fromRowId: rowId,
+        fromSide: side,
+        fromIndex: index,
+        keyword,
+        x: e.clientX,
+        y: e.clientY,
+        targetRowId: null,
+        targetSide: null
+      });
+    },
+    []
+  );
+
+  const handleChipMove = useCallback(
+    (e: React.PointerEvent) => {
+      if (!chipDrag) return;
+      const target = getTargetCell(e.clientX, e.clientY);
+      setChipDrag(s =>
+        s
+          ? {
+              ...s,
+              x: e.clientX,
+              y: e.clientY,
+              targetRowId: target?.rowId ?? null,
+              targetSide: target?.side ?? null
+            }
+          : null
+      );
+    },
+    [chipDrag, getTargetCell]
+  );
+
+  const handleChipUp = useCallback(() => {
+    if (!chipDrag) return;
+    const { fromRowId, fromSide, fromIndex, keyword, targetRowId, targetSide } = chipDrag;
+    setChipDrag(null);
+
+    if (
+      targetRowId === null ||
+      targetSide === null ||
+      (targetRowId === fromRowId && targetSide === fromSide)
+    ) {
+      return;
+    }
+
+    setRows(prev =>
+      prev.map(r => {
+        let updated = { ...r };
+        if (r.id === fromRowId) {
+          const arr = (fromSide === "A" ? updated.keywordA : updated.keywordB).filter(
+            (_, i) => i !== fromIndex
+          );
+          updated = fromSide === "A" ? { ...updated, keywordA: arr } : { ...updated, keywordB: arr };
+        }
+        if (r.id === targetRowId) {
+          const arr = [...(targetSide === "A" ? updated.keywordA : updated.keywordB), keyword];
+          updated = targetSide === "A" ? { ...updated, keywordA: arr } : { ...updated, keywordB: arr };
+        }
+        return updated;
+      })
+    );
+  }, [chipDrag]);
+
   // ── Row operations ────────────────────────────────────────
   const addRow = useCallback(() => {
     setRows(prev => [...prev, { id: Date.now(), keywordA: [], keywordB: [] }]);
@@ -460,15 +583,11 @@ const IdeationScene = () => {
     if (!cellEdit) return;
     const kw = cellEdit.inputValue.trim();
     if (!kw) return;
-    setCellEdit(s =>
-      s ? { ...s, draft: [...s.draft, kw], inputValue: "" } : s
-    );
+    setCellEdit(s => (s ? { ...s, draft: [...s.draft, kw], inputValue: "" } : s));
   }, [cellEdit]);
 
   const removeDraftKeyword = useCallback((index: number) => {
-    setCellEdit(s =>
-      s ? { ...s, draft: s.draft.filter((_, i) => i !== index) } : s
-    );
+    setCellEdit(s => (s ? { ...s, draft: s.draft.filter((_, i) => i !== index) } : s));
   }, []);
 
   const saveCellEdit = useCallback(() => {
@@ -509,9 +628,7 @@ const IdeationScene = () => {
               onKeyDown={e => e.key === "Enter" && commitHeader()}
             />
           ) : (
-            <ColHeaderLabel onClick={() => startEditHeader("A")}>
-              {labelA}
-            </ColHeaderLabel>
+            <ColHeaderLabel onClick={() => startEditHeader("A")}>{labelA}</ColHeaderLabel>
           )}
         </ColHeaderCell>
         <ColHeaderCell borderLeft>
@@ -524,9 +641,7 @@ const IdeationScene = () => {
               onKeyDown={e => e.key === "Enter" && commitHeader()}
             />
           ) : (
-            <ColHeaderLabel onClick={() => startEditHeader("B")}>
-              {labelB}
-            </ColHeaderLabel>
+            <ColHeaderLabel onClick={() => startEditHeader("B")}>{labelB}</ColHeaderLabel>
           )}
         </ColHeaderCell>
       </ColHeader>
@@ -538,9 +653,7 @@ const IdeationScene = () => {
             key={row.id}
             faded={drag?.fromId === row.id}
             dropLineBefore={
-              drag !== null &&
-              drag.fromId !== row.id &&
-              drag.dropIndex === i
+              drag !== null && drag.fromId !== row.id && drag.dropIndex === i
             }
             ref={el => {
               if (el) rowEls.current.set(row.id, el);
@@ -555,25 +668,64 @@ const IdeationScene = () => {
               >
                 ≡
               </Handle>
-              <KeyCell>
+
+              {/* ── Cell A ─────────────────────────────── */}
+              <KeyCell
+                isDropTarget={
+                  chipDrag !== null &&
+                  chipDrag.targetRowId === row.id &&
+                  chipDrag.targetSide === "A" &&
+                  !(chipDrag.fromRowId === row.id && chipDrag.fromSide === "A")
+                }
+                ref={el => {
+                  if (el) cellEls.current.set(`${row.id}-A`, el);
+                  else cellEls.current.delete(`${row.id}-A`);
+                }}
+              >
                 <ChipsArea>
                   {row.keywordA.map((kw, ki) => (
-                    <Chip key={ki}>{kw}</Chip>
+                    <Chip
+                      key={ki}
+                      style={{ opacity: chipDrag?.fromRowId === row.id && chipDrag.fromSide === "A" && chipDrag.fromIndex === ki ? 0.3 : 1 }}
+                      onPointerDown={e => startChipDrag(e, row.id, "A", ki, kw)}
+                      onPointerMove={handleChipMove}
+                      onPointerUp={handleChipUp}
+                    >
+                      {kw}
+                    </Chip>
                   ))}
                 </ChipsArea>
-                <CellEditBtn onClick={() => openCellEdit(row.id, "A")}>
-                  ✎
-                </CellEditBtn>
+                <CellEditBtn onClick={() => openCellEdit(row.id, "A")}>✎</CellEditBtn>
               </KeyCell>
-              <KeyCell borderLeft>
+
+              {/* ── Cell B ─────────────────────────────── */}
+              <KeyCell
+                borderLeft
+                isDropTarget={
+                  chipDrag !== null &&
+                  chipDrag.targetRowId === row.id &&
+                  chipDrag.targetSide === "B" &&
+                  !(chipDrag.fromRowId === row.id && chipDrag.fromSide === "B")
+                }
+                ref={el => {
+                  if (el) cellEls.current.set(`${row.id}-B`, el);
+                  else cellEls.current.delete(`${row.id}-B`);
+                }}
+              >
                 <ChipsArea>
                   {row.keywordB.map((kw, ki) => (
-                    <Chip key={ki}>{kw}</Chip>
+                    <Chip
+                      key={ki}
+                      style={{ opacity: chipDrag?.fromRowId === row.id && chipDrag.fromSide === "B" && chipDrag.fromIndex === ki ? 0.3 : 1 }}
+                      onPointerDown={e => startChipDrag(e, row.id, "B", ki, kw)}
+                      onPointerMove={handleChipMove}
+                      onPointerUp={handleChipUp}
+                    >
+                      {kw}
+                    </Chip>
                   ))}
                 </ChipsArea>
-                <CellEditBtn onClick={() => openCellEdit(row.id, "B")}>
-                  ✎
-                </CellEditBtn>
+                <CellEditBtn onClick={() => openCellEdit(row.id, "B")}>✎</CellEditBtn>
               </KeyCell>
             </RowGrid>
           </RowWrap>
@@ -581,6 +733,13 @@ const IdeationScene = () => {
 
         {drag?.dropIndex === rows.length && <TrailingDropLine />}
       </RowList>
+
+      {/* ── Chip drag ghost ───────────────────────────────── */}
+      {chipDrag && (
+        <GhostChip style={{ left: chipDrag.x, top: chipDrag.y }}>
+          {chipDrag.keyword}
+        </GhostChip>
+      )}
 
       {/* ── FAB ──────────────────────────────────────────── */}
       <Fab onClick={addRow}>＋</Fab>
@@ -597,9 +756,7 @@ const IdeationScene = () => {
               {cellEdit.draft.map((kw, i) => (
                 <DraftChip key={i}>
                   {kw}
-                  <RemoveChipBtn onClick={() => removeDraftKeyword(i)}>
-                    ×
-                  </RemoveChipBtn>
+                  <RemoveChipBtn onClick={() => removeDraftKeyword(i)}>×</RemoveChipBtn>
                 </DraftChip>
               ))}
             </DraftChipList>
@@ -609,9 +766,7 @@ const IdeationScene = () => {
                 autoFocus
                 value={cellEdit.inputValue}
                 onChange={e =>
-                  setCellEdit(s =>
-                    s ? { ...s, inputValue: e.target.value } : s
-                  )
+                  setCellEdit(s => (s ? { ...s, inputValue: e.target.value } : s))
                 }
                 onKeyDown={e => e.key === "Enter" && addDraftKeyword()}
                 placeholder="キーワードを入力して追加…"
