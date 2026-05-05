@@ -323,7 +323,7 @@ const RemoveChipBtn = styled.button(buttonReset, {
   "&:hover": { background: "rgba(0,0,0,0.1)", color: "#222" }
 });
 
-const AddKwRow = styled.div({
+const AddKwRow = styled.form({
   display: "flex",
   gap: px(8)
 });
@@ -761,17 +761,21 @@ const IdeationScene = () => {
               ))}
             </DraftChipList>
 
-            <AddKwRow>
+            <AddKwRow
+              onSubmit={e => {
+                e.preventDefault();
+                addDraftKeyword();
+              }}
+            >
               <Input
                 autoFocus
                 value={cellEdit.inputValue}
                 onChange={e =>
                   setCellEdit(s => (s ? { ...s, inputValue: e.target.value } : s))
                 }
-                onKeyDown={e => e.key === "Enter" && addDraftKeyword()}
                 placeholder="キーワードを入力して追加…"
               />
-              <AddKwBtn onClick={addDraftKeyword}>追加</AddKwBtn>
+              <AddKwBtn type="submit">追加</AddKwBtn>
             </AddKwRow>
 
             <Actions>
