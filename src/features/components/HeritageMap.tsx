@@ -46,13 +46,15 @@ const NIGHT_STYLE: google.maps.MapTypeStyle[] = [
   }
 ];
 
-const PIN_OFFSET = () => ({ x: -6, y: -6 });
+const PIN_OFFSET = () => ({ x: -11, y: -11 });
 
 const SitePin = ({
   site,
+  num,
   onClick
 }: {
   site: HeritageSite;
+  num: number;
   onClick: () => void;
 }) => (
   <OverlayViewF
@@ -63,15 +65,25 @@ const SitePin = ({
     <div
       onClick={onClick}
       style={{
-        width: 12,
-        height: 12,
+        width: 22,
+        height: 22,
         borderRadius: "50%",
         background: "#e0aa3e",
         border: "2px solid #111",
         cursor: "pointer",
-        boxShadow: "0 1px 4px rgba(0,0,0,0.6)"
+        boxShadow: "0 1px 4px rgba(0,0,0,0.6)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        fontSize: 8,
+        fontWeight: 700,
+        color: "#111",
+        lineHeight: 1,
+        userSelect: "none"
       }}
-    />
+    >
+      {num}
+    </div>
   </OverlayViewF>
 );
 
@@ -93,6 +105,7 @@ export type FocusRequest = { site: HeritageSite; id: number };
 type Props = {
   focusRequest: FocusRequest | null;
   onPlayVideo: (site: HeritageSite) => void;
+  siteOrder: Record<string, number>;
 };
 
 // InfoWindow内はGoogle Mapsの独自DOMに挿入されるためインラインスタイルを使う
@@ -129,7 +142,7 @@ const InfoBox = ({
   </div>
 );
 
-const HeritageMap = ({ focusRequest, onPlayVideo }: Props) => {
+const HeritageMap = ({ focusRequest, onPlayVideo, siteOrder }: Props) => {
   const { isLoaded } = useJsApiLoader({ googleMapsApiKey: API_KEY, language: "ja" });
   const mapRef = useRef<google.maps.Map | null>(null);
   const [infoSite, setInfoSite] = useState<HeritageSite | null>(null);
@@ -186,7 +199,12 @@ const HeritageMap = ({ focusRequest, onPlayVideo }: Props) => {
       }}
     >
       {HERITAGE_SITES.map(site => (
-        <SitePin key={site.nameEn} site={site} onClick={() => setInfoSite(site)} />
+        <SitePin
+          key={site.nameEn}
+          site={site}
+          num={siteOrder[site.nameEn]}
+          onClick={() => setInfoSite(site)}
+        />
       ))}
       {infoSite && (
         <InfoWindow

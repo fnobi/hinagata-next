@@ -65,6 +65,27 @@ const SiteItem = styled.li<{ active: boolean }>(({ active }) => ({
   }
 }));
 
+const SiteItemInner = styled.div({
+  display: "flex",
+  alignItems: "center",
+  gap: 8
+});
+
+const SiteNumber = styled.span<{ active: boolean }>(({ active }) => ({
+  flexShrink: 0,
+  width: 22,
+  height: 22,
+  borderRadius: "50%",
+  background: active ? "#e0aa3e" : "#2a2a2a",
+  color: active ? "#111" : "#888",
+  fontSize: 9,
+  fontWeight: 700,
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  lineHeight: 1
+}));
+
 const SiteNameJa = styled.span<{ active: boolean }>(({ active }) => ({
   display: "block",
   fontSize: 12,
@@ -142,6 +163,9 @@ const buildEmbedUrl = (site: HeritageSite) =>
   `https://www.youtube.com/embed/${VIDEO_ID}?start=${site.startSec}&autoplay=1`;
 
 const SORTED_SITES = [...HERITAGE_SITES].sort((a, b) => a.lng - b.lng);
+const SITE_ORDER: Record<string, number> = Object.fromEntries(
+  SORTED_SITES.map((s, i) => [s.nameEn, i + 1])
+);
 
 const HeritageViewerScene = () => {
   const [focusRequest, setFocusRequest] = useState<FocusRequest | null>(null);
@@ -165,10 +189,16 @@ const HeritageViewerScene = () => {
         <SiteList>
           {SORTED_SITES.map(site => {
             const active = videoSite?.nameEn === site.nameEn;
+            const num = SITE_ORDER[site.nameEn];
             return (
               <SiteItem key={site.nameEn} active={active} onClick={() => handleListClick(site)}>
-                <SiteNameJa active={active}>{site.nameJa}</SiteNameJa>
-                <SiteNameEn>{site.nameEn}</SiteNameEn>
+                <SiteItemInner>
+                  <SiteNumber active={active}>{num}</SiteNumber>
+                  <div>
+                    <SiteNameJa active={active}>{site.nameJa}</SiteNameJa>
+                    <SiteNameEn>{site.nameEn}</SiteNameEn>
+                  </div>
+                </SiteItemInner>
               </SiteItem>
             );
           })}
@@ -176,7 +206,7 @@ const HeritageViewerScene = () => {
       </Sidebar>
 
       <MapArea>
-        <HeritageMap focusRequest={focusRequest} onPlayVideo={handlePlayVideo} />
+        <HeritageMap focusRequest={focusRequest} onPlayVideo={handlePlayVideo} siteOrder={SITE_ORDER} />
         {videoSite && (
           <VideoOverlay>
             <VideoOverlayHeader>
