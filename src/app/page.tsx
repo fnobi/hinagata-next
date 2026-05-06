@@ -1,5 +1,5 @@
-import TopScene from "~/features/components/TopScene";
+import HeritageViewerScene from "~/features/components/HeritageViewerScene";
 
-const PageIndex = () => <TopScene />;
+const PageIndex = () => <HeritageViewerScene />;
 
 export default PageIndex;
