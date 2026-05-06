@@ -141,6 +141,8 @@ const IframeWrapper = styled.div({
 const buildEmbedUrl = (site: HeritageSite) =>
   `https://www.youtube.com/embed/${VIDEO_ID}?start=${site.startSec}&autoplay=1`;
 
+const SORTED_SITES = [...HERITAGE_SITES].sort((a, b) => a.lng - b.lng);
+
 const HeritageViewerScene = () => {
   const [focusRequest, setFocusRequest] = useState<FocusRequest | null>(null);
   const [videoSite, setVideoSite] = useState<HeritageSite | null>(null);
@@ -161,7 +163,7 @@ const HeritageViewerScene = () => {
           <SidebarCount>{HERITAGE_SITES.length} か所</SidebarCount>
         </SidebarHeader>
         <SiteList>
-          {HERITAGE_SITES.map(site => {
+          {SORTED_SITES.map(site => {
             const active = videoSite?.nameEn === site.nameEn;
             return (
               <SiteItem key={site.nameEn} active={active} onClick={() => handleListClick(site)}>
