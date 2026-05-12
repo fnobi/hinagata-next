@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Awsome next.js project.",
   "main": "index.js",
+  "packageManager": "pnpm@11.1.1",
   "scripts": {
     "dev": "next",
     "build": "next build && npx tsx cli/make-dist-dir.ts",
