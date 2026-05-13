@@ -57,13 +57,6 @@
     "react": "^19.2.5",
     "zustand": "^5.0.12"
   },
-  "pnpm": {
-    "overrides": {
-      "lodash": ">=4.17.24",
-      "fast-uri": ">=3.1.2",
-      "postcss": ">=8.5.10"
-    }
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/fnobi/hinagata-next.git"
