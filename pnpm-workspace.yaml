@@ -1,0 +1,8 @@
+allowBuilds:
+  esbuild: false
+  sharp: false
+  unrs-resolver: false
+overrides:
+  lodash: ">=4.17.24"
+  fast-uri: ">=3.1.2"
+  postcss: ">=8.5.10"
