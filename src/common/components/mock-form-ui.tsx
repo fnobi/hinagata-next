@@ -3,7 +3,6 @@
 import styled from "@emotion/styled";
 import {
   type ComponentPropsWithoutRef,
-  type FunctionComponent,
   type InputHTMLAttributes,
   type ReactNode,
   useMemo
@@ -604,7 +603,7 @@ export const MockArrayFormRow = <T, R>({
   Item
 }: {
   makeNew: (s: unknown) => T;
-  Item: FunctionComponent<CommonFormFieldProps<T> & R>;
+  Item: (p: CommonFormFieldProps<T> & R) => ReactNode;
   props: R;
 } & FormRowCommonProps<T[]>) => {
   const handleMinus = useMemo(
