@@ -18,7 +18,7 @@ import {
   px
 } from "~/common/lib/css-util";
 import { formatClock } from "~/common/lib/date-util";
-import { formatDatetimeValue } from "~/common/lib/string-util";
+import { formatDatetimeValue, padLeft } from "~/common/lib/string-util";
 import { parseNumber } from "~/common/lib/parser-helper";
 import type CommonActionParameter from "~/common/schema/CommonActionParameter";
 
@@ -142,7 +142,7 @@ export const MockFormFrame = <T,>({
   </form>
 );
 
-const FormCommonRowWrapper = ({
+export const FormCommonRowWrapper = ({
   label,
   error,
   counter,
@@ -398,6 +398,42 @@ export const MockDateTimeFormRow = ({
   );
 };
 
+export const MockDateFormRow = ({
+  label,
+  error,
+  value,
+  onChange
+}: FormRowCommonProps<[number, number, number]>) => {
+  const sValue = useMemo(() => {
+    const [y, m, d] = value;
+    return [y, padLeft(m, 2), padLeft(d, 2)].join("-");
+  }, [value]);
+  return (
+    <FormCommonRowWrapper label={label} error={error}>
+      <>
+        <input
+          type="date"
+          value={sValue}
+          onChange={e => {
+            const [y, m, d] = e.target.value.split(/-/).map(parseNumber);
+            onChange([y, m, d]);
+          }}
+          style={{ backgroundColor: errorBgColor(error) }}
+        />
+        &nbsp;
+        <MockActionButton
+          action={{
+            type: "button",
+            onClick: () => onChange([0, 0, 0])
+          }}
+        >
+          クリア
+        </MockActionButton>
+      </>
+    </FormCommonRowWrapper>
+  );
+};
+
 export const MockClockFormRow = ({
   label,
   value,
@@ -455,18 +491,20 @@ export const MockCheckboxFormInput = ({
   </label>
 );
 
-export const MockPulldownFormRow = <T extends string>({
+export const MockPulldownFormRow = <T extends string | number>({
   label,
   value,
   error,
   options,
+  noBlank = false,
   onChange
 }: {
   options: { value: T; label: string }[];
+  noBlank?: boolean;
 } & FormRowCommonProps<T>) => (
   <FormCommonRowWrapper label={label} error={error}>
     <select value={value || ""} onChange={e => onChange(e.target.value as T)}>
-      <option value="">-</option>
+      {noBlank ? null : <option value="">-</option>}
       {options.map(({ value: v, label: l }) => (
         <option key={v} value={v}>
           {l}
@@ -556,16 +594,18 @@ export const MockFileFormRow = ({
   </FormCommonRowWrapper>
 );
 
-export const MockArrayFormRow = <T,>({
+export const MockArrayFormRow = <T, R>({
   label,
   value,
   makeNew,
   onChange,
   error,
+  props,
   Item
 }: {
   makeNew: (s: unknown) => T;
-  Item: FunctionComponent<CommonFormFieldProps<T>>;
+  Item: FunctionComponent<CommonFormFieldProps<T> & R>;
+  props: R;
 } & FormRowCommonProps<T[]>) => {
   const handleMinus = useMemo(
     (): CommonActionParameter | null =>
@@ -598,9 +638,7 @@ export const MockArrayFormRow = <T,>({
       <div>
         {rows.map((r, i) => (
           <NestSection key={i}>
-            <FormLayoutGrid>
-              <Item {...r} />
-            </FormLayoutGrid>
+            <FormLayoutGrid>{Item({ ...r, ...props })}</FormLayoutGrid>
           </NestSection>
         ))}
       </div>
