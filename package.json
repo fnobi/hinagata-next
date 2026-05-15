@@ -54,6 +54,7 @@
     "@emotion/styled": "^11.11.0",
     "css-transform-builder": "^1.1.2",
     "emotion-reset": "^3.0.1",
+    "firebase": "^12.12.1",
     "next": "^16.2.6",
     "react": "^19.2.5",
     "zustand": "^5.0.12"

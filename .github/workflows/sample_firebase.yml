@@ -7,11 +7,17 @@ on:
 
 env:
   ACTIONS_INSTALL_COMMAND: pnpm install
-  ACTIONS_BUILD_COMMAND: pnpm run build
+  ACTIONS_BUILD_COMMAND: npm run build
   ACTIONS_BUILD_DIST: dist
   ACTIONS_LOCK_FILE: pnpm-lock.yaml
 
   NEXT_PUBLIC_SITE_ORIGIN: https://example.com
+  NEXT_PUBLIC_FIREBASE_API_KEY: "XXXXXXXXXXXXXXXXX"
+  NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: "xxxxxxxxxx.firebaseapp.com"
+  NEXT_PUBLIC_FIREBASE_PROJECT_ID: "xxxxxxxxxx"
+  NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: "xxxxxxxxxx.firebasestorage.app"
+  NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: "000000000000"
+  NEXT_PUBLIC_FIREBASE_APP_ID: "0:000000000000:xxx:0000000000000000000000"
 
 permissions:
   id-token: write
@@ -43,8 +49,14 @@ jobs:
       - name: install dependencies
         run: ${{ env.ACTIONS_INSTALL_COMMAND }}
 
+      - name: install functions dependencies
+        run: pnpm install --prefix functions
+
+      - name: lint
+        run: npx eslint --ext .ts,.tsx,.js src
+
       - name: build
         run: ${{ env.ACTIONS_BUILD_COMMAND }}
 
-      - name: firebase deploy
-        run: pnpm exec firebase deploy --only hosting
+      - name: deploy firebase
+        run: npx firebase deploy --project ${{ env.NEXT_PUBLIC_FIREBASE_PROJECT_ID }}
