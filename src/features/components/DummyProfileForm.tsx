@@ -96,6 +96,7 @@ const ProfileFormField = ({
         error={errors.profileLinks}
         makeNew={parseDummyProfileLink}
         Item={ProfileLinkFormField}
+        props={{}}
       />
     </>
   );
