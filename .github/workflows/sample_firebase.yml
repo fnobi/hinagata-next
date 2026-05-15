@@ -47,4 +47,4 @@ jobs:
         run: ${{ env.ACTIONS_BUILD_COMMAND }}
 
       - name: firebase deploy
-        run: npx firebase deploy --only hosting
+        run: pnpm exec firebase deploy --only hosting
