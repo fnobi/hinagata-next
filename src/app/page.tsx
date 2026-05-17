@@ -1,5 +1,5 @@
-import TopScene from "~/features/components/TopScene";
+import SequencerScene from "~/features/components/SequencerScene";
 
-const PageIndex = () => <TopScene />;
+const PageIndex = () => <SequencerScene />;
 
 export default PageIndex;
