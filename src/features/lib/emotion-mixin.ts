@@ -8,10 +8,8 @@ import {
 } from "~/common/lib/css-util";
 
 // NOTE: デザインファイルのサイズに合わせる
-const SP_VIEWPORT_SIZE = 1125;
-const PC_VIEWPORT_SIZE = 2880;
-
-const BREAKPOINT_MIN_PC = 800;
+const SP_VIEWPORT_SIZE = 520;
+const BREAKPOINT_MIN_PC = SP_VIEWPORT_SIZE;
 
 export const globalStyle = css({
   body: {
@@ -32,15 +30,16 @@ export const pcStyle = (styles: CSSInterpolation) =>
     [`@media(min-width: ${px(BREAKPOINT_MIN_PC)})`]: styles
   });
 
-export const pcp = (...nums: CSSSizeKeyword[]) =>
-  vw(
-    ...nums.map(n => (typeof n === "string" ? n : (n / PC_VIEWPORT_SIZE) * 100))
-  );
+export const pcp = (...nums: CSSSizeKeyword[]) => px(...nums);
 
 export const spp = (...nums: CSSSizeKeyword[]) =>
   vw(
     ...nums.map(n => (typeof n === "string" ? n : (n / SP_VIEWPORT_SIZE) * 100))
   );
+
+export const responsiveUnit = (
+  fn: (u: (...nums: CSSSizeKeyword[]) => string) => CSSInterpolation
+) => [pcStyle(fn(pcp)), spStyle(fn(spp))];
 
 export const THEME_COLOR = {
   ...PRIMITIVE_COLOR
