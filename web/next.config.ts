@@ -6,7 +6,12 @@ const nextConfig: NextConfig = {
   basePath: BASE_PATH,
   output: "export",
   trailingSlash: true,
-  transpilePackages: ["@emotion/react", "@emotion/styled", "@emotion/cache"],
+  transpilePackages: [
+    "@emotion/react",
+    "@emotion/styled",
+    "@emotion/cache",
+    "@hinagata/core"
+  ],
   turbopack: {
     rules: {
       "*.mp4": { type: "asset" },

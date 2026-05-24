@@ -8,7 +8,7 @@ import {
   useMemo
 } from "react";
 import MockActionButton from "~/common/components/MockActionButton";
-import { type ValidationErrorType } from "~/common/lib/form-validator";
+import { type ValidationErrorType } from "@hinagata/core/common/lib/form-validator";
 import {
   alphaColor,
   em,
@@ -16,9 +16,9 @@ import {
   PRIMITIVE_COLOR,
   px
 } from "~/common/lib/css-util";
-import { formatClock } from "~/common/lib/date-util";
-import { formatDatetimeValue, padLeft } from "~/common/lib/string-util";
-import { parseNumber } from "~/common/lib/parser-helper";
+import { formatClock } from "@hinagata/core/common/lib/date-util";
+import { formatDatetimeValue, padLeft } from "@hinagata/core/common/lib/string-util";
+import { parseNumber } from "@hinagata/core/common/lib/parser-helper";
 import type CommonActionParameter from "~/common/schema/CommonActionParameter";
 
 const SILENT_ERROR_TYPES: ValidationErrorType["type"][] = ["required"];

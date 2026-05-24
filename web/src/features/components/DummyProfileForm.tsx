@@ -14,8 +14,8 @@ import {
   stringMaxLengthValidator,
   subArrayFieldValidator,
   urlFormatValidator
-} from "~/common/lib/form-validator";
-import FormOrganizer from "~/common/lib/FormOrganizer";
+} from "@hinagata/core/common/lib/form-validator";
+import FormOrganizer from "@hinagata/core/common/lib/FormOrganizer";
 import {
   parseDummyProfileLink,
   type DummyProfileLink

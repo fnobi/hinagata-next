@@ -2,7 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import Script from "next/script";
-import React, { useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 
 type GTagMethod = {
   event: [
@@ -98,23 +98,19 @@ export const GTagSnippet = ({
 }) => {
   usePageView(trackingId, basePath);
 
-  return React.createElement(
-    React.Fragment,
-    null,
-    React.createElement(Script, {
-      async: true,
-      src: `https://www.googletagmanager.com/gtag/js?id=${trackingId}`
-    }),
-    React.createElement(
-      Script,
-      null,
-      `
+  return (
+    <>
+      {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+      <Script
+        {...({ strategy: "afterInteractive", src: `https://www.googletagmanager.com/gtag/js?id=${trackingId}` } as any)}
+      />
+      <Script strategy="afterInteractive">{`
 window.dataLayer = window.dataLayer || [];
 function gtag() {
   dataLayer.push(arguments);
 }
 gtag("js", new Date());
-gtag("config", "${trackingId}");`
-    )
+gtag("config", "${trackingId}");`}</Script>
+    </>
   );
 };

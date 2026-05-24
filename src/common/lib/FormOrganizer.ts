@@ -1,7 +1,7 @@
 import {
   type FormOrganizerValidator,
   type ValidationErrorType
-} from "~/common/lib/form-validator";
+} from "./form-validator";
 
 class FormOrganizer<T> {
   protected validatorList: {
