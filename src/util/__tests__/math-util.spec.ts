@@ -1,4 +1,4 @@
-import { clampPeriod } from "@hinagata/core/common/lib/math-util";
+import { clampPeriod } from "@hinagata/core/util/math-util";
 
 describe("math util: clamp period", () => {
   it("plus arguments", () => {

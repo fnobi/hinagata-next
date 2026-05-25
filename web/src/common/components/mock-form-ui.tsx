@@ -7,14 +7,11 @@ import {
   type ReactNode,
   useMemo
 } from "react";
-import { type ValidationErrorType } from "@hinagata/core/common/lib/form-validator";
-import { formatClock } from "@hinagata/core/common/lib/date-util";
-import {
-  formatDatetimeValue,
-  padLeft
-} from "@hinagata/core/common/lib/string-util";
-import { parseNumber } from "@hinagata/core/common/lib/parser-helper";
-import type CommonActionParameter from "@hinagata/core/common/schema/CommonActionParameter";
+import { type ValidationErrorType } from "@hinagata/core/util/form-validator";
+import { formatClock } from "@hinagata/core/util/date-util";
+import { formatDatetimeValue, padLeft } from "@hinagata/core/util/string-util";
+import { parseNumber } from "@hinagata/core/util/parser-helper";
+import type CommonActionParameter from "~/common/schema/CommonActionParameter";
 import MockActionButton from "~/common/components/MockActionButton";
 import {
   alphaColor,

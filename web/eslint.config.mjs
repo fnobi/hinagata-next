@@ -92,9 +92,9 @@ export default [
         {
           pathGroupsExcludedImportTypes: [],
           pathGroups: [
-            { pattern: "@hinagata/core/common/**", group: "internal", position: "after" },
+            { pattern: "@hinagata/core/util/**", group: "internal", position: "after" },
             { pattern: "~/common/**", group: "internal", position: "after" },
-            { pattern: "@hinagata/core/features/**", group: "internal", position: "after" },
+            { pattern: "@hinagata/core/schema/**", group: "internal", position: "after" },
             { pattern: "~/features/**", group: "internal", position: "after" },
             { pattern: "~/assets/**", group: "internal", position: "after" }
           ]

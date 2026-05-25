@@ -5,7 +5,7 @@ import {
   sumBy,
   uniq,
   uniqBy
-} from "@hinagata/core/common/lib/array-util";
+} from "@hinagata/core/util/array-util";
 
 describe("array util: uniq, uniqBy", () => {
   it("remove duplicated", () => {

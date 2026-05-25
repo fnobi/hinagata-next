@@ -8,8 +8,8 @@ import {
   stringMaxLengthValidator,
   subArrayFieldValidator,
   urlFormatValidator
-} from "@hinagata/core/common/lib/form-validator";
-import FormOrganizer from "@hinagata/core/common/lib/FormOrganizer";
+} from "@hinagata/core/util/form-validator";
+import FormOrganizer from "@hinagata/core/util/FormOrganizer";
 import {
   MockArrayFormRow,
   type CommonFormFieldProps,
@@ -19,8 +19,8 @@ import {
 import {
   parseDummyProfileLink,
   type DummyProfileLink
-} from "@hinagata/core/features/schema/DummyProfile";
-import type DummyProfile from "@hinagata/core/features/schema/DummyProfile";
+} from "@hinagata/core/schema/DummyProfile";
+import type DummyProfile from "@hinagata/core/schema/DummyProfile";
 
 const dummyProfileLinkFormOrganizer = new FormOrganizer<DummyProfileLink>()
   .fieldValidator("url", requiredValidator())

@@ -2,7 +2,7 @@
 
 import styled from "@emotion/styled";
 import { type ComponentPropsWithoutRef, type ReactNode } from "react";
-import type CommonActionParameter from "@hinagata/core/common/schema/CommonActionParameter";
+import type CommonActionParameter from "~/common/schema/CommonActionParameter";
 import MockActionButton from "~/common/components/MockActionButton";
 import {
   alphaColor,

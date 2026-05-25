@@ -1,4 +1,4 @@
-import type PageEntry from "@hinagata/core/common/lib/PageEntry";
+import type PageEntry from "@hinagata/core/util/PageEntry";
 
 export const createTweetIntent = (opts: {
   text: string;

@@ -4,7 +4,7 @@ import { css } from "@emotion/react";
 import styled from "@emotion/styled";
 import Link from "next/link";
 import { type ReactNode } from "react";
-import type CommonActionParameter from "@hinagata/core/common/schema/CommonActionParameter";
+import type CommonActionParameter from "~/common/schema/CommonActionParameter";
 import { buttonReset, percent } from "~/common/lib/css-util";
 
 const actionItemCommonStyle = css({

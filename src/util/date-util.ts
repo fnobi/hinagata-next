@@ -1,5 +1,5 @@
-import { padLeft } from "@hinagata/core/common/lib/string-util";
-import { parseNumber } from "@hinagata/core/common/lib/parser-helper";
+import { padLeft } from "@hinagata/core/util/string-util";
+import { parseNumber } from "@hinagata/core/util/parser-helper";
 
 export const formatDateLabel = (src: number | Date) => {
   const d = typeof src === "object" ? src : new Date(src);
