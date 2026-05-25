@@ -17,6 +17,9 @@
     "paths": {
       "~/*": [
         "./src/*"
+      ],
+      "@hinagata/core/*": [
+        "./src/*"
       ]
     },
     "allowJs": true,
