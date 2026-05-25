@@ -1,6 +1,11 @@
 import { FlatCompat } from "@eslint/eslintrc";
 import js from "@eslint/js";
-import nextConfig from "eslint-config-next";
+import tseslint from "@typescript-eslint/eslint-plugin";
+import tsParser from "@typescript-eslint/parser";
+import importPlugin from "eslint-plugin-import";
+import jsxA11y from "eslint-plugin-jsx-a11y";
+import reactPlugin from "eslint-plugin-react";
+import reactHooksPlugin from "eslint-plugin-react-hooks";
 import strictDepsPlugin from "eslint-plugin-strict-dependencies";
 import globals from "globals";
 import { dirname } from "path";
@@ -19,6 +24,8 @@ export default [
     ignores: [
       "node_modules/**",
       ".next/**",
+      "out/**",
+      "build/**",
       "dist/**",
       "scripts/**",
       "**/*.min.js",
@@ -28,10 +35,44 @@ export default [
     ]
   },
 
-  // next (flat config native): includes react, react-hooks, import, jsx-a11y, typescript-eslint
-  ...nextConfig,
+  // プラグイン・パーサー・共通設定
+  // eslint-config-next の代替。TypeScript パーサーを使うので Babel パーサー依存なし
+  {
+    files: ["**/*.{ts,tsx,js,jsx,mjs}"],
+    plugins: {
+      react: reactPlugin,
+      "react-hooks": reactHooksPlugin,
+      import: importPlugin,
+      "jsx-a11y": jsxA11y,
+      "@typescript-eslint": tseslint
+    },
+    languageOptions: {
+      parser: tsParser,
+      parserOptions: { sourceType: "module" },
+      globals: {
+        ...globals.browser,
+        ...globals.node
+      }
+    },
+    settings: {
+      react: { version: "detect" },
+      "import/parsers": {
+        "@typescript-eslint/parser": [".ts", ".mts", ".cts", ".tsx", ".d.ts"]
+      },
+      "import/resolver": {
+        node: { extensions: [".js", ".jsx", ".ts", ".tsx"] }
+      }
+    },
+    rules: {
+      ...reactPlugin.configs.recommended.rules,
+      ...reactHooksPlugin.configs.recommended.rules,
+      "react/react-in-jsx-scope": "off",
+      "react/prop-types": "off",
+      "react/no-unknown-property": "off"
+    }
+  },
 
-  // prettier: turns off formatting rules only, no plugin side effects
+  // prettier: formatting rules を off にする
   ...compat.extends("prettier"),
 
   // project-specific TypeScript rules
@@ -52,8 +93,6 @@ export default [
     rules: {
       ...sharedRules,
 
-      "@next/next/no-page-custom-font": 0,
-      "@next/next/no-img-element": 0,
       "react/jsx-filename-extension": [
         1,
         { extensions: [".js", ".jsx", ".tsx"] }
@@ -65,8 +104,9 @@ export default [
         {
           pathGroupsExcludedImportTypes: [],
           pathGroups: [
+            { pattern: "@hinagata/core/common/**", group: "internal", position: "after" },
             { pattern: "~/common/**", group: "internal", position: "after" },
-            { pattern: "@hinagata/core/**", group: "internal", position: "after" },
+            { pattern: "@hinagata/core/features/**", group: "internal", position: "after" },
             { pattern: "~/features/**", group: "internal", position: "after" },
             { pattern: "~/assets/**", group: "internal", position: "after" }
           ]

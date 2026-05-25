@@ -97,14 +97,13 @@ export const GTagSnippet = ({
   basePath: string;
 }) => {
   usePageView(trackingId, basePath);
-
   return (
     <>
-      {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
       <Script
-        {...({ strategy: "afterInteractive", src: `https://www.googletagmanager.com/gtag/js?id=${trackingId}` } as any)}
+        strategy="afterInteractive"
+        src={`https://www.googletagmanager.com/gtag/js?id=${trackingId}`}
       />
-      <Script strategy="afterInteractive">{`
+      <Script id="gtag-datalayer-snippet" strategy="afterInteractive">{`
 window.dataLayer = window.dataLayer || [];
 function gtag() {
   dataLayer.push(arguments);

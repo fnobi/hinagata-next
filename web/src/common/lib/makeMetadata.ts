@@ -1,7 +1,7 @@
 import { type Metadata } from "next";
 import { type StaticImageData } from "next/image";
-import { SITE_ORIGIN } from "~/common/lib/constants";
 import type PageEntry from "@hinagata/core/common/lib/PageEntry";
+import { SITE_ORIGIN } from "~/common/lib/constants";
 
 type MetaOptions = {
   page: PageEntry;
