@@ -100,15 +100,6 @@ export default [
           ]
         }
       ],
-      "import/no-restricted-paths": [
-        "error",
-        {
-          zones: [
-            { from: "src/features/**/*", target: "src/common/**/*" },
-            { from: "src/**/components/**/*", target: "src/**/schema/**/*" }
-          ]
-        }
-      ],
       "strict-dependencies/strict-dependencies": [
         "error",
         [
@@ -121,17 +112,20 @@ export default [
             allowSameModule: false
           },
           {
-            module: "react",
-            allowReferenceFrom: ["src/**/!(schema)/**/*"],
-            allowSameModule: false
-          },
-          {
             module: "./src/assets",
             allowReferenceFrom: [
-              "src/features/!(schema)/**/*",
+              "src/features/**/*",
               "src/app/**/*"
             ],
             allowSameModule: false
+          },
+          {
+            module: "./src/features",
+            allowReferenceFrom: [
+              "src/features/**/*",
+              "src/app/**/*"
+            ],
+            allowSameModule: true
           },
           {
             module: "./src/common/lib/ClientDataStoreAgent",
@@ -168,29 +162,4 @@ export default [
     }
   },
 
-  // schema: 型定義とそのユーティリティのみ。サーバー・クライアント両環境で動くコードに限定する
-  {
-    files: ["src/**/schema/**/*.ts"],
-    rules: {
-      "no-restricted-imports": [
-        "error",
-        {
-          patterns: [
-            {
-              group: ["react", "react-dom", "react/*"],
-              message: "schema files must be runtime-agnostic (no React)"
-            },
-            {
-              group: ["@emotion/*"],
-              message: "schema files must be runtime-agnostic (no emotion)"
-            },
-            {
-              group: ["next", "next/*"],
-              message: "schema files must be runtime-agnostic (no Next.js)"
-            }
-          ]
-        }
-      ]
-    }
-  }
 ];
