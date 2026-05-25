@@ -1,4 +1,4 @@
-import type FormOrganizer from "@hinagata/core/util/FormOrganizer";
+import type FormOrganizer from "@hinagata-next/core/util/FormOrganizer";
 
 const EMAIL_REGEXP =
   /^[a-zA-Z0-9_.+-]+@([a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]*\.)+[a-zA-Z]{2,}$/;

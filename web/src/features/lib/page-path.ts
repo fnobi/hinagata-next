@@ -1,4 +1,4 @@
-import PageEntry from "@hinagata/core/util/PageEntry";
+import PageEntry from "@hinagata-next/core/util/PageEntry";
 import { BASE_URL } from "~/common/lib/constants";
 
 const PAGE_ROOT = new PageEntry(BASE_URL);

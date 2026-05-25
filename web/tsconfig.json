@@ -19,7 +19,7 @@
       "~/*": [
         "./src/*"
       ],
-      "@hinagata/core/*": [
+      "@hinagata-next/core/*": [
         "../src/*"
       ]
     },

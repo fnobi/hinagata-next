@@ -1,5 +1,5 @@
 {
-  "name": "@hinagata/core",
+  "name": "@hinagata-next/core",
   "version": "1.0.0",
   "description": "Shared types and pure utilities for hinagata.",
   "main": "index.js",
@@ -8,8 +8,8 @@
     "./*": "./src/*"
   },
   "scripts": {
-    "dev": "pnpm --filter @hinagata/web dev",
-    "build": "pnpm --filter @hinagata/web build",
+    "dev": "pnpm --filter @hinagata-next/web dev",
+    "build": "pnpm --filter @hinagata-next/web build",
     "typecheck": "tsc --noEmit",
     "test": "jest --config jest.config.js",
     "lint": "eslint src/",

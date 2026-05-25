@@ -10,7 +10,7 @@ const nextConfig: NextConfig = {
     "@emotion/react",
     "@emotion/styled",
     "@emotion/cache",
-    "@hinagata/core"
+    "@hinagata-next/core"
   ],
   turbopack: {
     rules: {

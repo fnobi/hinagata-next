@@ -1,4 +1,7 @@
-import { parseObject, parseString } from "@hinagata/core/util/parser-helper";
+import {
+  parseObject,
+  parseString
+} from "@hinagata-next/core/util/parser-helper";
 
 export type DummyProfileLink = { label: string; url: string };
 

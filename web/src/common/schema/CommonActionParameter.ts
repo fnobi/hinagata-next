@@ -1,4 +1,4 @@
-import type PageEntry from "@hinagata/core/util/PageEntry";
+import type PageEntry from "@hinagata-next/core/util/PageEntry";
 
 type PageLinkParameter = {
   type: "page-link";

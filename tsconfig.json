@@ -15,7 +15,7 @@
     "strict": true,
     "noUnusedLocals": true,
     "paths": {
-      "@hinagata/core/*": [
+      "@hinagata-next/core/*": [
         "./src/*"
       ]
     },

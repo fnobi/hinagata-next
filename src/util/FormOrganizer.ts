@@ -1,7 +1,7 @@
 import {
   type FormOrganizerValidator,
   type ValidationErrorType
-} from "@hinagata/core/util/form-validator";
+} from "@hinagata-next/core/util/form-validator";
 
 class FormOrganizer<T> {
   protected validatorList: {

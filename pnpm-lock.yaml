@@ -67,7 +67,7 @@ importers:
       '@emotion/styled':
         specifier: ^11.11.0
         version: 11.14.1(@emotion/react@11.14.0(@types/react@19.2.14)(react@19.2.6))(@types/react@19.2.14)(react@19.2.6)
-      '@hinagata/core':
+      '@hinagata-next/core':
         specifier: workspace:*
         version: link:..
       css-transform-builder:

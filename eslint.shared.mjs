@@ -1,5 +1,5 @@
 /**
- * @hinagata/core と @hinagata/web で共通するESLintルール
+ * @hinagata-next/core と @hinagata-next/web で共通するESLintルール
  * 各パッケージの eslint.config.mjs で spread して使う
  */
 export const sharedRules = {

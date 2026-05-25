@@ -1,5 +1,5 @@
 import MockListView from "~/common/components/MockListView";
-import type DummyProfile from "@hinagata/core/schema/DummyProfile";
+import type DummyProfile from "@hinagata-next/core/schema/DummyProfile";
 
 const DummyProfileListView = ({
   list,

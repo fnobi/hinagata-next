@@ -4,7 +4,7 @@ module.exports = {
   testEnvironment: "node",
   roots: ["<rootDir>/src"],
   moduleNameMapper: {
-    "^@hinagata/core/(.*)$": "<rootDir>/src/$1"
+    "^@hinagata-next/core/(.*)$": "<rootDir>/src/$1"
   },
   transform: {
     "^.+\\.tsx?$": [

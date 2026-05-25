@@ -92,9 +92,9 @@ export default [
         {
           pathGroupsExcludedImportTypes: [],
           pathGroups: [
-            { pattern: "@hinagata/core/util/**", group: "internal", position: "after" },
+            { pattern: "@hinagata-next/core/util/**", group: "internal", position: "after" },
             { pattern: "~/common/**", group: "internal", position: "after" },
-            { pattern: "@hinagata/core/schema/**", group: "internal", position: "after" },
+            { pattern: "@hinagata-next/core/schema/**", group: "internal", position: "after" },
             { pattern: "~/features/**", group: "internal", position: "after" },
             { pattern: "~/assets/**", group: "internal", position: "after" }
           ]
@@ -162,7 +162,7 @@ export default [
     }
   },
 
-  // web/src/common は @hinagata/core の schema を import しない
+  // web/src/common は @hinagata-next/core の schema を import しない
   // schema は features/app 層でのみ使う
   {
     files: ["src/common/**/*.{ts,tsx}"],
@@ -173,7 +173,7 @@ export default [
           patterns: [
             { group: ["./", "../"] },
             {
-              group: ["@hinagata/core/**/schema/**"],
+              group: ["@hinagata-next/core/**/schema/**"],
               message: "common から core の schema は import 不可。schema の参照は features/app 層で行ってください。"
             }
           ]
