@@ -162,4 +162,24 @@ export default [
     }
   },
 
+  // web/src/common は @hinagata/core の schema を import しない
+  // schema は features/app 層でのみ使う
+  {
+    files: ["src/common/**/*.{ts,tsx}"],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            { group: ["./", "../"] },
+            {
+              group: ["@hinagata/core/**/schema/**"],
+              message: "common から core の schema は import 不可。schema の参照は features/app 層で行ってください。"
+            }
+          ]
+        }
+      ]
+    }
+  }
+
 ];
