@@ -14,7 +14,7 @@ import {
   padLeft
 } from "@hinagata/core/common/lib/string-util";
 import { parseNumber } from "@hinagata/core/common/lib/parser-helper";
-import type CommonActionParameter from "~/common/schema/CommonActionParameter";
+import type CommonActionParameter from "@hinagata/core/common/schema/CommonActionParameter";
 import MockActionButton from "~/common/components/MockActionButton";
 import {
   alphaColor,

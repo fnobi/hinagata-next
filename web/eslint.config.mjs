@@ -1,5 +1,3 @@
-import { FlatCompat } from "@eslint/eslintrc";
-import js from "@eslint/js";
 import tseslint from "@typescript-eslint/eslint-plugin";
 import tsParser from "@typescript-eslint/parser";
 import importPlugin from "eslint-plugin-import";
@@ -7,17 +5,9 @@ import jsxA11y from "eslint-plugin-jsx-a11y";
 import reactPlugin from "eslint-plugin-react";
 import reactHooksPlugin from "eslint-plugin-react-hooks";
 import strictDepsPlugin from "eslint-plugin-strict-dependencies";
+import eslintConfigPrettier from "eslint-config-prettier";
 import globals from "globals";
-import { dirname } from "path";
-import { fileURLToPath } from "url";
 import { sharedRules } from "../eslint.shared.mjs";
-
-const __dirname = dirname(fileURLToPath(import.meta.url));
-
-const compat = new FlatCompat({
-  baseDirectory: __dirname,
-  recommendedConfig: js.configs.recommended
-});
 
 export default [
   {
@@ -36,7 +26,6 @@ export default [
   },
 
   // プラグイン・パーサー・共通設定
-  // eslint-config-next の代替。TypeScript パーサーを使うので Babel パーサー依存なし
   {
     files: ["**/*.{ts,tsx,js,jsx,mjs}"],
     plugins: {
@@ -72,8 +61,7 @@ export default [
     }
   },
 
-  // prettier: formatting rules を off にする
-  ...compat.extends("prettier"),
+  eslintConfigPrettier,
 
   // project-specific TypeScript rules
   {

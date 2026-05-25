@@ -2,6 +2,7 @@
 
 import styled from "@emotion/styled";
 import { type ComponentPropsWithoutRef, type ReactNode } from "react";
+import type CommonActionParameter from "@hinagata/core/common/schema/CommonActionParameter";
 import MockActionButton from "~/common/components/MockActionButton";
 import {
   alphaColor,
@@ -10,7 +11,6 @@ import {
   PRIMITIVE_COLOR,
   px
 } from "~/common/lib/css-util";
-import type CommonActionParameter from "~/common/schema/CommonActionParameter";
 
 type TagParameter = {
   label: string;

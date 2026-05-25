@@ -19,8 +19,8 @@ import {
 import {
   parseDummyProfileLink,
   type DummyProfileLink
-} from "~/features/schema/DummyProfile";
-import type DummyProfile from "~/features/schema/DummyProfile";
+} from "@hinagata/core/features/schema/DummyProfile";
+import type DummyProfile from "@hinagata/core/features/schema/DummyProfile";
 
 const dummyProfileLinkFormOrganizer = new FormOrganizer<DummyProfileLink>()
   .fieldValidator("url", requiredValidator())

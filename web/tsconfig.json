@@ -30,7 +30,11 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsxImportSource": "react",
-    "types": ["jest", "node", "react"],
+    "types": [
+      "jest",
+      "node",
+      "react"
+    ],
     "incremental": true,
     "plugins": [
       {

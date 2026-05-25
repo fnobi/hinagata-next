@@ -2,6 +2,7 @@ import js from "@eslint/js";
 import tseslint from "@typescript-eslint/eslint-plugin";
 import tsParser from "@typescript-eslint/parser";
 import importPlugin from "eslint-plugin-import";
+import eslintConfigPrettier from "eslint-config-prettier";
 import globals from "globals";
 import { sharedRules } from "./eslint.shared.mjs";
 
@@ -32,6 +33,8 @@ export default [
     }
   },
 
+  eslintConfigPrettier,
+
   {
     files: ["src/**/*.spec.ts", "src/**/__tests__/**/*.ts"],
     languageOptions: {
@@ -40,7 +43,6 @@ export default [
       }
     },
     rules: {
-      // テストファイルは相対インポートを許可（テスト対象ファイルへの直接参照）
       "no-restricted-imports": "off"
     }
   }
