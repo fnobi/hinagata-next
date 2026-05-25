@@ -4,7 +4,6 @@ module.exports = {
   testEnvironment: "node",
   roots: ["<rootDir>/src"],
   moduleNameMapper: {
-    "^~/(.*)$": "<rootDir>/src/$1",
     "^@hinagata/core/(.*)$": "<rootDir>/src/$1"
   },
   transform: {

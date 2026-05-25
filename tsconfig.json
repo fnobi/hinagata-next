@@ -15,9 +15,6 @@
     "strict": true,
     "noUnusedLocals": true,
     "paths": {
-      "~/*": [
-        "./src/*"
-      ],
       "@hinagata/core/*": [
         "./src/*"
       ]
@@ -28,7 +25,10 @@
     "esModuleInterop": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "types": ["jest", "node"],
+    "types": [
+      "jest",
+      "node"
+    ],
     "incremental": true
   },
   "exclude": [

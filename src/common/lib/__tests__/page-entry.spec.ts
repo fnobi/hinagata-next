@@ -1,4 +1,4 @@
-import PageEntry from "~/common/lib/PageEntry";
+import PageEntry from "@hinagata/core/common/lib/PageEntry";
 
 describe("PageEntry", () => {
   const topPage = new PageEntry("https://example.com");
