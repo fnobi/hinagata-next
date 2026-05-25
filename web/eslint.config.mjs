@@ -5,6 +5,7 @@ import strictDepsPlugin from "eslint-plugin-strict-dependencies";
 import globals from "globals";
 import { dirname } from "path";
 import { fileURLToPath } from "url";
+import { sharedRules } from "../eslint.shared.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -49,34 +50,16 @@ export default [
       }
     },
     rules: {
-      "arrow-parens": [2, "as-needed"],
-      "curly": [1, "all"],
-      "no-unused-vars": 0,
+      ...sharedRules,
+
       "@next/next/no-page-custom-font": 0,
       "@next/next/no-img-element": 0,
-      "@typescript-eslint/explicit-member-accessibility": 2,
-      "@typescript-eslint/no-unnecessary-type-assertion": 2,
-      "@typescript-eslint/no-explicit-any": 2,
-      "@typescript-eslint/no-unused-vars": 2,
-      "@typescript-eslint/consistent-type-imports": [
-        "error",
-        {
-          prefer: "type-imports",
-          fixStyle: "inline-type-imports",
-          disallowTypeAnnotations: true
-        }
-      ],
-      "import/consistent-type-specifier-style": ["error", "prefer-inline"],
-      "@typescript-eslint/consistent-type-exports": "error",
       "react/jsx-filename-extension": [
         1,
         { extensions: [".js", ".jsx", ".tsx"] }
       ],
       "react-hooks/rules-of-hooks": 2,
       "react-hooks/exhaustive-deps": 2,
-      "import/no-duplicates": 0,
-      "import/no-unresolved": 0,
-      "import/extensions": 0,
       "import/order": [
         "error",
         {
@@ -89,7 +72,6 @@ export default [
           ]
         }
       ],
-      "no-restricted-imports": ["error", { patterns: ["./", "../"] }],
       "import/no-restricted-paths": [
         "error",
         {
