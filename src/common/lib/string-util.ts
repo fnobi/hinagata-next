@@ -2,7 +2,7 @@ export const padLeft = (num: number, count: number) =>
   (new Array(count).join("0") + num.toString()).slice(-count);
 
 export const trim = (str: string) =>
-  str.replace(/^[ 　]+/g, "").replace(/[ 　]+$/g, "");
+  str.replace(/^[ \u3000]+/g, "").replace(/[ \u3000]+$/g, "");
 
 export const formatTime = (time: number | Date) => {
   const d = typeof time === "number" ? new Date(time) : time;

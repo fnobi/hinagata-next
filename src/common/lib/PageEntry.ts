@@ -1,6 +1,6 @@
 class PageEntry<
   T extends string = string,
-  Q extends Record<string, string> = {}
+  Q extends Record<string, string> = Record<string, string>
 > {
   private baseUrl: string;
 
