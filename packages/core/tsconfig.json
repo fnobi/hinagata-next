@@ -1,0 +1,40 @@
+{
+  "compilerOptions": {
+    "module": "esnext",
+    "target": "es2015",
+    "lib": [
+      "esnext"
+    ],
+    "moduleResolution": "bundler",
+    "rootDir": "./src",
+    "rootDirs": [
+      "./src"
+    ],
+    "forceConsistentCasingInFileNames": false,
+    "noImplicitReturns": true,
+    "strict": true,
+    "noUnusedLocals": true,
+    "paths": {
+      "@hinagata-next/core/*": [
+        "./src/*"
+      ]
+    },
+    "allowJs": true,
+    "skipLibCheck": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "types": [
+      "jest",
+      "node"
+    ],
+    "incremental": true
+  },
+  "exclude": [
+    "node_modules"
+  ],
+  "include": [
+    "src/**/*"
+  ]
+}

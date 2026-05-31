@@ -13,7 +13,7 @@
         "./src/*"
       ],
       "~/*": [
-        "../src/*"
+        "../packages/web/src/*"
       ]
     },
     "rootDir": ".."

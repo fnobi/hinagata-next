@@ -1,0 +1,44 @@
+{
+  "name": "@hinagata-next/core",
+  "version": "1.0.0",
+  "description": "Shared types and pure utilities for hinagata.",
+  "main": "index.js",
+  "packageManager": "pnpm@11.1.1",
+  "exports": {
+    "./*": "./src/*"
+  },
+  "scripts": {
+    "dev": "pnpm --filter @hinagata-next/web dev",
+    "build": "pnpm --filter @hinagata-next/web build",
+    "typecheck": "tsc --noEmit",
+    "test": "jest --config jest.config.js",
+    "lint": "eslint src/",
+    "find-deadcode": "ts-prune"
+  },
+  "keywords": [],
+  "author": "Fujisawa Shin",
+  "license": "ISC",
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/jest": "^30.0.0",
+    "@types/node": "^17.0.21",
+    "@typescript-eslint/eslint-plugin": "^8.59.3",
+    "@typescript-eslint/parser": "^8.59.3",
+    "eslint": "^9.39.4",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-import": "^2.32.0",
+    "globals": "^16.0.0",
+    "jest": "^30.3.0",
+    "ts-jest": "^29.4.9",
+    "ts-prune": "^0.10.3",
+    "typescript": "^6.0.3"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fnobi/hinagata-next.git"
+  },
+  "bugs": {
+    "url": "https://github.com/fnobi/hinagata-next/issues"
+  },
+  "homepage": "https://github.com/fnobi/hinagata-next#readme"
+}

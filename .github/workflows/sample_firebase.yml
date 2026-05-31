@@ -36,7 +36,9 @@ jobs:
       - uses: pnpm/action-setup@v4
 
       - uses: google-github-actions/auth@v2
+        id: auth
         with:
+          token_format: 'access_token'
           workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
           service_account: ${{ secrets.WIF_SERVICE_ACCOUNT }}
 
@@ -58,5 +60,7 @@ jobs:
       - name: build
         run: ${{ env.ACTIONS_BUILD_COMMAND }}
 
-      - name: deploy firebase
-        run: npx firebase deploy --project ${{ env.NEXT_PUBLIC_FIREBASE_PROJECT_ID }}
+      - name: firebase deploy
+        env:
+          GOOGLE_OAUTH_ACCESS_TOKEN: ${{ steps.auth.outputs.access_token }}
+        run: pnpm exec firebase deploy --only hosting

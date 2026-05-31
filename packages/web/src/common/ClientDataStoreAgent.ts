@@ -1,48 +1,47 @@
 import {
-  type DocumentReference,
+  collection,
+  doc,
+  limit,
+  onSnapshot,
+  getDocs,
+  orderBy,
+  query,
+  where,
+  setDoc,
+  getDoc,
+  deleteDoc,
+  collectionGroup,
   type Query,
-  type Firestore,
-  type PartialWithFieldValue
-} from "firebase-admin/firestore";
+  type DocumentReference,
+  runTransaction,
+  getCountFromServer
+} from "firebase/firestore";
+import { parseString } from "~/common/parser-helper";
 import {
   DataStoreAgent,
+  type QueryFormula,
   type DocumentSnapshotMock,
   type TransactionGetStepParams,
-  type TransactionSetStepParams,
-  type DataStoreScheme,
-  type QueryFormula
+  type TransactionSetStepParams
 } from "~/common/DataStoreAgent";
-import { parseString } from "~/common/parser-helper";
+import { firebaseFirestore } from "~/common/firebase-app";
 
-export class ServerDataStoreAgent<
+// eslint-disable-next-line import/prefer-default-export
+export class ClientDataStoreAgent<
   T extends {},
   D extends string,
   C extends string
 > extends DataStoreAgent<T, D, C, DocumentReference, Query> {
-  private adapter: () => Firestore;
-
-  public constructor(
-    adapter: () => Firestore,
-    scheme: DataStoreScheme<T, D, C>
-  ) {
-    super(scheme);
-    this.adapter = adapter;
-  }
-
   protected collectionReference({
     collectionPath
   }: {
     collectionPath: string;
   }) {
-    return this.adapter()
-      .collection(collectionPath)
-      .withConverter(this.converter);
+    return collection(firebaseFirestore(), collectionPath);
   }
 
   protected collectionGroupReference() {
-    return this.adapter()
-      .collectionGroup(this.scheme.name)
-      .withConverter(this.converter);
+    return collectionGroup(firebaseFirestore(), this.scheme.name);
   }
 
   protected documentReference({
@@ -53,35 +52,35 @@ export class ServerDataStoreAgent<
     id?: string;
   }) {
     const collectionRef = this.collectionReference({ collectionPath });
-    return id ? collectionRef.doc(id) : collectionRef.doc();
+    return id ? doc(collectionRef, id) : doc(collectionRef);
   }
 
-  protected async setDoc({
+  protected override setDoc({
     ref,
     data,
     merge
   }: {
     ref: DocumentReference;
-    data: PartialWithFieldValue<T>;
+    data: Object;
     merge?: boolean;
   }) {
-    await ref.withConverter(this.converter).set(data, { merge });
+    return setDoc(ref, data, { merge });
   }
 
   protected getDoc(r: DocumentReference) {
-    return r.withConverter(this.converter).get();
+    return getDoc(r.withConverter(this.converter));
   }
 
   protected async deleteDoc(r: DocumentReference) {
-    await r.delete();
+    await deleteDoc(r);
   }
 
   protected getQueryDocs(r: Query) {
-    return r.withConverter(this.converter).get();
+    return getDocs(r.withConverter(this.converter));
   }
 
   protected async getQueryCount(r: Query) {
-    const snapshot = await r.count().get();
+    const snapshot = await getCountFromServer(r);
     return snapshot.data().count;
   }
 
@@ -94,7 +93,7 @@ export class ServerDataStoreAgent<
     handler: (d: Object | undefined) => void;
     onError: (e: unknown) => void;
   }) {
-    return ref.onSnapshot(handler, onError);
+    return onSnapshot(ref, handler, onError);
   }
 
   protected subscribeQueryDocs({
@@ -106,34 +105,40 @@ export class ServerDataStoreAgent<
     handler: (l: DocumentSnapshotMock<T>[]) => void;
     onError: (e: unknown) => void;
   }) {
-    return ref
-      .withConverter(this.converter)
-      .onSnapshot(snapshot => handler(snapshot.docs), onError);
+    return onSnapshot(
+      ref.withConverter(this.converter),
+      snapshot => handler(snapshot.docs),
+      onError
+    );
   }
 
-  protected applyQueryFormula(ref: Query, query: QueryFormula<T>[] = []) {
-    return query.reduce((prev, l) => {
-      switch (l[0]) {
-        case "limit":
-          return prev.limit(l[1]);
-        case "orderBy":
-          return prev.orderBy(parseString(l[1]), l[2]);
-        case "equal":
-          return prev.where(parseString(l[1]), "==", l[2]);
-        default:
-          return prev.where(parseString(l[1]), l[2], l[3]);
-      }
-    }, ref);
+  protected applyQueryFormula(ref: Query, q: QueryFormula<T>[] = []): Query {
+    return q.length
+      ? query(
+          ref,
+          ...q.map(l => {
+            switch (l[0]) {
+              case "limit":
+                return limit(l[1]);
+              case "orderBy":
+                return orderBy(parseString(l[1]), l[2]);
+              case "equal":
+                return where(parseString(l[1]), "==", l[2]);
+              default:
+                return where(parseString(l[1]), l[2], l[3]);
+            }
+          })
+        )
+      : ref;
   }
 
   public static runTransaction<M, R>(
-    adapter: () => Firestore,
     getStep: (
       o: TransactionGetStepParams<DocumentReference, Query>
     ) => Promise<M>,
     setStep: (p: M, m: TransactionSetStepParams<DocumentReference, Query>) => R
   ) {
-    return adapter().runTransaction(async t => {
+    return runTransaction(firebaseFirestore(), async t => {
       const r = await getStep({
         get: (a, o) =>
           t
