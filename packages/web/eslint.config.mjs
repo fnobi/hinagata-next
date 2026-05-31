@@ -7,7 +7,7 @@ import reactHooksPlugin from "eslint-plugin-react-hooks";
 import strictDepsPlugin from "eslint-plugin-strict-dependencies";
 import eslintConfigPrettier from "eslint-config-prettier";
 import globals from "globals";
-import { sharedRules } from "../eslint.shared.mjs";
+import { sharedRules } from "../../eslint.shared.mjs";
 
 export default [
   {

@@ -7,7 +7,7 @@ const createJestConfig = nextJest({
 const customJestConfig = {
   moduleDirectories: ["node_modules", "<rootDir>/"],
   moduleNameMapper: {
-    "^@hinagata-next/core/(.*)$": "<rootDir>/../src/$1"
+    "^@hinagata-next/core/(.*)$": "<rootDir>/../core/src/$1"
   },
   testEnvironment: "jest-environment-jsdom"
 };

@@ -1,5 +1,5 @@
 packages:
-  - 'web'
+  - 'packages/*'
 allowBuilds:
   esbuild: false
   protobufjs: false

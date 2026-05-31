@@ -3,11 +3,10 @@
     "module": "esnext",
     "target": "es2015",
     "lib": [
-      "esnext",
-      "dom"
+      "esnext"
     ],
-    "jsx": "react-jsx",
     "moduleResolution": "bundler",
+    "rootDir": "./src",
     "rootDirs": [
       "./src"
     ],
@@ -16,11 +15,8 @@
     "strict": true,
     "noUnusedLocals": true,
     "paths": {
-      "~/*": [
-        "./src/*"
-      ],
       "@hinagata-next/core/*": [
-        "../src/*"
+        "./src/*"
       ]
     },
     "allowJs": true,
@@ -29,28 +25,16 @@
     "esModuleInterop": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "jsxImportSource": "react",
     "types": [
       "jest",
-      "node",
-      "react"
+      "node"
     ],
-    "incremental": true,
-    "plugins": [
-      {
-        "name": "next"
-      }
-    ]
+    "incremental": true
   },
   "exclude": [
     "node_modules"
   ],
   "include": [
-    "next-env.d.ts",
-    "src/**/*",
-    "scripts/**/*",
-    "typings/**/*.d.ts",
-    ".next/types/**/*.ts",
-    ".next/dev/types/**/*.ts"
+    "src/**/*"
   ]
 }

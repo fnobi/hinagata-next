@@ -4,11 +4,11 @@ import tsParser from "@typescript-eslint/parser";
 import importPlugin from "eslint-plugin-import";
 import eslintConfigPrettier from "eslint-config-prettier";
 import globals from "globals";
-import { sharedRules } from "./eslint.shared.mjs";
+import { sharedRules } from "../../eslint.shared.mjs";
 
 export default [
   {
-    ignores: ["node_modules/**", "web/**", "jest.config.js"]
+    ignores: ["node_modules/**", "jest.config.js"]
   },
 
   {
