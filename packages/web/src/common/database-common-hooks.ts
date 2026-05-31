@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { type ClientDataStoreAgent } from "~/common/ClientDataStoreAgent";
 import {
   type QueryFormula,
   type TypedCollectionList
 } from "@hinagata-next/core/common/DataStoreAgent";
+import { type ClientDataStoreAgent } from "~/common/ClientDataStoreAgent";
 import type FirebaseErrorParameter from "~/common/FirebaseErrorParameter";
 import { extractFirebaseError } from "~/common/FirebaseErrorParameter";
 

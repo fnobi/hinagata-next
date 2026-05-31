@@ -2,19 +2,19 @@
 
 import { useCallback, useMemo, useState } from "react";
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
-import MockActionButton from "~/component/MockActionButton";
-import MockStaticLayout from "~/component/MockStaticLayout";
 import { useDataStoreList } from "~/common/database-common-hooks";
 import { ClientDataStoreAgent } from "~/common/ClientDataStoreAgent";
 import { useAuthorizedUser } from "~/common/firebase-auth-tools";
 import { firebaseAuth } from "~/common/firebase-app";
 import { profileDataStoreScheme } from "@hinagata-next/core/feature/app-data-store-scheme";
 import type DummyProfile from "@hinagata-next/core/feature/DummyProfile";
-import DummyProfileForm from "~/component/DummyProfileForm";
-import DummyProfileListView from "~/component/DummyProfileListView";
 import { parseDummyProfile } from "@hinagata-next/core/feature/DummyProfile";
 import useAsyncHandler from "~/feature/useAsyncHandler";
 import { type AppErrorParameter } from "~/feature/AppErrorParameter";
+import DummyProfileListView from "~/component/DummyProfileListView";
+import DummyProfileForm from "~/component/DummyProfileForm";
+import MockStaticLayout from "~/component/MockStaticLayout";
+import MockActionButton from "~/component/MockActionButton";
 import ErrorScene from "~/component/ErrorScene";
 import ErrorPopup from "~/component/ErrorPopup";
 import LoadingPopup from "~/component/LoadingPopup";

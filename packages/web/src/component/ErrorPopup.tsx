@@ -1,5 +1,5 @@
-import MockPopup from "~/component/MockPopup";
 import { type AppErrorParameter } from "~/feature/AppErrorParameter";
+import MockPopup from "~/component/MockPopup";
 
 const ErrorPopup = ({
   error,
