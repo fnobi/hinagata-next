@@ -1,11 +1,13 @@
 packages:
   - 'packages/*'
 allowBuilds:
+  '@firebase/util': false
   esbuild: false
   protobufjs: false
   re2: false
   sharp: false
   unrs-resolver: false
+  grpc: false
 overrides:
   lodash: ">=4.17.24"
   fast-uri: ">=3.1.2"

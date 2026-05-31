@@ -43,10 +43,5 @@ export const spp = (...nums: CSSSizeKeyword[]) =>
   );
 
 export const THEME_COLOR = {
-  ...PRIMITIVE_COLOR,
-  DARK: "#333333",
-  BROWN: "#712636",
-  BG_YELLOW: "#FFFABA",
-  WAVE_YELLOW: "#ffeb3c",
-  PINK: "#E4007F"
-} satisfies Record<string, `#${string}`>;
+  ...PRIMITIVE_COLOR
+} as const;

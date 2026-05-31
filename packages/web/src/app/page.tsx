@@ -1,5 +1,5 @@
-import TopScene from "~/component/TopScene";
+import ProfileFormScene from "~/component/_provider/ProfileFormScene";
 
-const PageIndex = () => <TopScene />;
+const PageProfileForm = () => <ProfileFormScene />;
 
-export default PageIndex;
+export default PageProfileForm;
