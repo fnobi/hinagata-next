@@ -1,9 +1,9 @@
 import requestCallable from "~/common/requestCallable";
-import type AppCallableScheme from "~/feature/AppCallableScheme";
+import type AppCallableScheme from "@hinagata-next/core/feature/AppCallableScheme";
 import {
   COMMON_CALLABLE_REGION,
   type CommonNGResponse
-} from "~/feature/AppCallableScheme";
+} from "@hinagata-next/core/feature/AppCallableScheme";
 
 const requestAppCallable = <T extends keyof AppCallableScheme>(
   path: T,

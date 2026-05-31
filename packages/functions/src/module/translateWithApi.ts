@@ -1,7 +1,7 @@
 import { onCall } from "firebase-functions/v2/https";
 import responseAppCallable from "@/local/responseAppCallable";
 import { getSecretParams, getSecretString } from "@/local/secret-manager";
-import { COMMON_CALLABLE_REGION } from "~/feature/AppCallableScheme";
+import { COMMON_CALLABLE_REGION } from "@hinagata-next/core/feature/AppCallableScheme";
 
 export default onCall(
   {

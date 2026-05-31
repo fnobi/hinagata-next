@@ -1,5 +1,5 @@
 {
-  "name": "functions",
+  "name": "@hinagata-next/functions",
   "scripts": {
     "lint": "eslint --fix ./src",
     "build": "tsc && tsc-alias",
@@ -10,9 +10,10 @@
     "logs": "firebase functions:log",
     "make-index": "node scripts/make-index"
   },
-  "main": "lib/functions/src/index.js",
+  "main": "lib/packages/functions/src/index.js",
   "dependencies": {
     "@google-cloud/functions-framework": "^5.0.2",
+    "@hinagata-next/core": "workspace:*",
     "cors": "^2.8.5",
     "express": "^4.17.1",
     "firebase-admin": "^12.2.0",
