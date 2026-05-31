@@ -8,7 +8,7 @@ import { useDataStoreList } from "~/common/database-common-hooks";
 import { ClientDataStoreAgent } from "~/common/ClientDataStoreAgent";
 import { useAuthorizedUser } from "~/common/firebase-auth-tools";
 import { firebaseAuth } from "~/common/firebase-app";
-import { profileDataStoreScheme } from "~/feature/app-data-store-scheme";
+import { profileDataStoreScheme } from "@hinagata-next/core/feature/app-data-store-scheme";
 import type DummyProfile from "@hinagata-next/core/feature/DummyProfile";
 import DummyProfileForm from "~/component/DummyProfileForm";
 import DummyProfileListView from "~/component/DummyProfileListView";

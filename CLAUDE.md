@@ -34,9 +34,9 @@ packages/
 ## Firestore
 
 - Firestore SDK を直接使わず、必ず `ClientDataStoreAgent`（`~/common/ClientDataStoreAgent`）経由でアクセスする
-- スキーマ定義は `~/feature/app-data-store-scheme.ts` に `DataStoreScheme` として追加する
+- スキーマ定義は `@hinagata-next/core/feature/app-data-store-scheme.ts` に `DataStoreScheme` として追加する
   - `parse` 関数を scheme に持たせる（`withConverter` は `DataStoreAgent` が内部的に使用）
-  - 型定義ファイル（`~/feature/*.ts` や `@hinagata-next/core/common/*.ts`）に対応する `parseXxx` 関数も合わせて定義する
+  - 型定義ファイル（`@hinagata-next/core/feature/*.ts`）に対応する `parseXxx` 関数も合わせて定義する
   - サブコレクションは `parentCollection` で親 scheme を参照して階層を表現する
 - `ClientDataStoreAgent` インスタンスはコンポーネントの外（モジュールレベル）で生成する
 - React コンポーネントからのリアルタイム購読は `~/common/database-common-hooks` のフックを使う
