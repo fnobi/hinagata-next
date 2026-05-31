@@ -91,7 +91,7 @@ export class ServerDataStoreAgent<
     onError
   }: {
     ref: DocumentReference;
-    handler: (d: Object | undefined) => void;
+    handler: (d: object | undefined) => void;
     onError: (e: unknown) => void;
   }) {
     return ref.onSnapshot(handler, onError);
