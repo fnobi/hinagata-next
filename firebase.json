@@ -7,7 +7,7 @@
   },
   "functions": [
     {
-      "source": "functions",
+      "source": "packages/functions",
       "codebase": "default",
       "disallowLegacyRuntimeConfig": true,
       "runtime": "nodejs22",
