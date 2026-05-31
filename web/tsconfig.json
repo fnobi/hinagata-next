@@ -48,6 +48,7 @@
   "include": [
     "next-env.d.ts",
     "src/**/*",
+    "scripts/**/*",
     "typings/**/*.d.ts",
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts"
