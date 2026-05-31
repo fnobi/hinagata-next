@@ -1,4 +1,4 @@
-import MockCenteringLayout from "~/common/components/MockCenteringLayout";
+import MockCenteringLayout from "~/component/MockCenteringLayout";
 
 const NotFound = () => <MockCenteringLayout>not found</MockCenteringLayout>;
 

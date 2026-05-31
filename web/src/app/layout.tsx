@@ -1,8 +1,8 @@
 import { type ReactNode } from "react";
-import EmotionProvider from "~/common/components/EmotionProvider";
-import { defaultMetadata } from "~/features/lib/defaultMetadata";
-import GlobalStyles from "~/features/components/GlobalStyles";
-import LayoutRoot from "~/features/components/LayoutRoot";
+import { defaultMetadata } from "~/feature/defaultMetadata";
+import EmotionProvider from "~/component/EmotionProvider";
+import GlobalStyles from "~/component/GlobalStyles";
+import LayoutRoot from "~/component/LayoutRoot";
 
 export const metadata = defaultMetadata;
 

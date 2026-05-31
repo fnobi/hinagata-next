@@ -92,11 +92,12 @@ export default [
         {
           pathGroupsExcludedImportTypes: [],
           pathGroups: [
-            { pattern: "@hinagata-next/core/util/**", group: "internal", position: "after" },
+            { pattern: "@hinagata-next/core/common/**", group: "internal", position: "after" },
             { pattern: "~/common/**", group: "internal", position: "after" },
-            { pattern: "@hinagata-next/core/schema/**", group: "internal", position: "after" },
-            { pattern: "~/features/**", group: "internal", position: "after" },
-            { pattern: "~/assets/**", group: "internal", position: "after" }
+            { pattern: "@hinagata-next/core/feature/**", group: "internal", position: "after" },
+            { pattern: "~/feature/**", group: "internal", position: "after" },
+            { pattern: "~/component/**", group: "internal", position: "after" },
+            { pattern: "~/asset/**", group: "internal", position: "after" }
           ]
         }
       ],
@@ -106,33 +107,34 @@ export default [
           {
             module: "@emotion/styled",
             allowReferenceFrom: [
-              "src/(features|common)/components/*",
-              "src/features/components/**/!(_provider)/*"
+              "src/component/*",
+              "src/component/**/!(_provider)/*"
             ],
             allowSameModule: false
           },
           {
-            module: "./src/assets",
+            module: "./src/asset",
             allowReferenceFrom: [
-              "src/features/**/*",
+              "src/feature/**/*",
               "src/app/**/*"
             ],
             allowSameModule: false
           },
           {
-            module: "./src/features",
+            module: "./src/feature",
             allowReferenceFrom: [
-              "src/features/**/*",
+              "src/feature/**/*",
+              "src/component/**/*",
               "src/app/**/*"
             ],
             allowSameModule: true
           },
           {
-            module: "./src/common/lib/ClientDataStoreAgent",
+            module: "./src/common/ClientDataStoreAgent",
             allowReferenceFrom: [
-              "src/common/lib/**/*",
+              "src/common/**/*",
               "src/app/**/*",
-              "src/features/components/**/_provider/**/*"
+              "src/component/**/_provider/**/*"
             ],
             allowSameModule: false
           }
