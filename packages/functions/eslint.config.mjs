@@ -32,7 +32,19 @@ export default [
       ...sharedRules,
       "no-shadow": 1,
       "no-param-reassign": 1,
-      "import/no-extraneous-dependencies": 0
+      "import/no-extraneous-dependencies": 0,
+      "import/order": [
+        "error",
+        {
+          pathGroupsExcludedImportTypes: [],
+          pathGroups: [
+            { pattern: "@hinagata-next/core/common/**", group: "internal", position: "after" },
+            { pattern: "@hinagata-next/core/feature/**", group: "internal", position: "after" },
+            { pattern: "~/common/**", group: "internal", position: "after" },
+            { pattern: "~/feature/**", group: "internal", position: "after" }
+          ]
+        }
+      ]
     }
   },
   eslintConfigPrettier
