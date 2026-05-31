@@ -1,4 +1,4 @@
-import { compact } from "~/common/array-util";
+import { compact } from "@hinagata-next/core/common/array-util";
 
 // NOTE: client/server両方の DocumentSnapshot<T, DocumentData> を満たす型
 export type DocumentSnapshotMock<T> = {
@@ -78,7 +78,7 @@ export type QueryFormula<T> =
   | ["limit", number];
 
 export abstract class DataStoreAgent<
-  T extends {},
+  T extends object,
   D extends string,
   C extends string | never,
   Dr extends DocumentReferenceMock,
@@ -341,7 +341,7 @@ export interface TransactionGetStepParams<
   Dr extends DocumentReferenceMock,
   Cr
 > {
-  get: <T extends {}, D extends string, C extends string>(
+  get: <T extends object, D extends string, C extends string>(
     s: DataStoreAgent<T, D, C, Dr, Cr>,
     o: Record<D | C, string>
   ) => Promise<T | undefined>;
@@ -351,11 +351,11 @@ export interface TransactionSetStepParams<
   Dr extends DocumentReferenceMock,
   Cr
 > {
-  set: <T extends {}, D extends string, C extends string>(
+  set: <T extends object, D extends string, C extends string>(
     s: DataStoreAgent<T, D, C, Dr, Cr>,
     args: Parameters<DataStoreAgent<T, D, C, Dr, Cr>["setItem"]>[0]
   ) => void;
-  delete: <T extends {}, D extends string, C extends string>(
+  delete: <T extends object, D extends string, C extends string>(
     s: DataStoreAgent<T, D, C, Dr, Cr>,
     args: Parameters<DataStoreAgent<T, D, C, Dr, Cr>["deleteItem"]>[0]
   ) => void;

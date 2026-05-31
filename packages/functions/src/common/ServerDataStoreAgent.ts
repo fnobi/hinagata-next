@@ -11,11 +11,11 @@ import {
   type TransactionSetStepParams,
   type DataStoreScheme,
   type QueryFormula
-} from "~/common/DataStoreAgent";
-import { parseString } from "~/common/parser-helper";
+} from "@hinagata-next/core/common/DataStoreAgent";
+import { parseString } from "@hinagata-next/core/common/parser-helper";
 
 export class ServerDataStoreAgent<
-  T extends {},
+  T extends object,
   D extends string,
   C extends string
 > extends DataStoreAgent<T, D, C, DocumentReference, Query> {

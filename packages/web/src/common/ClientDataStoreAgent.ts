@@ -16,19 +16,19 @@ import {
   runTransaction,
   getCountFromServer
 } from "firebase/firestore";
-import { parseString } from "~/common/parser-helper";
+import { parseString } from "@hinagata-next/core/common/parser-helper";
 import {
   DataStoreAgent,
   type QueryFormula,
   type DocumentSnapshotMock,
   type TransactionGetStepParams,
   type TransactionSetStepParams
-} from "~/common/DataStoreAgent";
+} from "@hinagata-next/core/common/DataStoreAgent";
 import { firebaseFirestore } from "~/common/firebase-app";
 
 // eslint-disable-next-line import/prefer-default-export
 export class ClientDataStoreAgent<
-  T extends {},
+  T extends object,
   D extends string,
   C extends string
 > extends DataStoreAgent<T, D, C, DocumentReference, Query> {

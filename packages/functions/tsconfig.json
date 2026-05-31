@@ -9,11 +9,11 @@
     "strict": true,
     "target": "es2017",
     "paths": {
-      "@/*": [
+      "~/*": [
         "./src/*"
       ],
-      "~/*": [
-        "../web/src/*"
+      "@hinagata-next/core/*": [
+        "../core/src/*"
       ]
     },
     "rootDir": ".."

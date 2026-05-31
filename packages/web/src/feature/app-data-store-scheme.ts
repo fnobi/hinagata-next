@@ -1,4 +1,4 @@
-import { type DataStoreScheme } from "~/common/DataStoreAgent";
+import { type DataStoreScheme } from "@hinagata-next/core/common/DataStoreAgent";
 import type DummyProfile from "@hinagata-next/core/feature/DummyProfile";
 import { parseDummyProfile } from "@hinagata-next/core/feature/DummyProfile";
 

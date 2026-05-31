@@ -10,7 +10,7 @@
     "logs": "firebase functions:log",
     "make-index": "node scripts/make-index"
   },
-  "main": "lib/packages/functions/src/index.js",
+  "main": "lib/functions/src/index.js",
   "dependencies": {
     "@google-cloud/functions-framework": "^5.0.2",
     "@hinagata-next/core": "workspace:*",

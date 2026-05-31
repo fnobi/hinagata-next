@@ -8,7 +8,7 @@ import { sharedRules } from "../../eslint.shared.mjs";
 
 export default [
   {
-    ignores: ["lib/**", "node_modules/**"]
+    ignores: ["lib/**", "node_modules/**", "src/index.ts"]
   },
   {
     files: ["src/**/*.ts"],

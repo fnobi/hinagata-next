@@ -1,4 +1,4 @@
-import { parseBoolean, parseObject } from "~/common/parser-helper";
+import { parseBoolean, parseObject } from "@hinagata-next/core/common/parser-helper";
 
 type CommonPermission = { valid: boolean };
 

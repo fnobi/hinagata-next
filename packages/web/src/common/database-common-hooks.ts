@@ -3,7 +3,7 @@ import { type ClientDataStoreAgent } from "~/common/ClientDataStoreAgent";
 import {
   type QueryFormula,
   type TypedCollectionList
-} from "~/common/DataStoreAgent";
+} from "@hinagata-next/core/common/DataStoreAgent";
 import type FirebaseErrorParameter from "~/common/FirebaseErrorParameter";
 import { extractFirebaseError } from "~/common/FirebaseErrorParameter";
 
