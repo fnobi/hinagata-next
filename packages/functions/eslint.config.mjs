@@ -1,45 +1,39 @@
-import tsPlugin from "@typescript-eslint/eslint-plugin";
+import js from "@eslint/js";
+import tseslint from "@typescript-eslint/eslint-plugin";
 import tsParser from "@typescript-eslint/parser";
-import prettierConfig from "eslint-config-prettier";
+import importPlugin from "eslint-plugin-import";
+import eslintConfigPrettier from "eslint-config-prettier";
 import globals from "globals";
+import { sharedRules } from "../../eslint.shared.mjs";
 
 export default [
   {
-    ignores: ["lib/**", "node_modules/**"],
+    ignores: ["lib/**", "node_modules/**"]
   },
   {
     files: ["src/**/*.ts"],
     plugins: {
-      "@typescript-eslint": tsPlugin,
+      "@typescript-eslint": tseslint,
+      import: importPlugin
     },
     languageOptions: {
       parser: tsParser,
       parserOptions: {
         project: "./tsconfig.json",
-        sourceType: "module",
+        sourceType: "module"
       },
       globals: {
-        ...globals.node,
-      },
+        ...globals.node
+      }
     },
     rules: {
-      "no-unused-vars": "off",
-      "@typescript-eslint/no-unused-vars": "error",
-      "@typescript-eslint/no-explicit-any": "error",
-      "@typescript-eslint/no-unnecessary-type-assertion": "error",
-      "@typescript-eslint/consistent-type-imports": [
-        "error",
-        {
-          prefer: "type-imports",
-          fixStyle: "inline-type-imports",
-          disallowTypeAnnotations: true,
-        },
-      ],
-      "no-restricted-imports": ["error", { patterns: ["./", "../"] }],
-      "no-shadow": "warn",
-      "no-param-reassign": "warn",
-      "import/no-extraneous-dependencies": "off",
-    },
+      ...js.configs.recommended.rules,
+      ...tseslint.configs.recommended.rules,
+      ...sharedRules,
+      "no-shadow": 1,
+      "no-param-reassign": 1,
+      "import/no-extraneous-dependencies": 0
+    }
   },
-  prettierConfig,
+  eslintConfigPrettier
 ];
