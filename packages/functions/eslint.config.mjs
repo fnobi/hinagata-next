@@ -47,5 +47,22 @@ export default [
       ]
     }
   },
+
+  // common 層から feature 層の import を禁止
+  {
+    files: ["src/common/**/*.ts"],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            { group: ["./", "../"] },
+            { group: ["~/feature/**"], message: "common から feature は import 不可。" }
+          ]
+        }
+      ]
+    }
+  },
+
   eslintConfigPrettier
 ];

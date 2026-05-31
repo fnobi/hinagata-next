@@ -1,5 +1,5 @@
-const { readdir, writeFile } = require("fs/promises");
-const { relative, join, basename } = require("path");
+import { readdir, writeFile } from "fs/promises";
+import { relative, join, basename } from "path";
 
 const SRC_ROOT = "./src";
 const MODULE_ROOT = join(SRC_ROOT, "module");
@@ -18,11 +18,4 @@ async function main() {
   await writeFile(dest, body, { encoding: "utf8" });
 }
 
-main()
-  .then(() => {
-    process.exit();
-  })
-  .catch(e => {
-    // eslint-disable-next-line no-console
-    console.error(e);
-  });
+main();

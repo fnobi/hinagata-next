@@ -8,7 +8,7 @@
     "start": "npm run shell",
     "deploy": "firebase deploy --only functions",
     "logs": "firebase functions:log",
-    "make-index": "node scripts/make-index"
+    "make-index": "npx tsx scripts/make-index.ts"
   },
   "main": "lib/functions/src/index.js",
   "dependencies": {
@@ -32,6 +32,7 @@
     "firebase-functions-test": "^0.2.0",
     "globals": "^17.5.0",
     "tsc-alias": "^1.8.10",
+    "tsx": "^4.21.0",
     "typescript": "^5.7.3"
   },
   "private": true
