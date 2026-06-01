@@ -1,0 +1,110 @@
+name: Weekly Security Audit
+
+on:
+  schedule:
+    - cron: '0 0 * * 1'  # 月曜 09:00 JST
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+
+      - uses: pnpm/action-setup@v4
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Run pnpm audit
+        id: audit
+        run: |
+          set +e
+          pnpm audit 2>&1 | tee audit.txt
+          echo "exit_code=$?" >> $GITHUB_OUTPUT
+
+      - name: Open or update issue if vulnerabilities found
+        if: steps.audit.outputs.exit_code != '0'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs')
+            const output = fs.readFileSync('audit.txt', 'utf8')
+            const label = 'security-audit'
+            const date = new Date().toISOString().slice(0, 10)
+
+            // ラベルがなければ作成
+            try {
+              await github.rest.issues.getLabel({ ...context.repo, name: label })
+            } catch {
+              await github.rest.issues.createLabel({
+                ...context.repo,
+                name: label,
+                color: 'd73a4a',
+              })
+            }
+
+            const body = [
+              `## pnpm audit (${date})`,
+              '',
+              '```',
+              output,
+              '```',
+              '',
+              'Claude Code を開いて「pnpm audit の問題を修正してください」と伝えてください。',
+            ].join('\n')
+
+            const { data: open } = await github.rest.issues.listForRepo({
+              ...context.repo,
+              labels: label,
+              state: 'open',
+            })
+
+            if (open.length > 0) {
+              await github.rest.issues.createComment({
+                ...context.repo,
+                issue_number: open[0].number,
+                body,
+              })
+              core.notice(`Commented on issue #${open[0].number}`)
+            } else {
+              const { data: issue } = await github.rest.issues.create({
+                ...context.repo,
+                title: `[Security] 依存パッケージに脆弱性が見つかりました`,
+                body,
+                labels: [label],
+              })
+              core.notice(`Created issue #${issue.number}`)
+            }
+
+      - name: Close resolved issue if audit passed
+        if: steps.audit.outputs.exit_code == '0'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: open } = await github.rest.issues.listForRepo({
+              ...context.repo,
+              labels: 'security-audit',
+              state: 'open',
+            })
+
+            for (const issue of open) {
+              await github.rest.issues.createComment({
+                ...context.repo,
+                issue_number: issue.number,
+                body: '✅ 脆弱性が解消されたため、このIssueをクローズします。',
+              })
+              await github.rest.issues.update({
+                ...context.repo,
+                issue_number: issue.number,
+                state: 'closed',
+              })
+            }
