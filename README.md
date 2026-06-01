@@ -2,7 +2,7 @@
 
 ## 使用言語 / フレームワーク / ライブラリ
 
-- Framework: [Next.js](https://nextjs.org/) (Pages Router)
+- Framework: [Next.js](https://nextjs.org/) (App Router)
 - View: [React](https://react.dev/) 19
 - State Management: [Zustand](https://zustand-demo.pmnd.rs/)
 - AltJS: [TypeScript](https://www.typescriptlang.org/) 6
@@ -10,7 +10,14 @@
 - Linter: [ESLint](https://eslint.org/) 9 (flat config)
 - Formatter: [Prettier](https://prettier.io/)
 - Test: [Jest](https://jestjs.io/) + [Testing Library](https://testing-library.com/)
-- Package Manager: [pnpm](https://pnpm.io/)
+- Package Manager: [pnpm](https://pnpm.io/) (workspace)
+
+## 構成
+
+モノレポ構成。`packages/` 以下に以下のパッケージが存在します。
+
+- `packages/web` — Next.js アプリ本体
+- `packages/core` — 共有型・純粋ユーティリティ
 
 ## 開発手順
 
