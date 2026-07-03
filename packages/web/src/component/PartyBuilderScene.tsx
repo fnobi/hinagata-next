@@ -11,6 +11,7 @@ import {
   summarizePartyDefense
 } from "@hinagata-next/core/feature/pokemon-sv-analysis";
 import {
+  pokemonArtworkUrl,
   SV_POKEDEX,
   type SvPokemon
 } from "@hinagata-next/core/feature/pokemon-sv-dex";
@@ -116,6 +117,13 @@ const PokemonName = styled.span({
   fontWeight: "bold"
 });
 
+const PokemonThumbnail = styled.img({
+  width: px(56),
+  height: px(56),
+  objectFit: "contain",
+  flexShrink: 0
+});
+
 const DetailText = styled.span({
   fontSize: em(0.8),
   opacity: 0.8,
@@ -157,6 +165,14 @@ const SearchInput = styled.input({
   borderRadius: px(4),
   width: em(14)
 });
+
+const PokemonThumb = ({ pokemon }: { pokemon: SvPokemon }) => (
+  <PokemonThumbnail
+    src={pokemonArtworkUrl(pokemon)}
+    alt={pokemon.name}
+    loading="lazy"
+  />
+);
 
 const TypeBadgeList = ({ types }: { types: PokeType[] }) => (
   <BadgeFlow>
@@ -314,6 +330,7 @@ const PartyBuilderScene = () => {
               {visibleCandidates.map(c => (
                 <ListRow key={c.pokemon.name}>
                   <RowMain>
+                    <PokemonThumb pokemon={c.pokemon} />
                     <PokemonName>{c.pokemon.name}</PokemonName>
                     <TypeBadgeList types={c.pokemon.types} />
                     <DetailText>
@@ -380,6 +397,7 @@ const PartyBuilderScene = () => {
             {party.map(p => (
               <ListRow key={p.name}>
                 <RowMain>
+                  <PokemonThumb pokemon={p} />
                   <PokemonName>{p.name}</PokemonName>
                   <TypeBadgeList types={p.types} />
                 </RowMain>
@@ -409,6 +427,7 @@ const PartyBuilderScene = () => {
           {searchResults.map(p => (
             <ListRow key={p.name}>
               <RowMain>
+                <PokemonThumb pokemon={p} />
                 <PokemonName>{p.name}</PokemonName>
                 <TypeBadgeList types={p.types} />
               </RowMain>

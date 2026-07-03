@@ -66,7 +66,7 @@ describe("evaluatePokemon", () => {
   it("耐性と攻撃面の両方を評価する", () => {
     const nattorei = { name: "ナットレイ", types: ["grass", "steel"] } as const;
     const result = evaluatePokemon(
-      { name: nattorei.name, types: [...nattorei.types] },
+      { name: nattorei.name, types: [...nattorei.types], imageId: 598 },
       ["water", "fairy"]
     );
     // みず・フェアリーどちらも半減以下
@@ -84,9 +84,9 @@ describe("evaluatePokemon", () => {
 describe("summarizePartyDefense", () => {
   it("パーティの弱点・耐性を攻撃タイプごとに集計する", () => {
     const party = [
-      { name: "ギャラドス", types: ["water", "flying"] as const },
-      { name: "ガブリアス", types: ["dragon", "ground"] as const }
-    ].map(p => ({ name: p.name, types: [...p.types] }));
+      { name: "ギャラドス", types: ["water", "flying"] as const, imageId: 130 },
+      { name: "ガブリアス", types: ["dragon", "ground"] as const, imageId: 445 }
+    ].map(p => ({ name: p.name, types: [...p.types], imageId: p.imageId }));
     const result = summarizePartyDefense(party);
     const electric = result.find(r => r.attackType === "electric");
     expect(electric?.weakMembers).toEqual(["ギャラドス"]);
@@ -99,7 +99,7 @@ describe("summarizePartyDefense", () => {
 
 describe("findUncoveredThreats", () => {
   it("攻守どちらでも対策できていないタイプを返す", () => {
-    const party = [{ name: "ウインディ", types: ["fire" as const] }];
+    const party = [{ name: "ウインディ", types: ["fire" as const], imageId: 59 }];
     // みずには攻守とも対応できない / くさは半減かつ抜群を取れる
     expect(findUncoveredThreats(party, ["water", "grass"])).toEqual(["water"]);
   });
@@ -116,5 +116,11 @@ describe("SV_POKEDEX", () => {
       expect(p.types.length).toBeGreaterThanOrEqual(1);
       expect(p.types.length).toBeLessThanOrEqual(2);
     });
+  });
+
+  it("画像IDが重複していない", () => {
+    const ids = SV_POKEDEX.map(p => p.imageId);
+    expect(new Set(ids).size).toBe(ids.length);
+    ids.forEach(id => expect(id).toBeGreaterThan(0));
   });
 });
