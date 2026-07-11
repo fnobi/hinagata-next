@@ -1,5 +1,4 @@
-import { type Metadata } from "next";
-import makeMetadata from "~/common/makeMetadata";
+import makeMetadata, { type PageMetadata } from "~/common/makeMetadata";
 import { PAGE_TOP } from "~/feature/page-path";
 import ASSETS_OGP from "~/asset/meta/ogp.png";
 import ASSETS_FAVICON from "~/asset/meta/favicon.ico";
@@ -11,7 +10,7 @@ const DEFAULT_KEYWORDS = ["react", "typescript", "next.js"];
 const makePageMetaTitle = (...pageTitle: string[]) =>
   [...pageTitle, DEFAULT_TITLE].join(" | ");
 
-export const defaultMetadata: Metadata = makeMetadata({
+export const defaultMetadata: PageMetadata = makeMetadata({
   page: PAGE_TOP,
   title: DEFAULT_TITLE,
   description: DEFAULT_DESCRIPTION,
