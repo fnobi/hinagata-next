@@ -1,7 +1,16 @@
-import { type Metadata } from "next";
 import { type StaticImageData } from "next/image";
 import type PageEntry from "@hinagata-next/core/common/PageEntry";
 import { SITE_ORIGIN } from "~/common/constants";
+
+export type PageMetadata = {
+  title?: string;
+  description?: string;
+  keywords?: string[];
+  canonicalUrl: string;
+  shareImageUrl?: string;
+  faviconUrl?: string;
+  appleIconUrl?: string;
+};
 
 type MetaOptions = {
   page: PageEntry;
@@ -23,35 +32,14 @@ const makeMetadata = ({
   keywords,
   faviconUrl,
   appleIconUrl
-}: MetaOptions): Metadata => {
-  const canonicalUrl = page.url;
-  const shareImage = shareImageAsset
-    ? SITE_ORIGIN + shareImageAsset.src
-    : shareImageUrl;
-  return {
-    title,
-    description,
-    keywords,
-    icons:
-      faviconUrl || appleIconUrl
-        ? { icon: faviconUrl, apple: appleIconUrl }
-        : undefined,
-    alternates: {
-      canonical: canonicalUrl
-    },
-    openGraph: {
-      url: canonicalUrl,
-      title,
-      description,
-      images: shareImage ? [{ url: shareImage }] : undefined
-    },
-    twitter: {
-      card: "summary_large_image",
-      title,
-      description,
-      images: shareImage ? [shareImage] : undefined
-    }
-  };
-};
+}: MetaOptions): PageMetadata => ({
+  title,
+  description,
+  keywords,
+  canonicalUrl: page.url,
+  shareImageUrl: shareImageAsset ? SITE_ORIGIN + shareImageAsset.src : shareImageUrl,
+  faviconUrl,
+  appleIconUrl
+});
 
 export default makeMetadata;
