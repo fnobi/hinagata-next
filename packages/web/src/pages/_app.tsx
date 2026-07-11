@@ -3,15 +3,16 @@ import { defaultMetadata } from "~/feature/defaultMetadata";
 import EmotionProvider from "~/component/EmotionProvider";
 import GlobalStyles from "~/component/GlobalStyles";
 import LayoutRoot from "~/component/LayoutRoot";
-import PageHead from "~/component/PageHead";
+import PageMeta from "~/component/PageMeta";
 
 const App = ({ Component, pageProps }: AppProps) => (
   <EmotionProvider>
-    <PageHead metadata={defaultMetadata} />
-    <GlobalStyles />
-    <LayoutRoot>
-      <Component {...pageProps} />
-    </LayoutRoot>
+    <PageMeta metadata={defaultMetadata}>
+      <GlobalStyles />
+      <LayoutRoot>
+        <Component {...pageProps} />
+      </LayoutRoot>
+    </PageMeta>
   </EmotionProvider>
 );
 
