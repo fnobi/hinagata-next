@@ -1,5 +1,3 @@
-"use client";
-
 import { useMemo, useState } from "react";
 import type DummyProfile from "@hinagata-next/core/feature/DummyProfile";
 import DummyProfileForm from "~/component/DummyProfileForm";

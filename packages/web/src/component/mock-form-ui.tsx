@@ -1,5 +1,3 @@
-"use client";
-
 import styled from "@emotion/styled";
 import {
   type ComponentPropsWithoutRef,

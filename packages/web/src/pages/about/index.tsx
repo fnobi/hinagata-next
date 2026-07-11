@@ -1,6 +1,7 @@
 import { makeSubPageMetadata } from "~/feature/defaultMetadata";
 import { PAGE_ABOUT } from "~/feature/page-path";
 import MockCenteringLayout from "~/component/MockCenteringLayout";
+import PageHead from "~/component/PageHead";
 import ASSETS_OGP_ABOUT from "~/asset/meta/ogp-about.png";
 
 export const metadata = makeSubPageMetadata({
@@ -9,6 +10,11 @@ export const metadata = makeSubPageMetadata({
   shareImageAsset: ASSETS_OGP_ABOUT
 });
 
-const PageAbout = () => <MockCenteringLayout>About Page</MockCenteringLayout>;
+const PageAbout = () => (
+  <>
+    <PageHead metadata={metadata} />
+    <MockCenteringLayout>About Page</MockCenteringLayout>
+  </>
+);
 
 export default PageAbout;

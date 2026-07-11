@@ -1,5 +1,3 @@
-"use client";
-
 import styled from "@emotion/styled";
 import { type ComponentPropsWithoutRef } from "react";
 import { em, PRIMITIVE_COLOR } from "~/common/css-util";

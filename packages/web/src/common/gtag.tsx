@@ -1,6 +1,4 @@
-"use client";
-
-import { usePathname } from "next/navigation";
+import { useRouter } from "next/router";
 import Script from "next/script";
 import { useEffect, useRef } from "react";
 
@@ -74,10 +72,10 @@ export const sendPageView = ({
 
 const usePageView = (id: string, basePath: string) => {
   const landingPathRef = useRef("");
-  const pathname = usePathname();
+  const { asPath } = useRouter();
   useEffect(() => {
     const { current: landingPath } = landingPathRef;
-    const pagePath = basePath + pathname;
+    const pagePath = basePath + asPath;
     if (landingPath) {
       sendPageView({
         id,
@@ -86,7 +84,7 @@ const usePageView = (id: string, basePath: string) => {
     } else {
       landingPathRef.current = pagePath;
     }
-  }, [pathname, id, basePath]);
+  }, [asPath, id, basePath]);
 };
 
 export const GTagSnippet = ({
