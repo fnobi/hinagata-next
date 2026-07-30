@@ -9,7 +9,7 @@ import {
   type DocumentSnapshotMock,
   type TransactionGetStepParams,
   type TransactionSetStepParams,
-  type DataStoreScheme,
+  type DataStoreSchema,
   type QueryFormula
 } from "@hinagata-next/core/common/DataStoreAgent";
 import { parseString } from "@hinagata-next/core/common/parser-helper";
@@ -30,9 +30,9 @@ export class ServerDataStoreAgent<
 
   public constructor(
     adapter: () => Firestore,
-    scheme: DataStoreScheme<T, D, C>
+    schema: DataStoreSchema<T, D, C>
   ) {
-    super(scheme);
+    super(schema);
     this.adapter = adapter;
   }
 
@@ -45,7 +45,7 @@ export class ServerDataStoreAgent<
   }
 
   protected collectionGroupReference() {
-    return this.adapter().collectionGroup(this.scheme.name);
+    return this.adapter().collectionGroup(this.schema.name);
   }
 
   protected documentReference({

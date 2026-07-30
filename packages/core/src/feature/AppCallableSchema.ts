@@ -13,13 +13,13 @@ export type OKResponse<T> = {
   data: T;
 };
 
-type AppCallableFunctionScheme<Req, Res> = {
+type AppCallableFunctionSchema<Req, Res> = {
   Request: Req;
   Response: Res;
 };
 
-type AppCallableScheme = {
-  createUser: AppCallableFunctionScheme<
+type AppCallableSchema = {
+  createUser: AppCallableFunctionSchema<
     { nickname: string },
     | OKResponse<{
         userId: string;
@@ -29,4 +29,4 @@ type AppCallableScheme = {
   >;
 };
 
-export default AppCallableScheme;
+export default AppCallableSchema;

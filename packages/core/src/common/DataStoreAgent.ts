@@ -14,7 +14,7 @@ type TypedCollectionGroupList<T> = {
   data: T;
 }[];
 
-export type DataStoreScheme<
+export type DataStoreSchema<
   T,
   D extends string,
   C extends string | never = never
@@ -22,11 +22,11 @@ export type DataStoreScheme<
   name: string;
   documentKey: D;
   parse: (src: unknown) => T;
-  parentCollection?: DataStoreScheme<unknown, C, never>;
+  parentCollection?: DataStoreSchema<unknown, C, never>;
 };
 
 const collectionPathFromParent = <T, D extends string, C extends string>(
-  s: DataStoreScheme<T, D, C>,
+  s: DataStoreSchema<T, D, C>,
   o: Record<D | C, string>
 ): string[] => [
   ...(s.parentCollection
@@ -37,7 +37,7 @@ const collectionPathFromParent = <T, D extends string, C extends string>(
 ];
 
 const calcCollectionPath = <D extends string, C extends string>(
-  s: DataStoreScheme<unknown, D, C>,
+  s: DataStoreSchema<unknown, D, C>,
   m: Record<C, string>
 ) =>
   [
@@ -74,28 +74,28 @@ export abstract class DataStoreAgent<
   Dr,
   Cr
 > {
-  public readonly scheme: DataStoreScheme<T, D, C>;
+  public readonly schema: DataStoreSchema<T, D, C>;
 
-  public constructor(scheme: DataStoreScheme<T, D, C>) {
-    this.scheme = scheme;
+  public constructor(schema: DataStoreSchema<T, D, C>) {
+    this.schema = schema;
   }
 
   private calcCollectionParam(opts: Record<C, string>) {
     return {
-      collectionPath: calcCollectionPath(this.scheme, opts)
+      collectionPath: calcCollectionPath(this.schema, opts)
     };
   }
 
   private calcDocParam(opts: Record<D | C, string>) {
     return {
       ...this.calcCollectionParam(opts),
-      id: opts[this.scheme.documentKey]
+      id: opts[this.schema.documentKey]
     };
   }
 
   public parseDocumentSnapshot(snapshot: DocumentSnapshotMock) {
     const d = snapshot.data();
-    return d ? this.scheme.parse(d) : null;
+    return d ? this.schema.parse(d) : null;
   }
 
   protected parseCollectionSnapshot(
@@ -176,7 +176,7 @@ export abstract class DataStoreAgent<
 
   public newItemId(opts: Record<C, string>) {
     return this.newDocId({
-      collectionPath: calcCollectionPath(this.scheme, opts)
+      collectionPath: calcCollectionPath(this.schema, opts)
     });
   }
 
