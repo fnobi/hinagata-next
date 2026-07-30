@@ -1,11 +1,10 @@
 import { type DataStoreSchema } from "@hinagata-next/core/common/DataStoreAgent";
-import {
-  type UserRecord,
-  parseUserRecord
-} from "@hinagata-next/core/feature/UserRecord";
+import type DummyProfile from "@hinagata-next/core/feature/DummyProfile";
+import { parseDummyProfile } from "@hinagata-next/core/feature/DummyProfile";
 
-export const userRecordSchema: DataStoreSchema<UserRecord, "userId"> = {
-  name: "users",
-  documentKey: "userId",
-  parse: parseUserRecord
-};
+export const profileDataStoreSchema: DataStoreSchema<DummyProfile, "charaId"> =
+  {
+    name: "profiles",
+    documentKey: "charaId",
+    parse: parseDummyProfile
+  };

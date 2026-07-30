@@ -1,5 +1,5 @@
 import { type AppErrorMessageParameter } from "@hinagata-next/core/feature/AppError";
-import { type UserRecord } from "@hinagata-next/core/feature/UserRecord";
+import type DummyProfile from "@hinagata-next/core/feature/DummyProfile";
 
 export const COMMON_CALLABLE_REGION = "asia-northeast1";
 
@@ -19,11 +19,11 @@ type AppCallableFunctionSchema<Req, Res> = {
 };
 
 type AppCallableSchema = {
-  createUser: AppCallableFunctionSchema<
-    { nickname: string },
+  createProfile: AppCallableFunctionSchema<
+    { profile: DummyProfile },
     | OKResponse<{
-        userId: string;
-        data: UserRecord;
+        charaId: string;
+        profile: DummyProfile;
       }>
     | CommonNGResponse
   >;

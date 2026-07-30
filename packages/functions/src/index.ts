@@ -1,2 +1,2 @@
-export { default as createUser } from "./module/createUser";
+export { default as createProfile } from "./module/createProfile";
 export { default as webApp } from "./module/webApp";
