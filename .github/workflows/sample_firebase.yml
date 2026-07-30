@@ -51,9 +51,9 @@ jobs:
         run: pnpm install
 
       - name: write firebase functions params
-        run: echo "FUNCTIONS_PUBLIC_DIR_NAME=${{ env.FUNCTIONS_PUBLIC_DIR_NAME }}" > packages/functions/.env.${{ env.NEXT_PUBLIC_FIREBASE_PROJECT_ID }}
+        run: echo "FUNCTIONS_PUBLIC_DIR_NAME=${{ env.FUNCTIONS_PUBLIC_DIR_NAME }}" > packages/functions/.env.${{ secrets.FIREBASE_PROJECT_ID }}
 
       - name: firebase deploy
         env:
           GOOGLE_OAUTH_ACCESS_TOKEN: ${{ steps.auth.outputs.access_token }}
-        run: pnpm exec firebase deploy --only hosting,functions --project ${{ env.NEXT_PUBLIC_FIREBASE_PROJECT_ID }} --force
+        run: pnpm exec firebase deploy --only hosting,functions --project ${{ secrets.FIREBASE_PROJECT_ID }} --force
