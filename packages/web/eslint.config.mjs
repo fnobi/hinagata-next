@@ -113,14 +113,6 @@ export default [
             allowSameModule: false
           },
           {
-            module: "./src/asset",
-            allowReferenceFrom: [
-              "src/feature/**/*",
-              "src/app/**/*"
-            ],
-            allowSameModule: false
-          },
-          {
             module: "./src/feature",
             allowReferenceFrom: [
               "src/feature/**/*",

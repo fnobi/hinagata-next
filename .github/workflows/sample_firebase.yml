@@ -6,12 +6,13 @@ on:
       - sample
 
 env:
-  ACTIONS_INSTALL_COMMAND: pnpm install
-  ACTIONS_BUILD_COMMAND: pnpm run build
-  ACTIONS_BUILD_DIST: dist
   ACTIONS_LOCK_FILE: pnpm-lock.yaml
-
-  NEXT_PUBLIC_SITE_ORIGIN: https://example.com
+  # web(Next.js)のエクスポート先とfunctionsの静的配信先のディレクトリ名。
+  # packages/web/scripts/make-dist-dir.ts, scripts/prepare-firebase-deploy.js,
+  # packages/functions/src/module/webApp.ts(firebase-functions paramsのdefineString経由)
+  # の3箇所で一致している必要がある。
+  WEB_DIST_DIR_NAME: dist
+  FUNCTIONS_PUBLIC_DIR_NAME: public
 
 permissions:
   id-token: write
@@ -36,19 +37,23 @@ jobs:
           workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
           service_account: ${{ secrets.WIF_SERVICE_ACCOUNT }}
 
+      - name: get pnpm store directory
+        id: pnpm-cache
+        run: echo "STORE_PATH=$(pnpm store path --silent)" >> "$GITHUB_OUTPUT"
+
       - uses: actions/cache@v4
         with:
-          path: node_modules
-          key: ${{ runner.os }}-node-${{ hashFiles(format('**/{0}',env.ACTIONS_LOCK_FILE)) }}
-          restore-keys: ${{ runner.os }}-node-
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles(format('**/{0}', env.ACTIONS_LOCK_FILE)) }}
+          restore-keys: ${{ runner.os }}-pnpm-store-
 
       - name: install dependencies
-        run: ${{ env.ACTIONS_INSTALL_COMMAND }}
+        run: pnpm install
 
-      - name: build
-        run: ${{ env.ACTIONS_BUILD_COMMAND }}
+      - name: write firebase functions params
+        run: echo "FUNCTIONS_PUBLIC_DIR_NAME=${{ env.FUNCTIONS_PUBLIC_DIR_NAME }}" > packages/functions/.env.${{ env.NEXT_PUBLIC_FIREBASE_PROJECT_ID }}
 
       - name: firebase deploy
         env:
           GOOGLE_OAUTH_ACCESS_TOKEN: ${{ steps.auth.outputs.access_token }}
-        run: pnpm exec firebase deploy --only hosting
+        run: pnpm exec firebase deploy --only hosting,functions --project ${{ env.NEXT_PUBLIC_FIREBASE_PROJECT_ID }} --force

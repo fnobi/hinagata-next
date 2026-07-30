@@ -1,8 +1,12 @@
 {
   "name": "hinagata-next",
   "private": true,
+  "packageManager": "pnpm@11.4.0",
   "scripts": {
     "dev": "pnpm --filter @hinagata-next/web dev",
     "build": "pnpm --filter @hinagata-next/web build"
+  },
+  "devDependencies": {
+    "firebase-tools": "^15.18.0"
   }
 }

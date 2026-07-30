@@ -1,0 +1,32 @@
+import { onCall } from "firebase-functions/v2/https";
+import responseAppCallable from "~/lib/responseAppCallable";
+import { userRecordScheme } from "@hinagata-next/core/scheme/app-data-store-schema";
+import { ServerDataStoreAgent } from "~/lib/ServerDataStoreAgent";
+import { firebaseFirestore } from "~/lib/firebase-app";
+import { COMMON_CALLABLE_REGION } from "@hinagata-next/core/scheme/AppCallableScheme";
+import { UserRecord } from "@hinagata-next/core/feature/UserRecord";
+
+const userRecordDataStore = new ServerDataStoreAgent(
+  firebaseFirestore,
+  userRecordScheme
+);
+
+export default onCall({ region: COMMON_CALLABLE_REGION }, r =>
+  responseAppCallable<"createUser">(r, async ({ data }) => {
+    const { nickname } = data;
+    const u: UserRecord = {
+      nickname,
+      createdAt: Date.now()
+    };
+
+    const userId = await userRecordDataStore.addItem({ data: u });
+
+    return {
+      case: "ok",
+      data: {
+        userId,
+        data: u
+      }
+    };
+  })
+);

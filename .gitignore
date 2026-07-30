@@ -1,8 +1,11 @@
 .next
 out
 node_modules
+.pnpm-store
 .DS_Store
 next-env.d.ts
 dist
 *.tsbuildinfo
 .env*.local
+.claude/launch.json
+firebase-debug.log
