@@ -113,11 +113,19 @@ export default [
             allowSameModule: false
           },
           {
+            module: "./src/asset",
+            allowReferenceFrom: [
+              "src/feature/**/*",
+              "src/pages/**/*"
+            ],
+            allowSameModule: false
+          },
+          {
             module: "./src/feature",
             allowReferenceFrom: [
               "src/feature/**/*",
               "src/component/**/*",
-              "src/app/**/*"
+              "src/pages/**/*"
             ],
             allowSameModule: true
           },
@@ -125,7 +133,7 @@ export default [
             module: "./src/common/ClientDataStoreAgent",
             allowReferenceFrom: [
               "src/common/**/*",
-              "src/app/**/*",
+              "src/pages/**/*",
               "src/component/**/_provider/**/*"
             ],
             allowSameModule: false

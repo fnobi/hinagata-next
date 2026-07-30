@@ -1,4 +1,3 @@
-import path from "path";
 import { NextConfig } from "next";
 
 const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH || "";

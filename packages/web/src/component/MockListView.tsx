@@ -1,5 +1,3 @@
-"use client";
-
 import styled from "@emotion/styled";
 import { type ComponentPropsWithoutRef, type ReactNode } from "react";
 import type CommonActionParameter from "~/common/CommonActionParameter";
