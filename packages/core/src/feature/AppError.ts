@@ -1,4 +1,4 @@
-import { type AppErrorParameter } from "@hinagata-next/core/scheme/AppErrorParameter";
+import { type AppErrorParameter } from "@hinagata-next/core/feature/AppErrorParameter";
 
 class AppError extends Error {
   public readonly parameter: AppErrorParameter;

@@ -1,7 +1,7 @@
 import { type CallableRequest } from "firebase-functions/v2/https";
-import { extractAppError } from "@hinagata-next/core/scheme/AppError";
-import type AppCallableScheme from "@hinagata-next/core/scheme/AppCallableScheme";
-import { type CommonNGResponse } from "@hinagata-next/core/scheme/AppCallableScheme";
+import { extractAppError } from "@hinagata-next/core/feature/AppError";
+import type AppCallableScheme from "@hinagata-next/core/feature/AppCallableScheme";
+import { type CommonNGResponse } from "@hinagata-next/core/feature/AppCallableScheme";
 import { functionRangeLogger } from "~/lib/logger-helper";
 
 const responseAppCallable = async <T extends keyof AppCallableScheme>(

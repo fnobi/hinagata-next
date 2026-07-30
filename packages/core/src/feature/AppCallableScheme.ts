@@ -1,5 +1,5 @@
-import { type AppErrorMessageParameter } from "@hinagata-next/core/scheme/AppError";
-import { UserRecord } from "@hinagata-next/core/feature/UserRecord";
+import { type AppErrorMessageParameter } from "@hinagata-next/core/feature/AppError";
+import { type UserRecord } from "@hinagata-next/core/feature/UserRecord";
 
 export const COMMON_CALLABLE_REGION = "asia-northeast1";
 

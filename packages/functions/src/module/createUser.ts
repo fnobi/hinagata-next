@@ -1,9 +1,9 @@
 import { onCall } from "firebase-functions/v2/https";
 import responseAppCallable from "~/lib/responseAppCallable";
-import { userRecordScheme } from "@hinagata-next/core/scheme/app-data-store-schema";
+import { userRecordScheme } from "@hinagata-next/core/feature/app-data-store-schema";
 import { ServerDataStoreAgent } from "~/lib/ServerDataStoreAgent";
 import { firebaseFirestore } from "~/lib/firebase-app";
-import { COMMON_CALLABLE_REGION } from "@hinagata-next/core/scheme/AppCallableScheme";
+import { COMMON_CALLABLE_REGION } from "@hinagata-next/core/feature/AppCallableScheme";
 import { UserRecord } from "@hinagata-next/core/feature/UserRecord";
 
 const userRecordDataStore = new ServerDataStoreAgent(
