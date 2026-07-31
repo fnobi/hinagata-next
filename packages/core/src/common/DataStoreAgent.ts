@@ -17,7 +17,7 @@ type TypedCollectionGroupList<T> = {
 export type DataStoreSchema<
   T,
   D extends string,
-  C extends string | never = never
+  C extends string = never
 > = {
   name: string;
   documentKey: D;
@@ -70,7 +70,7 @@ export type QueryFormula<T> =
 export abstract class DataStoreAgent<
   T extends object,
   D extends string,
-  C extends string | never,
+  C extends string,
   Dr,
   Cr
 > {
