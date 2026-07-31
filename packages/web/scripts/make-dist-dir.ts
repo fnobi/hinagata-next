@@ -4,7 +4,7 @@ import path from "path";
 
 const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH || "";
 const EXPORT_DIR = "out";
-const DIST_DIR = process.env.WEB_DIST_DIR_NAME ?? "dist";
+const DIST_DIR = "dist";
 
 const distPath = path.join(DIST_DIR, BASE_PATH);
 

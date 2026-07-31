@@ -2,10 +2,7 @@ const { existsSync } = require("fs");
 const { rm, rename, mkdir, glob } = require("fs/promises");
 const { basename, dirname, relative, join } = require("path");
 
-const SRC_DIR = join(
-  "packages/web",
-  process.env.WEB_DIST_DIR_NAME ?? "dist"
-);
+const SRC_DIR = join("packages/web", "dist");
 const DEST_DIR = join(
   "packages/functions",
   process.env.FUNCTIONS_PUBLIC_DIR_NAME ?? "public"
@@ -30,4 +27,7 @@ async function main() {
   }
 }
 
-main();
+main().catch(err => {
+  console.error(err);
+  process.exitCode = 1;
+});

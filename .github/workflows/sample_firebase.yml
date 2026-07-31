@@ -7,11 +7,10 @@ on:
 
 env:
   ACTIONS_LOCK_FILE: pnpm-lock.yaml
-  # web(Next.js)のエクスポート先とfunctionsの静的配信先のディレクトリ名。
-  # packages/web/scripts/make-dist-dir.ts, scripts/prepare-firebase-deploy.js,
+  # Cloud Functionsの静的ファイル配信先ディレクトリ名。
+  # scripts/prepare-firebase-deploy.js の移動先と、
   # packages/functions/src/module/webApp.ts(firebase-functions paramsのdefineString経由)
-  # の3箇所で一致している必要がある。
-  WEB_DIST_DIR_NAME: dist
+  # の読み込み元で一致している必要がある。
   FUNCTIONS_PUBLIC_DIR_NAME: public
 
   # 以下はダミー値。実際にデプロイする際は対象のFirebaseプロジェクトの値に書き換える
