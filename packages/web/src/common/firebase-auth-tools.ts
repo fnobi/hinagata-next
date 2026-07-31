@@ -1,7 +1,9 @@
 import { useEffect } from "react";
 import {
+  GoogleAuthProvider,
   getRedirectResult,
   onAuthStateChanged,
+  signInWithPopup,
   type User
 } from "firebase/auth";
 import { create } from "zustand";
@@ -22,6 +24,9 @@ const useMeStore = create<MeState>(() => ({
 }));
 
 export const useAuthorizedUser = () => useMeStore();
+
+export const signInWithGoogle = () =>
+  signInWithPopup(firebaseAuth(), new GoogleAuthProvider());
 
 export const useAuthRoot = () => {
   const meState = useMeStore();

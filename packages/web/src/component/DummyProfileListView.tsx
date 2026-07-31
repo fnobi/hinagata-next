@@ -1,14 +1,14 @@
 import type DummyProfile from "@hinagata-next/core/feature/DummyProfile";
 import MockListView from "~/component/MockListView";
 
-const DummyProfileListView = ({
+const DummyProfileListView = <Id extends string | number>({
   list,
   onEdit,
   onDelete
 }: {
-  list: { id: number; data: DummyProfile }[];
-  onEdit: (id: number) => void;
-  onDelete: (id: number) => void;
+  list: { id: Id; data: DummyProfile }[];
+  onEdit?: (id: Id) => void;
+  onDelete?: (id: Id) => void;
 }) => (
   <MockListView
     dataList={list.map(({ id, data }) => ({
@@ -16,17 +16,25 @@ const DummyProfileListView = ({
       title: data.name,
       subTitle: data.email,
       actions: [
-        {
-          children: "編集",
-          action: { type: "button", onClick: () => onEdit(id) }
-        },
-        {
-          children: "削除",
-          action: {
-            type: "button",
-            onClick: () => onDelete(id)
-          }
-        }
+        ...(onEdit
+          ? [
+              {
+                children: "編集",
+                action: { type: "button" as const, onClick: () => onEdit(id) }
+              }
+            ]
+          : []),
+        ...(onDelete
+          ? [
+              {
+                children: "削除",
+                action: {
+                  type: "button" as const,
+                  onClick: () => onDelete(id)
+                }
+              }
+            ]
+          : [])
       ]
     }))}
   />
