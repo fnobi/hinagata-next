@@ -2,7 +2,8 @@ import { onRequest } from "firebase-functions/v2/https";
 import { defineSecret, defineString } from "firebase-functions/params";
 import { timingSafeEqual } from "node:crypto";
 import { existsSync, readFileSync, statSync } from "node:fs";
-import { isAbsolute, join, relative } from "node:path";
+import { extname, isAbsolute, join, relative } from "node:path";
+import { errorLogger } from "~/lib/logger-helper";
 
 // Value format: "user:pass". Set via `firebase functions:secrets:set BASIC_AUTH_CREDENTIALS`.
 const basicAuthCredentials = defineSecret("BASIC_AUTH_CREDENTIALS");
@@ -43,14 +44,24 @@ function isInsidePublicDir(candidate: string): boolean {
   );
 }
 
+const CONTENT_TYPES: Record<string, string> = {
+  ".html": "text/html; charset=utf-8",
+  ".txt": "text/plain; charset=utf-8",
+  ".json": "application/json; charset=utf-8"
+};
+
+function resolveContentType(filePath: string): string {
+  return CONTENT_TYPES[extname(filePath)] || "application/octet-stream";
+}
+
 // Mirrors Next.js `trailingSlash: true` static export: "/about" and "/about/" both
 // resolve to "about/index.html", since requests may arrive without the trailing slash.
+// `pathname` must already be decoded by the caller.
 function resolveFilePath(pathname: string): {
   filePath: string;
   status: number;
 } {
-  const decoded = decodeURIComponent(pathname);
-  const relativePath = decoded.replace(/^\/+/, "");
+  const relativePath = pathname.replace(/^\/+/, "");
   const targets =
     relativePath === "" || relativePath.endsWith("/")
       ? [`${relativePath}index.html`]
@@ -78,10 +89,26 @@ export default onRequest(
       return;
     }
 
-    const { filePath, status } = resolveFilePath(req.path);
-    res
-      .status(status)
-      .set("Content-Type", "text/html; charset=utf-8")
-      .send(readFileSync(filePath));
+    let decoded: string;
+    try {
+      decoded = decodeURIComponent(req.path);
+    } catch (e) {
+      errorLogger("[webApp] failed to decode path", e as Error, {
+        path: req.path
+      });
+      res.status(400).send("Bad Request");
+      return;
+    }
+
+    const { filePath, status } = resolveFilePath(decoded);
+
+    try {
+      const body = readFileSync(filePath);
+      res.status(status).set("Content-Type", resolveContentType(filePath));
+      res.send(body);
+    } catch (e) {
+      errorLogger("[webApp] failed to read file", e as Error, { filePath });
+      res.status(500).send("Internal Server Error");
+    }
   }
 );
