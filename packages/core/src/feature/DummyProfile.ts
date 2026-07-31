@@ -3,8 +3,8 @@ import {
   parseObject,
   parseString
 } from "@hinagata-next/core/common/parser-helper";
-import type TimestampMock from "@hinagata-next/core/feature/TimestampMock";
-import { parseTimestampMock } from "@hinagata-next/core/feature/TimestampMock";
+import type TimestampMock from "@hinagata-next/core/common/TimestampMock";
+import { parseTimestampMock } from "@hinagata-next/core/common/TimestampMock";
 
 export type DummyProfileLink = { label: string; url: string };
 

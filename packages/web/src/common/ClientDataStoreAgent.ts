@@ -17,14 +17,14 @@ import {
   runTransaction,
   getCountFromServer
 } from "firebase/firestore";
-import { parseString } from "@com-snickers/core/common/parser-helper";
+import { parseString } from "@hinagata-next/core/common/parser-helper";
 import {
   DataStoreAgent,
   type QueryFormula,
   type DocumentSnapshotMock,
   type TransactionGetStepParams,
   type TransactionSetStepParams
-} from "@com-snickers/core/common/DataStoreAgent";
+} from "@hinagata-next/core/common/DataStoreAgent";
 import { firebaseFirestore } from "~/common/firebase-app";
 
 // eslint-disable-next-line import/prefer-default-export
@@ -42,7 +42,7 @@ export class ClientDataStoreAgent<
   }
 
   protected collectionGroupReference() {
-    return collectionGroup(firebaseFirestore(), this.scheme.name);
+    return collectionGroup(firebaseFirestore(), this.schema.name);
   }
 
   protected documentReference({
