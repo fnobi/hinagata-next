@@ -38,18 +38,21 @@ Firebase プロジェクト ID（`NEXT_PUBLIC_FIREBASE_PROJECT_ID` ほか `fireb
 ## 作成されるリソース
 
 - Workload Identity Pool / Provider（GitHub Actions OIDC、`assertion.repository` を対象リポジトリに限定）
-- デプロイ用サービスアカウント（`roles/firebasehosting.admin`, `roles/cloudfunctions.admin`, `roles/run.admin`, `roles/iam.serviceAccountUser`, `roles/artifactregistry.writer` を付与）
+- デプロイ用サービスアカウント（`roles/firebasehosting.admin`, `roles/cloudfunctions.admin`, `roles/run.admin`, `roles/iam.serviceAccountUser`, `roles/artifactregistry.writer`, `roles/secretmanager.secretAccessor` を付与）
 - 上記サービスアカウントに対する、対象リポジトリからの Workload Identity 経由の権限借用（`roles/iam.workloadIdentityUser`）
-- Basic 認証用シークレットの空コンテナ（`BASIC_AUTH_CREDENTIALS`、値は含まない）と、そのシークレット1件に限定した `roles/secretmanager.admin` の付与（プロジェクト全体には付与しない）
 - 必要な API の有効化（IAM, IAM Credentials, STS, Firebase Hosting, Cloud Functions, Cloud Run, Cloud Build, Artifact Registry, Eventarc, Secret Manager, Cloud Resource Manager）
+
+`roles/secretmanager.secretAccessor` は読み取り専用（シークレットの作成や、他のサービスアカウントへのアクセス権付与はできない）で、通常デプロイ時に `defineSecret` が参照するシークレットの最新バージョンを解決するためだけに使う。シークレット自体の作成や、関数の実行サービスアカウントへのアクセス権付与（`roles/secretmanager.admin`相当の操作）は、Terraformでは管理せず、次項の通り開発者が手動で行う。
 
 ## functions の Basic 認証用シークレット（初回のみ・手動）
 
-`packages/functions` は `**` にマッチする全リクエストを Basic 認証で保護する Cloud Function (`webApp`) です。シークレットの空コンテナ（`BASIC_AUTH_CREDENTIALS`）は上記の Terraform リソースとして作成済みなので、あとは `user:pass` 形式の値（バージョン）を Firebase CLI から設定するだけです（実際の値はこのリポジトリの Terraform では管理しません）。関数の実行サービスアカウントへの `roles/secretmanager.secretAccessor` 付与は、デプロイ時に Firebase CLI が自動で行います。
+`packages/functions` は `**` にマッチする全リクエストを Basic 認証で保護する Cloud Function (`webApp`) です。シークレット自体の作成・値の設定は Firebase CLI から行います。
 
 ```bash
 firebase functions:secrets:set BASIC_AUTH_CREDENTIALS --project <FirebaseプロジェクトID>
-# プロンプトで "user:pass" 形式の値を入力
+# プロンプトで "user:pass" 形式の値を入力（未作成なら secrets:set がシークレットも作成する）
 ```
+
+続けて、`secretmanager.admin` 相当の権限を持つ開発者自身のアカウントで一度 `firebase deploy --only functions --project <FirebaseプロジェクトID>` を実行してください。関数が参照するシークレットに実行サービスアカウントがアクセスできない場合、Firebase CLI がこのタイミングで `roles/secretmanager.secretAccessor` を自動的に付与します。この付与さえ済んでいれば、以降の（GitHub Actions経由の）通常デプロイは読み取り権限だけで完結します。
 
 値を変更した場合は関数の再デプロイが必要です（`firebase deploy --only functions`）。
