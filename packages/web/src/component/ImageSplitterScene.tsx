@@ -4,8 +4,9 @@ import {
   type CropCorner,
   type Rect,
   type Size,
-  moveRect,
+  fitRectToAspect,
   resizeRectFromCorner,
+  resizeRectFromCornerLocked,
   splitRectIntoColumns
 } from "~/common/image-split";
 import {
@@ -16,13 +17,12 @@ import {
   px
 } from "~/common/css-util";
 import MockActionButton from "~/component/MockActionButton";
+import { MockCheckboxFormInput } from "~/component/mock-form-ui";
 
 const SPLIT_COLUMNS = 3;
 const HANDLE_SIZE = 16;
 
 const pctNum = (value: number, total: number) => (value / total) * 100;
-
-type DragMode = { type: "move" } | { type: "resize"; corner: CropCorner };
 
 // left/top で寄せた辺は -50%、right/bottom で寄せた辺は +50% 側に
 // translate しないと、ハンドルの中心が角の点からずれてしまう
@@ -81,12 +81,14 @@ const GuideLine = styled.div({
 });
 
 // outline はボックスサイズに影響しないため、四隅のハンドルを
-// border の分だけずらさずに正確に角へ重ねられる
+// border の分だけずらさずに正確に角へ重ねられる。
+// このエリア自体はドラッグ操作を持たない（コーナーのみが操作対象）ため
+// pointer-events は無効にし、ハンドル側で明示的に有効化する
 const CropArea = styled.div({
   position: "absolute",
   boxSizing: "border-box",
   outline: `${px(2)} dashed ${PRIMITIVE_COLOR.WHITE}`,
-  cursor: "move"
+  pointerEvents: "none"
 });
 
 const CropHandle = styled.div<{ corner: CropCorner }>(({ corner }) => ({
@@ -96,7 +98,8 @@ const CropHandle = styled.div<{ corner: CropCorner }>(({ corner }) => ({
   height: px(HANDLE_SIZE),
   boxSizing: "border-box",
   background: PRIMITIVE_COLOR.WHITE,
-  border: `${px(1)} solid ${PRIMITIVE_COLOR.BLACK}`
+  border: `${px(1)} solid ${PRIMITIVE_COLOR.BLACK}`,
+  pointerEvents: "auto"
 }));
 
 const Toolbar = styled.div({
@@ -123,7 +126,8 @@ const ImageSplitterScene = () => {
   const [naturalSize, setNaturalSize] = useState<Size | null>(null);
   const [cropRect, setCropRect] = useState<Rect | null>(null);
   const [columnImages, setColumnImages] = useState<string[] | null>(null);
-  const [dragMode, setDragMode] = useState<DragMode | null>(null);
+  const [activeCorner, setActiveCorner] = useState<CropCorner | null>(null);
+  const [aspectLocked, setAspectLocked] = useState(false);
 
   const imgRef = useRef<HTMLImageElement>(null);
   const lastPointerRef = useRef<{ x: number; y: number } | null>(null);
@@ -138,7 +142,7 @@ const ImageSplitterScene = () => {
   );
 
   useEffect(() => {
-    if (!dragMode || !naturalSize) {
+    if (!activeCorner || !naturalSize) {
       return undefined;
     }
     const handlePointerMove = (e: PointerEvent) => {
@@ -155,14 +159,21 @@ const ImageSplitterScene = () => {
         if (!rect) {
           return rect;
         }
-        return dragMode.type === "move"
-          ? moveRect(rect, dx, dy, naturalSize)
-          : resizeRectFromCorner(rect, dragMode.corner, dx, dy, naturalSize);
+        return aspectLocked
+          ? resizeRectFromCornerLocked(
+              rect,
+              activeCorner,
+              dx,
+              dy,
+              naturalSize,
+              naturalSize.width / naturalSize.height
+            )
+          : resizeRectFromCorner(rect, activeCorner, dx, dy, naturalSize);
       });
     };
     const handlePointerUp = () => {
       lastPointerRef.current = null;
-      setDragMode(null);
+      setActiveCorner(null);
     };
     window.addEventListener("pointermove", handlePointerMove);
     window.addEventListener("pointerup", handlePointerUp);
@@ -170,7 +181,7 @@ const ImageSplitterScene = () => {
       window.removeEventListener("pointermove", handlePointerMove);
       window.removeEventListener("pointerup", handlePointerUp);
     };
-  }, [dragMode, naturalSize]);
+  }, [activeCorner, aspectLocked, naturalSize]);
 
   const handleFileChange = (files: File[]) => {
     const nextFile = files[0];
@@ -189,6 +200,22 @@ const ImageSplitterScene = () => {
     }
     setCropRect({ x: 0, y: 0, ...naturalSize });
     setColumnImages(null);
+  };
+
+  const handleAspectLockedChange = (next: boolean) => {
+    setAspectLocked(next);
+    if (next && naturalSize) {
+      setCropRect(rect =>
+        rect
+          ? fitRectToAspect(
+              rect,
+              naturalSize.width / naturalSize.height,
+              naturalSize
+            )
+          : rect
+      );
+      setColumnImages(null);
+    }
   };
 
   const handleSplit = () => {
@@ -224,7 +251,7 @@ const ImageSplitterScene = () => {
     <Wrapper>
       <TitleLine>画像3分割ツール</TitleLine>
       <p>
-        画像を選んで切り抜き範囲をドラッグで調整し、「3分割する」を押すと縦に3等分した画像をそれぞれダウンロードできます。
+        画像を選んで四隅のハンドルをドラッグし、切り抜き範囲を調整してください。「3分割する」を押すと縦に3等分した画像をそれぞれダウンロードできます。
       </p>
       <div>
         <MockActionButton
@@ -292,11 +319,6 @@ const ImageSplitterScene = () => {
                         width: percent(width),
                         height: percent(height)
                       }}
-                      onPointerDown={e => {
-                        e.preventDefault();
-                        lastPointerRef.current = { x: e.clientX, y: e.clientY };
-                        setDragMode({ type: "move" });
-                      }}
                     >
                       {Array.from(
                         { length: SPLIT_COLUMNS - 1 },
@@ -317,7 +339,7 @@ const ImageSplitterScene = () => {
                             e.stopPropagation();
                             e.preventDefault();
                             lastPointerRef.current = { x: e.clientX, y: e.clientY };
-                            setDragMode({ type: "resize", corner });
+                            setActiveCorner(corner);
                           }}
                         />
                       ))}
@@ -327,6 +349,14 @@ const ImageSplitterScene = () => {
               })()
             : null}
         </Stage>
+      ) : null}
+      {imageUrl ? (
+        <MockCheckboxFormInput
+          value={aspectLocked}
+          onChange={handleAspectLockedChange}
+        >
+          元画像の縦横比を固定する
+        </MockCheckboxFormInput>
       ) : null}
       {imageUrl ? (
         <Toolbar>

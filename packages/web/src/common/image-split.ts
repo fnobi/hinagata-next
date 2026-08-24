@@ -15,13 +15,6 @@ export const clampRect = (rect: Rect, bounds: Size): Rect => {
   return { x, y, width, height };
 };
 
-export const moveRect = (
-  rect: Rect,
-  dx: number,
-  dy: number,
-  bounds: Size
-): Rect => clampRect({ ...rect, x: rect.x + dx, y: rect.y + dy }, bounds);
-
 // ドラッグ中のハンドルと対角のコーナーを固定点として、動かした側のコーナーを
 // bounds と最小サイズでクランプしてから矩形を再構築する
 export const resizeRectFromCorner = (
@@ -50,6 +43,62 @@ export const resizeRectFromCorner = (
     width: Math.abs(anchorX - nextDraggedX),
     height: Math.abs(anchorY - nextDraggedY)
   };
+};
+
+// 対角のコーナーを固定点として、指定した aspect（width / height）を保ったまま
+// ドラッグ量が大きい方の軸を基準にリサイズする
+export const resizeRectFromCornerLocked = (
+  rect: Rect,
+  corner: CropCorner,
+  dx: number,
+  dy: number,
+  bounds: Size,
+  aspect: number,
+  minSize: number = 20
+): Rect => {
+  const isNorth = corner[0] === "n";
+  const isWest = corner[1] === "w";
+  const anchorX = isWest ? rect.x + rect.width : rect.x;
+  const anchorY = isNorth ? rect.y + rect.height : rect.y;
+  const spaceX = isWest ? anchorX : bounds.width - anchorX;
+  const spaceY = isNorth ? anchorY : bounds.height - anchorY;
+  const maxWidth = Math.min(spaceX, spaceY * aspect);
+
+  const desiredWidth = isWest ? rect.width - dx : rect.width + dx;
+  const desiredHeight = isNorth ? rect.height - dy : rect.height + dy;
+  const driveByWidth =
+    Math.abs(desiredWidth / rect.width - 1) >=
+    Math.abs(desiredHeight / rect.height - 1);
+  const candidateWidth = driveByWidth ? desiredWidth : desiredHeight * aspect;
+
+  const width = clampNum(candidateWidth, Math.min(minSize, maxWidth), maxWidth);
+  const height = width / aspect;
+  return {
+    x: isWest ? anchorX - width : anchorX,
+    y: isNorth ? anchorY - height : anchorY,
+    width,
+    height
+  };
+};
+
+// 現在の矩形の中心を保ったまま、その内側に収まる最大の aspect 矩形を返す
+export const fitRectToAspect = (
+  rect: Rect,
+  aspect: number,
+  bounds: Size
+): Rect => {
+  const isWiderThanAspect = rect.width / rect.height > aspect;
+  const width = isWiderThanAspect ? rect.height * aspect : rect.width;
+  const height = isWiderThanAspect ? rect.height : rect.width / aspect;
+  return clampRect(
+    {
+      x: rect.x + (rect.width - width) / 2,
+      y: rect.y + (rect.height - height) / 2,
+      width,
+      height
+    },
+    bounds
+  );
 };
 
 export const splitRectIntoColumns = (rect: Rect, columns: number): Rect[] => {

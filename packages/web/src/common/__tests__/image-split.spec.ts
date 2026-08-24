@@ -1,7 +1,8 @@
 import {
   clampRect,
-  moveRect,
+  fitRectToAspect,
   resizeRectFromCorner,
+  resizeRectFromCornerLocked,
   splitRectIntoColumns
 } from "~/common/image-split";
 
@@ -21,22 +22,6 @@ describe("image-split", () => {
     expect(
       clampRect({ x: 0, y: 0, width: 1000, height: 1000 }, bounds)
     ).toEqual({ x: 0, y: 0, width: 100, height: 200 });
-  });
-
-  it("moveRect translates and clamps within bounds", () => {
-    const rect = { x: 10, y: 10, width: 20, height: 20 };
-    expect(moveRect(rect, 5, 5, bounds)).toEqual({
-      x: 15,
-      y: 15,
-      width: 20,
-      height: 20
-    });
-    expect(moveRect(rect, -50, -50, bounds)).toEqual({
-      x: 0,
-      y: 0,
-      width: 20,
-      height: 20
-    });
   });
 
   it("resizeRectFromCorner grows/shrinks from the dragged corner", () => {
@@ -60,6 +45,44 @@ describe("image-split", () => {
     const next = resizeRectFromCorner(rect, "se", -100, -100, bounds, 20);
     expect(next.width).toBe(20);
     expect(next.height).toBe(20);
+  });
+
+  it("resizeRectFromCornerLocked keeps the target aspect and follows the larger drag axis", () => {
+    const rect = { x: 20, y: 20, width: 30, height: 30 };
+    expect(resizeRectFromCornerLocked(rect, "se", 20, 5, bounds, 1)).toEqual({
+      x: 20,
+      y: 20,
+      width: 50,
+      height: 50
+    });
+  });
+
+  it("resizeRectFromCornerLocked clamps to bounds while keeping the aspect", () => {
+    const rect = { x: 20, y: 20, width: 30, height: 30 };
+    expect(
+      resizeRectFromCornerLocked(rect, "se", 90, 90, bounds, 1)
+    ).toEqual({ x: 20, y: 20, width: 80, height: 80 });
+
+    const narrowBounds = { width: 200, height: 100 };
+    const rect2 = { x: 0, y: 0, width: 50, height: 50 };
+    expect(
+      resizeRectFromCornerLocked(rect2, "se", 200, 10, narrowBounds, 1)
+    ).toEqual({ x: 0, y: 0, width: 100, height: 100 });
+  });
+
+  it("fitRectToAspect inscribes the target aspect centered in the current rect", () => {
+    expect(
+      fitRectToAspect({ x: 10, y: 10, width: 80, height: 40 }, 1, {
+        width: 200,
+        height: 200
+      })
+    ).toEqual({ x: 30, y: 10, width: 40, height: 40 });
+    expect(
+      fitRectToAspect({ x: 0, y: 0, width: 30, height: 80 }, 1, {
+        width: 200,
+        height: 200
+      })
+    ).toEqual({ x: 0, y: 25, width: 30, height: 30 });
   });
 
   it("splitRectIntoColumns divides width evenly and gives the remainder to the last column", () => {
