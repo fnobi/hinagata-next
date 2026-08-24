@@ -20,16 +20,27 @@ import MockActionButton from "~/component/MockActionButton";
 const SPLIT_COLUMNS = 3;
 const HANDLE_SIZE = 16;
 
+const pctNum = (value: number, total: number) => (value / total) * 100;
+
 type DragMode = { type: "move" } | { type: "resize"; corner: CropCorner };
 
+// left/top で寄せた辺は -50%、right/bottom で寄せた辺は +50% 側に
+// translate しないと、ハンドルの中心が角の点からずれてしまう
 const CORNER_STYLE: Record<
   CropCorner,
-  { top?: 0; bottom?: 0; left?: 0; right?: 0; cursor: string }
+  {
+    top?: 0;
+    bottom?: 0;
+    left?: 0;
+    right?: 0;
+    transform: string;
+    cursor: string;
+  }
 > = {
-  nw: { top: 0, left: 0, cursor: "nwse-resize" },
-  ne: { top: 0, right: 0, cursor: "nesw-resize" },
-  sw: { bottom: 0, left: 0, cursor: "nesw-resize" },
-  se: { bottom: 0, right: 0, cursor: "nwse-resize" }
+  nw: { top: 0, left: 0, transform: "translate(-50%, -50%)", cursor: "nwse-resize" },
+  ne: { top: 0, right: 0, transform: "translate(50%, -50%)", cursor: "nesw-resize" },
+  sw: { bottom: 0, left: 0, transform: "translate(-50%, 50%)", cursor: "nesw-resize" },
+  se: { bottom: 0, right: 0, transform: "translate(50%, 50%)", cursor: "nwse-resize" }
 };
 
 const Wrapper = styled.div({
@@ -53,11 +64,28 @@ const Stage = styled.div({
   touchAction: "none"
 });
 
-const CropOverlay = styled.div({
+const DimBand = styled.div({
+  position: "absolute",
+  background: alphaColor(PRIMITIVE_COLOR.BLACK, 0.5),
+  pointerEvents: "none"
+});
+
+const GuideLine = styled.div({
+  position: "absolute",
+  top: 0,
+  bottom: 0,
+  width: px(2),
+  transform: "translateX(-50%)",
+  background: alphaColor(PRIMITIVE_COLOR.WHITE, 0.8),
+  pointerEvents: "none"
+});
+
+// outline はボックスサイズに影響しないため、四隅のハンドルを
+// border の分だけずらさずに正確に角へ重ねられる
+const CropArea = styled.div({
   position: "absolute",
   boxSizing: "border-box",
-  border: `${px(2)} dashed ${PRIMITIVE_COLOR.WHITE}`,
-  boxShadow: `0 0 0 ${px(9999)} ${alphaColor(PRIMITIVE_COLOR.BLACK, 0.5)}`,
+  outline: `${px(2)} dashed ${PRIMITIVE_COLOR.WHITE}`,
   cursor: "move"
 });
 
@@ -67,10 +95,8 @@ const CropHandle = styled.div<{ corner: CropCorner }>(({ corner }) => ({
   width: px(HANDLE_SIZE),
   height: px(HANDLE_SIZE),
   boxSizing: "border-box",
-  transform: "translate(-50%, -50%)",
   background: PRIMITIVE_COLOR.WHITE,
-  border: `${px(1)} solid ${PRIMITIVE_COLOR.BLACK}`,
-  cursor: CORNER_STYLE[corner].cursor
+  border: `${px(1)} solid ${PRIMITIVE_COLOR.BLACK}`
 }));
 
 const Toolbar = styled.div({
@@ -222,34 +248,84 @@ const ImageSplitterScene = () => {
               setColumnImages(null);
             }}
           />
-          {cropRect && naturalSize ? (
-            <CropOverlay
-              style={{
-                left: percent((cropRect.x / naturalSize.width) * 100),
-                top: percent((cropRect.y / naturalSize.height) * 100),
-                width: percent((cropRect.width / naturalSize.width) * 100),
-                height: percent((cropRect.height / naturalSize.height) * 100)
-              }}
-              onPointerDown={e => {
-                e.preventDefault();
-                lastPointerRef.current = { x: e.clientX, y: e.clientY };
-                setDragMode({ type: "move" });
-              }}
-            >
-              {(["nw", "ne", "sw", "se"] as const).map(corner => (
-                <CropHandle
-                  key={corner}
-                  corner={corner}
-                  onPointerDown={e => {
-                    e.stopPropagation();
-                    e.preventDefault();
-                    lastPointerRef.current = { x: e.clientX, y: e.clientY };
-                    setDragMode({ type: "resize", corner });
-                  }}
-                />
-              ))}
-            </CropOverlay>
-          ) : null}
+          {cropRect && naturalSize
+            ? (() => {
+                const left = pctNum(cropRect.x, naturalSize.width);
+                const top = pctNum(cropRect.y, naturalSize.height);
+                const width = pctNum(cropRect.width, naturalSize.width);
+                const height = pctNum(cropRect.height, naturalSize.height);
+                const right = left + width;
+                const bottom = top + height;
+                return (
+                  <>
+                    <DimBand
+                      style={{ left: 0, top: 0, width: percent(100), height: percent(top) }}
+                    />
+                    <DimBand
+                      style={{
+                        left: 0,
+                        top: percent(bottom),
+                        width: percent(100),
+                        height: percent(100 - bottom)
+                      }}
+                    />
+                    <DimBand
+                      style={{
+                        left: 0,
+                        top: percent(top),
+                        width: percent(left),
+                        height: percent(height)
+                      }}
+                    />
+                    <DimBand
+                      style={{
+                        left: percent(right),
+                        top: percent(top),
+                        width: percent(100 - right),
+                        height: percent(height)
+                      }}
+                    />
+                    <CropArea
+                      style={{
+                        left: percent(left),
+                        top: percent(top),
+                        width: percent(width),
+                        height: percent(height)
+                      }}
+                      onPointerDown={e => {
+                        e.preventDefault();
+                        lastPointerRef.current = { x: e.clientX, y: e.clientY };
+                        setDragMode({ type: "move" });
+                      }}
+                    >
+                      {Array.from(
+                        { length: SPLIT_COLUMNS - 1 },
+                        (_, i) => (
+                          <GuideLine
+                            key={i}
+                            style={{
+                              left: percent(((i + 1) / SPLIT_COLUMNS) * 100)
+                            }}
+                          />
+                        )
+                      )}
+                      {(["nw", "ne", "sw", "se"] as const).map(corner => (
+                        <CropHandle
+                          key={corner}
+                          corner={corner}
+                          onPointerDown={e => {
+                            e.stopPropagation();
+                            e.preventDefault();
+                            lastPointerRef.current = { x: e.clientX, y: e.clientY };
+                            setDragMode({ type: "resize", corner });
+                          }}
+                        />
+                      ))}
+                    </CropArea>
+                  </>
+                );
+              })()
+            : null}
         </Stage>
       ) : null}
       {imageUrl ? (
