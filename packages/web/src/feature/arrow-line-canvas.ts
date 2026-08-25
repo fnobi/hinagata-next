@@ -1,7 +1,8 @@
 export type Point = { x: number; y: number };
 
 export type ArrowLineOptions = {
-  tileLength: number;
+  arrowWidth: number;
+  arrowStep: number;
   tileThickness: number;
   pointRadius: number;
   pointColor: string;
@@ -12,7 +13,7 @@ const drawArrowSegment = (
   image: HTMLImageElement,
   from: Point,
   to: Point,
-  { tileLength, tileThickness }: ArrowLineOptions
+  { arrowWidth, arrowStep, tileThickness }: ArrowLineOptions
 ) => {
   const dx = to.x - from.x;
   const dy = to.y - from.y;
@@ -21,7 +22,7 @@ const drawArrowSegment = (
     return;
   }
   const angle = Math.atan2(dy, dx);
-  const tileCount = Math.ceil(length / tileLength);
+  const tileCount = Math.ceil(length / arrowStep);
 
   ctx.save();
   ctx.translate(from.x, from.y);
@@ -32,9 +33,9 @@ const drawArrowSegment = (
   for (let i = 0; i < tileCount; i += 1) {
     ctx.drawImage(
       image,
-      i * tileLength,
+      i * arrowStep,
       -tileThickness / 2,
-      tileLength,
+      arrowWidth,
       tileThickness
     );
   }

@@ -1,17 +1,19 @@
 import styled from "@emotion/styled";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { percent, px } from "~/common/css-util";
 import { type Point, drawArrowLine } from "~/feature/arrow-line-canvas";
 import MockActionButton from "~/component/MockActionButton";
+import { MockRangeFormRow } from "~/component/mock-form-ui";
 
 const CANVAS_WIDTH = 960;
 const CANVAS_HEIGHT = 540;
-const DRAW_OPTIONS = {
-  tileLength: 112,
-  tileThickness: 28,
-  pointRadius: 4,
-  pointColor: "#333333"
-};
+const ARROW_WIDTH = 56;
+const ARROW_THICKNESS = 28;
+const SPACING_MIN = 1;
+const SPACING_MAX = 5;
+const SPACING_DEFAULT = 2;
+const POINT_RADIUS = 4;
+const POINT_COLOR = "#333333";
 
 const Wrapper = styled.div({
   display: "flex",
@@ -49,6 +51,7 @@ const ArrowLineCanvas = ({ arrowImageSrc }: { arrowImageSrc: string }) => {
   const imageRef = useRef<HTMLImageElement | null>(null);
   const [points, setPoints] = useState<Point[]>([]);
   const [isImageLoaded, setIsImageLoaded] = useState(false);
+  const [spacingLevel, setSpacingLevel] = useState(SPACING_DEFAULT);
 
   useEffect(() => {
     const image = new Image();
@@ -58,6 +61,17 @@ const ArrowLineCanvas = ({ arrowImageSrc }: { arrowImageSrc: string }) => {
     return () => setIsImageLoaded(false);
   }, [arrowImageSrc]);
 
+  const drawOptions = useMemo(
+    () => ({
+      arrowWidth: ARROW_WIDTH,
+      arrowStep: ARROW_WIDTH * spacingLevel,
+      tileThickness: ARROW_THICKNESS,
+      pointRadius: POINT_RADIUS,
+      pointColor: POINT_COLOR
+    }),
+    [spacingLevel]
+  );
+
   const redraw = useCallback(() => {
     const canvas = canvasRef.current;
     const image = imageRef.current;
@@ -65,8 +79,8 @@ const ArrowLineCanvas = ({ arrowImageSrc }: { arrowImageSrc: string }) => {
     if (!canvas || !image || !ctx || !isImageLoaded) {
       return;
     }
-    drawArrowLine(ctx, image, points, DRAW_OPTIONS);
-  }, [points, isImageLoaded]);
+    drawArrowLine(ctx, image, points, drawOptions);
+  }, [points, isImageLoaded, drawOptions]);
 
   useEffect(() => {
     redraw();
@@ -100,6 +114,15 @@ const ArrowLineCanvas = ({ arrowImageSrc }: { arrowImageSrc: string }) => {
           クリア
         </MockActionButton>
       </Toolbar>
+      <MockRangeFormRow
+        label="矢印の間隔"
+        value={spacingLevel}
+        onChange={setSpacingLevel}
+        min={SPACING_MIN}
+        max={SPACING_MAX}
+        step={1}
+        error={null}
+      />
       <StyledCanvas
         ref={canvasRef}
         width={CANVAS_WIDTH}
