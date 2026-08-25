@@ -9,12 +9,36 @@ export type ArrowLineOptions = {
   pointColor: string;
 };
 
+const drawBaseLine = (
+  ctx: CanvasRenderingContext2D,
+  points: Point[],
+  { tileThickness, baseFillColor }: ArrowLineOptions
+) => {
+  if (points.length < 2) {
+    return;
+  }
+  ctx.save();
+  ctx.beginPath();
+  points.forEach((point, i) => {
+    if (i === 0) {
+      ctx.moveTo(point.x, point.y);
+    } else {
+      ctx.lineTo(point.x, point.y);
+    }
+  });
+  ctx.lineWidth = tileThickness;
+  ctx.lineJoin = "round";
+  ctx.strokeStyle = baseFillColor;
+  ctx.stroke();
+  ctx.restore();
+};
+
 const drawArrowSegment = (
   ctx: CanvasRenderingContext2D,
   image: HTMLImageElement,
   from: Point,
   to: Point,
-  { arrowWidth, arrowStep, tileThickness, baseFillColor }: ArrowLineOptions
+  { arrowWidth, arrowStep, tileThickness }: ArrowLineOptions
 ) => {
   const dx = to.x - from.x;
   const dy = to.y - from.y;
@@ -31,8 +55,6 @@ const drawArrowSegment = (
   ctx.beginPath();
   ctx.rect(0, -tileThickness / 2, length, tileThickness);
   ctx.clip();
-  ctx.fillStyle = baseFillColor;
-  ctx.fillRect(0, -tileThickness / 2, length, tileThickness);
   for (let i = 0; i < tileCount; i += 1) {
     ctx.drawImage(
       image,
@@ -63,6 +85,7 @@ export const drawArrowLine = (
   options: ArrowLineOptions
 ) => {
   ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+  drawBaseLine(ctx, points, options);
   points.slice(1).forEach((to, i) => {
     drawArrowSegment(ctx, image, points[i], to, options);
   });
