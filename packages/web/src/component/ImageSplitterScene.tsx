@@ -25,6 +25,16 @@ const HANDLE_SIZE = 16;
 
 const pctNum = (value: number, total: number) => (value / total) * 100;
 
+// toDataURL は PNG バイト列を base64 文字列化して React state / DOM に
+// そのまま保持することになり、写真サイズだと数MB〜のメモリを圧迫する。
+// toBlob + object URL ならバイナリのまま保持でき、参照する URL 文字列も短い
+const canvasToObjectUrl = (canvas: HTMLCanvasElement): Promise<string> =>
+  new Promise(resolve => {
+    canvas.toBlob(blob => {
+      resolve(blob ? URL.createObjectURL(blob) : "");
+    }, "image/png");
+  });
+
 // left/top で寄せた辺は -50%、right/bottom で寄せた辺は +50% 側に
 // translate しないと、ハンドルの中心が角の点からずれてしまう
 const CORNER_STYLE: Record<
@@ -124,6 +134,7 @@ const ImageSplitterScene = () => {
   const [columnImages, setColumnImages] = useState<string[] | null>(null);
   const [activeCorner, setActiveCorner] = useState<CropCorner | null>(null);
   const [aspectLocked, setAspectLocked] = useState(false);
+  const [isSplitting, setIsSplitting] = useState(false);
 
   const imgRef = useRef<HTMLImageElement>(null);
   const lastPointerRef = useRef<{ x: number; y: number } | null>(null);
@@ -135,6 +146,17 @@ const ImageSplitterScene = () => {
       }
     },
     [imageUrl]
+  );
+
+  useEffect(
+    () => () => {
+      columnImages?.forEach(url => {
+        if (url) {
+          URL.revokeObjectURL(url);
+        }
+      });
+    },
+    [columnImages]
   );
 
   useEffect(() => {
@@ -214,33 +236,40 @@ const ImageSplitterScene = () => {
     }
   };
 
-  const handleSplit = () => {
+  const handleSplit = async () => {
     const img = imgRef.current;
-    if (!img || !cropRect) {
+    if (!img || !cropRect || isSplitting) {
       return;
     }
-    const urls = splitRectIntoColumns(cropRect, SPLIT_COLUMNS).map(col => {
-      const canvas = document.createElement("canvas");
-      canvas.width = col.width;
-      canvas.height = col.height;
-      const ctx = canvas.getContext("2d");
-      if (!ctx) {
-        return "";
-      }
-      ctx.drawImage(
-        img,
-        col.x,
-        col.y,
-        col.width,
-        col.height,
-        0,
-        0,
-        col.width,
-        col.height
+    setIsSplitting(true);
+    try {
+      const urls = await Promise.all(
+        splitRectIntoColumns(cropRect, SPLIT_COLUMNS).map(col => {
+          const canvas = document.createElement("canvas");
+          canvas.width = col.width;
+          canvas.height = col.height;
+          const ctx = canvas.getContext("2d");
+          if (!ctx) {
+            return "";
+          }
+          ctx.drawImage(
+            img,
+            col.x,
+            col.y,
+            col.width,
+            col.height,
+            0,
+            0,
+            col.width,
+            col.height
+          );
+          return canvasToObjectUrl(canvas);
+        })
       );
-      return canvas.toDataURL("image/png");
-    });
-    setColumnImages(urls);
+      setColumnImages(urls);
+    } finally {
+      setIsSplitting(false);
+    }
   };
 
   return (
@@ -369,9 +398,13 @@ const ImageSplitterScene = () => {
             切り抜きをリセット
           </MockActionButton>
           <MockActionButton
-            action={cropRect ? { type: "button", onClick: handleSplit } : null}
+            action={
+              cropRect && !isSplitting
+                ? { type: "button", onClick: handleSplit }
+                : null
+            }
           >
-            3分割する
+            {isSplitting ? "分割中…" : "3分割する"}
           </MockActionButton>
         </Toolbar>
       ) : null}
