@@ -13,6 +13,7 @@ const ARROW_COLOR = "#d1373b";
 const BASE_FILL_COLOR = alphaColor(ARROW_COLOR, 0.5);
 const SPACING_MIN = 1;
 const SPACING_MAX = 5;
+const SPACING_STEP = 0.1;
 const SPACING_DEFAULT = 2;
 const POINT_RADIUS = 4;
 const POINT_COLOR = "#333333";
@@ -123,7 +124,7 @@ const ArrowLineCanvas = ({ arrowImageSrc }: { arrowImageSrc: string }) => {
         onChange={setSpacingLevel}
         min={SPACING_MIN}
         max={SPACING_MAX}
-        step={1}
+        step={SPACING_STEP}
         error={null}
       />
       <StyledCanvas
