@@ -1,5 +1,10 @@
 import styled from "@emotion/styled";
-import { useEffect, useRef, useState } from "react";
+import {
+  type PointerEvent as ReactPointerEvent,
+  useEffect,
+  useRef,
+  useState
+} from "react";
 import {
   type CropCorner,
   type Rect,
@@ -10,20 +15,11 @@ import {
   resizeRectFromCornerLocked,
   splitRectIntoColumns
 } from "~/common/image-split";
-import {
-  alphaColor,
-  em,
-  percent,
-  PRIMITIVE_COLOR,
-  px
-} from "~/common/css-util";
-import MockActionButton from "~/component/MockActionButton";
-import { MockCheckboxFormInput } from "~/component/mock-form-ui";
+import { em, px } from "~/common/css-util";
+import ImageSplitResultScene from "~/component/ImageSplitResultScene";
+import ImageTrimScene from "~/component/ImageTrimScene";
 
 const SPLIT_COLUMNS = 3;
-const HANDLE_SIZE = 16;
-
-const pctNum = (value: number, total: number) => (value / total) * 100;
 
 // toDataURL は PNG バイト列を base64 文字列化して React state / DOM に
 // そのまま保持することになり、写真サイズだと数MB〜のメモリを圧迫する。
@@ -34,18 +30,6 @@ const canvasToObjectUrl = (canvas: HTMLCanvasElement): Promise<string> =>
       resolve(blob ? URL.createObjectURL(blob) : "");
     }, "image/png");
   });
-
-// left/top で寄せた辺は -50%、right/bottom で寄せた辺は +50% 側に
-// translate しないと、ハンドルの中心が角の点からずれてしまう
-const CORNER_STYLE: Record<
-  CropCorner,
-  { top?: 0; bottom?: 0; left?: 0; right?: 0; transform: string }
-> = {
-  nw: { top: 0, left: 0, transform: "translate(-50%, -50%)" },
-  ne: { top: 0, right: 0, transform: "translate(50%, -50%)" },
-  sw: { bottom: 0, left: 0, transform: "translate(-50%, 50%)" },
-  se: { bottom: 0, right: 0, transform: "translate(50%, 50%)" }
-};
 
 const Wrapper = styled.div({
   margin: "auto",
@@ -59,72 +43,6 @@ const Wrapper = styled.div({
 const TitleLine = styled.div({
   fontWeight: "bold",
   fontSize: em(1.2)
-});
-
-const Stage = styled.div({
-  position: "relative",
-  lineHeight: 0,
-  userSelect: "none",
-  touchAction: "none",
-  cursor: "crosshair"
-});
-
-const DimBand = styled.div({
-  position: "absolute",
-  background: alphaColor(PRIMITIVE_COLOR.BLACK, 0.5),
-  pointerEvents: "none"
-});
-
-const GuideLine = styled.div({
-  position: "absolute",
-  top: 0,
-  bottom: 0,
-  width: px(2),
-  transform: "translateX(-50%)",
-  background: alphaColor(PRIMITIVE_COLOR.WHITE, 0.8),
-  pointerEvents: "none"
-});
-
-// outline はボックスサイズに影響しないため、四隅のハンドルを
-// border の分だけずらさずに正確に角へ重ねられる。
-// ドラッグ操作は Stage 側でまとめて処理するため pointer-events は無効にする
-const CropArea = styled.div({
-  position: "absolute",
-  boxSizing: "border-box",
-  outline: `${px(2)} dashed ${PRIMITIVE_COLOR.WHITE}`,
-  pointerEvents: "none"
-});
-
-// 見た目のサイズはこのまま小さく保ち、代わりに Stage 側で
-// タップ位置から一番近い角を割り出して操作対象にする（当たり判定は
-// 見た目に縛られない）ため、ハンドル自体は装飾のみで pointer-events を持たない
-const CropHandle = styled.div<{ corner: CropCorner }>(({ corner }) => ({
-  position: "absolute",
-  ...CORNER_STYLE[corner],
-  width: px(HANDLE_SIZE),
-  height: px(HANDLE_SIZE),
-  boxSizing: "border-box",
-  background: PRIMITIVE_COLOR.WHITE,
-  border: `${px(1)} solid ${PRIMITIVE_COLOR.BLACK}`
-}));
-
-const Toolbar = styled.div({
-  display: "flex",
-  gap: em(1)
-});
-
-const ResultGrid = styled.div({
-  display: "flex",
-  gap: px(4)
-});
-
-const ResultCell = styled.div({
-  flex: "1 1 0",
-  minWidth: 0,
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "center",
-  gap: em(0.5)
 });
 
 const ImageSplitterScene = () => {
@@ -212,6 +130,28 @@ const ImageSplitterScene = () => {
     setImageUrl(URL.createObjectURL(nextFile));
   };
 
+  const handleImageLoad = (size: Size) => {
+    setNaturalSize(size);
+    setCropRect({ x: 0, y: 0, ...size });
+    setColumnImages(null);
+  };
+
+  const handleStagePointerDown = (e: ReactPointerEvent<HTMLDivElement>) => {
+    const img = imgRef.current;
+    if (!img || !cropRect || !naturalSize) {
+      return;
+    }
+    const imgRect = img.getBoundingClientRect();
+    const scale = naturalSize.width / imgRect.width;
+    const point = {
+      x: (e.clientX - imgRect.left) * scale,
+      y: (e.clientY - imgRect.top) * scale
+    };
+    e.preventDefault();
+    lastPointerRef.current = { x: e.clientX, y: e.clientY };
+    setActiveCorner(nearestCorner(cropRect, point));
+  };
+
   const handleResetCrop = () => {
     if (!naturalSize) {
       return;
@@ -272,164 +212,31 @@ const ImageSplitterScene = () => {
     }
   };
 
+  const handleBack = () => {
+    setColumnImages(null);
+  };
+
   return (
     <Wrapper>
       <TitleLine>画像3分割ツール</TitleLine>
-      <p>
-        画像を選んで四隅付近をドラッグすると、一番近い角から切り抜き範囲を調整できます。「3分割する」を押すと縦に3等分した画像をそれぞれダウンロードできます。
-      </p>
-      <div>
-        <MockActionButton
-          action={{ type: "input-file", onChange: handleFileChange }}
-        >
-          画像を選択
-        </MockActionButton>
-      </div>
-      {imageUrl ? (
-        <Stage
-          onPointerDown={e => {
-            const img = imgRef.current;
-            if (!img || !cropRect || !naturalSize) {
-              return;
-            }
-            const imgRect = img.getBoundingClientRect();
-            const scale = naturalSize.width / imgRect.width;
-            const point = {
-              x: (e.clientX - imgRect.left) * scale,
-              y: (e.clientY - imgRect.top) * scale
-            };
-            e.preventDefault();
-            lastPointerRef.current = { x: e.clientX, y: e.clientY };
-            setActiveCorner(nearestCorner(cropRect, point));
-          }}
-        >
-          <img
-            ref={imgRef}
-            src={imageUrl}
-            alt="編集対象の画像"
-            style={{ display: "block", width: percent(100), height: "auto" }}
-            onLoad={e => {
-              const { naturalWidth, naturalHeight } = e.currentTarget;
-              const size = { width: naturalWidth, height: naturalHeight };
-              setNaturalSize(size);
-              setCropRect({ x: 0, y: 0, ...size });
-              setColumnImages(null);
-            }}
-          />
-          {cropRect && naturalSize
-            ? (() => {
-                const left = pctNum(cropRect.x, naturalSize.width);
-                const top = pctNum(cropRect.y, naturalSize.height);
-                const width = pctNum(cropRect.width, naturalSize.width);
-                const height = pctNum(cropRect.height, naturalSize.height);
-                const right = left + width;
-                const bottom = top + height;
-                return (
-                  <>
-                    <DimBand
-                      style={{ left: 0, top: 0, width: percent(100), height: percent(top) }}
-                    />
-                    <DimBand
-                      style={{
-                        left: 0,
-                        top: percent(bottom),
-                        width: percent(100),
-                        height: percent(100 - bottom)
-                      }}
-                    />
-                    <DimBand
-                      style={{
-                        left: 0,
-                        top: percent(top),
-                        width: percent(left),
-                        height: percent(height)
-                      }}
-                    />
-                    <DimBand
-                      style={{
-                        left: percent(right),
-                        top: percent(top),
-                        width: percent(100 - right),
-                        height: percent(height)
-                      }}
-                    />
-                    <CropArea
-                      style={{
-                        left: percent(left),
-                        top: percent(top),
-                        width: percent(width),
-                        height: percent(height)
-                      }}
-                    >
-                      {Array.from(
-                        { length: SPLIT_COLUMNS - 1 },
-                        (_, i) => (
-                          <GuideLine
-                            key={i}
-                            style={{
-                              left: percent(((i + 1) / SPLIT_COLUMNS) * 100)
-                            }}
-                          />
-                        )
-                      )}
-                      {(["nw", "ne", "sw", "se"] as const).map(corner => (
-                        <CropHandle key={corner} corner={corner} />
-                      ))}
-                    </CropArea>
-                  </>
-                );
-              })()
-            : null}
-        </Stage>
-      ) : null}
-      {imageUrl ? (
-        <MockCheckboxFormInput
-          value={aspectLocked}
-          onChange={handleAspectLockedChange}
-        >
-          元画像の縦横比を固定する
-        </MockCheckboxFormInput>
-      ) : null}
-      {imageUrl ? (
-        <Toolbar>
-          <MockActionButton
-            action={naturalSize ? { type: "button", onClick: handleResetCrop } : null}
-          >
-            切り抜きをリセット
-          </MockActionButton>
-          <MockActionButton
-            action={
-              cropRect && !isSplitting
-                ? { type: "button", onClick: handleSplit }
-                : null
-            }
-          >
-            {isSplitting ? "分割中…" : "3分割する"}
-          </MockActionButton>
-        </Toolbar>
-      ) : null}
       {columnImages ? (
-        <ResultGrid>
-          {columnImages.map((url, i) => (
-            <ResultCell key={i}>
-              <img
-                src={url}
-                alt={`分割画像 ${i + 1}`}
-                style={{ display: "block", width: percent(100) }}
-              />
-              <MockActionButton
-                action={{
-                  type: "download",
-                  href: url,
-                  download: `split-${i + 1}.png`
-                }}
-              >
-                画像{i + 1}を保存
-              </MockActionButton>
-            </ResultCell>
-          ))}
-        </ResultGrid>
-      ) : null}
+        <ImageSplitResultScene columnImages={columnImages} onBack={handleBack} />
+      ) : (
+        <ImageTrimScene
+          imageUrl={imageUrl}
+          naturalSize={naturalSize}
+          cropRect={cropRect}
+          aspectLocked={aspectLocked}
+          isSplitting={isSplitting}
+          imageRef={imgRef}
+          onFileChange={handleFileChange}
+          onStagePointerDown={handleStagePointerDown}
+          onImageLoad={handleImageLoad}
+          onResetCrop={handleResetCrop}
+          onAspectLockedChange={handleAspectLockedChange}
+          onSplit={handleSplit}
+        />
+      )}
     </Wrapper>
   );
 };
