@@ -7,7 +7,7 @@ import MockActionButton from "~/component/MockActionButton";
 const CANVAS_WIDTH = 960;
 const CANVAS_HEIGHT = 540;
 const DRAW_OPTIONS = {
-  tileLength: 56,
+  tileLength: 112,
   tileThickness: 28,
   pointRadius: 4,
   pointColor: "#333333"
