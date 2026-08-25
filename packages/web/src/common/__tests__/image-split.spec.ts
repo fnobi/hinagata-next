@@ -1,5 +1,6 @@
 import {
   clampRect,
+  clampSplitCount,
   fitRectToAspect,
   nearestCorner,
   resizeRectFromCorner,
@@ -96,6 +97,16 @@ describe("image-split", () => {
     expect(nearestCorner(rect, { x: 35, y: 25 })).toBe("se");
   });
 
+  it("clampSplitCount keeps the value within [2, 6] and rounds to an integer", () => {
+    expect(clampSplitCount(3)).toBe(3);
+    expect(clampSplitCount(1)).toBe(2);
+    expect(clampSplitCount(0)).toBe(2);
+    expect(clampSplitCount(-5)).toBe(2);
+    expect(clampSplitCount(7)).toBe(6);
+    expect(clampSplitCount(100)).toBe(6);
+    expect(clampSplitCount(3.6)).toBe(4);
+  });
+
   it("splitRectIntoColumns divides width evenly and gives the remainder to the last column", () => {
     expect(
       splitRectIntoColumns({ x: 0, y: 0, width: 90, height: 60 }, 3)
@@ -110,6 +121,25 @@ describe("image-split", () => {
       { x: 5, y: 0, width: 33, height: 60 },
       { x: 38, y: 0, width: 33, height: 60 },
       { x: 71, y: 0, width: 34, height: 60 }
+    ]);
+  });
+
+  it("splitRectIntoColumns works for any column count in the supported 2-6 range", () => {
+    expect(
+      splitRectIntoColumns({ x: 0, y: 0, width: 100, height: 60 }, 2)
+    ).toEqual([
+      { x: 0, y: 0, width: 50, height: 60 },
+      { x: 50, y: 0, width: 50, height: 60 }
+    ]);
+    expect(
+      splitRectIntoColumns({ x: 0, y: 0, width: 100, height: 60 }, 6)
+    ).toEqual([
+      { x: 0, y: 0, width: 16, height: 60 },
+      { x: 16, y: 0, width: 16, height: 60 },
+      { x: 32, y: 0, width: 16, height: 60 },
+      { x: 48, y: 0, width: 16, height: 60 },
+      { x: 64, y: 0, width: 16, height: 60 },
+      { x: 80, y: 0, width: 20, height: 60 }
     ]);
   });
 });

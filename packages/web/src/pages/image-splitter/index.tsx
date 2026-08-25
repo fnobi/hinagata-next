@@ -5,7 +5,7 @@ import PageMeta from "~/component/PageMeta";
 
 const metadata = makeSubPageMetadata({
   page: PAGE_IMAGE_SPLITTER,
-  subPageTitle: "画像3分割ツール"
+  subPageTitle: "画像分割ツール"
 });
 
 const PageImageSplitter = () => (

@@ -1,6 +1,12 @@
 import styled from "@emotion/styled";
 import { type PointerEvent as ReactPointerEvent, type RefObject } from "react";
-import { type CropCorner, type Rect, type Size } from "~/common/image-split";
+import {
+  type CropCorner,
+  type Rect,
+  type Size,
+  MAX_SPLIT_COUNT,
+  MIN_SPLIT_COUNT
+} from "~/common/image-split";
 import {
   alphaColor,
   em,
@@ -9,9 +15,11 @@ import {
   px
 } from "~/common/css-util";
 import MockActionButton from "~/component/MockActionButton";
-import { MockCheckboxFormInput } from "~/component/mock-form-ui";
+import {
+  MockCheckboxFormInput,
+  MockNumberFormRow
+} from "~/component/mock-form-ui";
 
-const SPLIT_COLUMNS = 3;
 const HANDLE_SIZE = 16;
 
 const pctNum = (value: number, total: number) => (value / total) * 100;
@@ -86,12 +94,14 @@ const ImageTrimScene = ({
   cropRect,
   aspectLocked,
   isSplitting,
+  splitCount,
   imageRef,
   onFileChange,
   onStagePointerDown,
   onImageLoad,
   onResetCrop,
   onAspectLockedChange,
+  onSplitCountChange,
   onSplit
 }: {
   imageUrl: string;
@@ -99,17 +109,19 @@ const ImageTrimScene = ({
   cropRect: Rect | null;
   aspectLocked: boolean;
   isSplitting: boolean;
+  splitCount: number;
   imageRef: RefObject<HTMLImageElement | null>;
   onFileChange: (files: File[]) => void;
   onStagePointerDown: (e: ReactPointerEvent<HTMLDivElement>) => void;
   onImageLoad: (size: Size) => void;
   onResetCrop: () => void;
   onAspectLockedChange: (next: boolean) => void;
+  onSplitCountChange: (next: number) => void;
   onSplit: () => void;
 }) => (
   <>
     <p>
-      画像を選んで四隅付近をドラッグすると、一番近い角から切り抜き範囲を調整できます。「3分割する」を押すと縦に3等分した画像をそれぞれダウンロードできます。
+      画像を選んで四隅付近をドラッグすると、一番近い角から切り抜き範囲を調整できます。「分割する」を押すと指定した数に均等分割した画像をそれぞれダウンロードできます。
     </p>
     <div>
       <MockActionButton action={{ type: "input-file", onChange: onFileChange }}>
@@ -173,10 +185,10 @@ const ImageTrimScene = ({
                       height: percent(height)
                     }}
                   >
-                    {Array.from({ length: SPLIT_COLUMNS - 1 }, (_, i) => (
+                    {Array.from({ length: splitCount - 1 }, (_, i) => (
                       <GuideLine
                         key={i}
-                        style={{ left: percent(((i + 1) / SPLIT_COLUMNS) * 100) }}
+                        style={{ left: percent(((i + 1) / splitCount) * 100) }}
                       />
                     ))}
                     {(["nw", "ne", "sw", "se"] as const).map(corner => (
@@ -195,6 +207,18 @@ const ImageTrimScene = ({
       </MockCheckboxFormInput>
     ) : null}
     {imageUrl ? (
+      <MockNumberFormRow
+        label="分割数"
+        error={null}
+        value={splitCount}
+        onChange={onSplitCountChange}
+        min={MIN_SPLIT_COUNT}
+        max={MAX_SPLIT_COUNT}
+        step={1}
+        unit="分割"
+      />
+    ) : null}
+    {imageUrl ? (
       <Toolbar>
         <MockActionButton
           action={naturalSize ? { type: "button", onClick: onResetCrop } : null}
@@ -206,7 +230,7 @@ const ImageTrimScene = ({
             cropRect && !isSplitting ? { type: "button", onClick: onSplit } : null
           }
         >
-          {isSplitting ? "分割中…" : "3分割する"}
+          {isSplitting ? "分割中…" : "分割する"}
         </MockActionButton>
       </Toolbar>
     ) : null}

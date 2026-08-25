@@ -9,6 +9,7 @@ import {
   type CropCorner,
   type Rect,
   type Size,
+  clampSplitCount,
   fitRectToAspect,
   nearestCorner,
   resizeRectFromCorner,
@@ -19,7 +20,7 @@ import { em, px } from "~/common/css-util";
 import ImageSplitResultScene from "~/component/ImageSplitResultScene";
 import ImageTrimScene from "~/component/ImageTrimScene";
 
-const SPLIT_COLUMNS = 3;
+const DEFAULT_SPLIT_COUNT = 3;
 
 // toDataURL は PNG バイト列を base64 文字列化して React state / DOM に
 // そのまま保持することになり、写真サイズだと数MB〜のメモリを圧迫する。
@@ -53,6 +54,7 @@ const ImageSplitterScene = () => {
   const [activeCorner, setActiveCorner] = useState<CropCorner | null>(null);
   const [aspectLocked, setAspectLocked] = useState(false);
   const [isSplitting, setIsSplitting] = useState(false);
+  const [splitCount, setSplitCount] = useState(DEFAULT_SPLIT_COUNT);
 
   const imgRef = useRef<HTMLImageElement>(null);
   const lastPointerRef = useRef<{ x: number; y: number } | null>(null);
@@ -176,6 +178,10 @@ const ImageSplitterScene = () => {
     }
   };
 
+  const handleSplitCountChange = (next: number) => {
+    setSplitCount(clampSplitCount(next));
+  };
+
   const handleSplit = async () => {
     const img = imgRef.current;
     if (!img || !cropRect || isSplitting) {
@@ -184,7 +190,7 @@ const ImageSplitterScene = () => {
     setIsSplitting(true);
     try {
       const urls = await Promise.all(
-        splitRectIntoColumns(cropRect, SPLIT_COLUMNS).map(col => {
+        splitRectIntoColumns(cropRect, splitCount).map(col => {
           const canvas = document.createElement("canvas");
           canvas.width = col.width;
           canvas.height = col.height;
@@ -218,7 +224,7 @@ const ImageSplitterScene = () => {
 
   return (
     <Wrapper>
-      <TitleLine>画像3分割ツール</TitleLine>
+      <TitleLine>画像分割ツール</TitleLine>
       {columnImages ? (
         <ImageSplitResultScene columnImages={columnImages} onBack={handleBack} />
       ) : (
@@ -228,12 +234,14 @@ const ImageSplitterScene = () => {
           cropRect={cropRect}
           aspectLocked={aspectLocked}
           isSplitting={isSplitting}
+          splitCount={splitCount}
           imageRef={imgRef}
           onFileChange={handleFileChange}
           onStagePointerDown={handleStagePointerDown}
           onImageLoad={handleImageLoad}
           onResetCrop={handleResetCrop}
           onAspectLockedChange={handleAspectLockedChange}
+          onSplitCountChange={handleSplitCountChange}
           onSplit={handleSplit}
         />
       )}

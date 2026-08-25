@@ -7,6 +7,12 @@ export type CropCorner = "nw" | "ne" | "sw" | "se";
 const clampNum = (n: number, min: number, max: number) =>
   Math.min(Math.max(n, min), max);
 
+export const MIN_SPLIT_COUNT = 2;
+export const MAX_SPLIT_COUNT = 6;
+
+export const clampSplitCount = (value: number): number =>
+  clampNum(Math.round(value), MIN_SPLIT_COUNT, MAX_SPLIT_COUNT);
+
 export const clampRect = (rect: Rect, bounds: Size): Rect => {
   const width = clampNum(rect.width, 1, bounds.width);
   const height = clampNum(rect.height, 1, bounds.height);
