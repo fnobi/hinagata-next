@@ -1,6 +1,7 @@
 import {
   clampRect,
   fitRectToAspect,
+  nearestCorner,
   resizeRectFromCorner,
   resizeRectFromCornerLocked,
   splitRectIntoColumns
@@ -83,6 +84,16 @@ describe("image-split", () => {
         height: 200
       })
     ).toEqual({ x: 0, y: 25, width: 30, height: 30 });
+  });
+
+  it("nearestCorner returns whichever corner is closest to the point, regardless of handle size", () => {
+    const rect = { x: 10, y: 10, width: 40, height: 20 };
+    expect(nearestCorner(rect, { x: 0, y: 0 })).toBe("nw");
+    expect(nearestCorner(rect, { x: 60, y: 0 })).toBe("ne");
+    expect(nearestCorner(rect, { x: 0, y: 40 })).toBe("sw");
+    expect(nearestCorner(rect, { x: 60, y: 40 })).toBe("se");
+    // ハンドルの見た目のサイズを超えて離れた点でも、一番近い角に丸められる
+    expect(nearestCorner(rect, { x: 35, y: 25 })).toBe("se");
   });
 
   it("splitRectIntoColumns divides width evenly and gives the remainder to the last column", () => {

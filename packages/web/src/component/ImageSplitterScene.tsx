@@ -5,6 +5,7 @@ import {
   type Rect,
   type Size,
   fitRectToAspect,
+  nearestCorner,
   resizeRectFromCorner,
   resizeRectFromCornerLocked,
   splitRectIntoColumns
@@ -28,19 +29,12 @@ const pctNum = (value: number, total: number) => (value / total) * 100;
 // translate しないと、ハンドルの中心が角の点からずれてしまう
 const CORNER_STYLE: Record<
   CropCorner,
-  {
-    top?: 0;
-    bottom?: 0;
-    left?: 0;
-    right?: 0;
-    transform: string;
-    cursor: string;
-  }
+  { top?: 0; bottom?: 0; left?: 0; right?: 0; transform: string }
 > = {
-  nw: { top: 0, left: 0, transform: "translate(-50%, -50%)", cursor: "nwse-resize" },
-  ne: { top: 0, right: 0, transform: "translate(50%, -50%)", cursor: "nesw-resize" },
-  sw: { bottom: 0, left: 0, transform: "translate(-50%, 50%)", cursor: "nesw-resize" },
-  se: { bottom: 0, right: 0, transform: "translate(50%, 50%)", cursor: "nwse-resize" }
+  nw: { top: 0, left: 0, transform: "translate(-50%, -50%)" },
+  ne: { top: 0, right: 0, transform: "translate(50%, -50%)" },
+  sw: { bottom: 0, left: 0, transform: "translate(-50%, 50%)" },
+  se: { bottom: 0, right: 0, transform: "translate(50%, 50%)" }
 };
 
 const Wrapper = styled.div({
@@ -61,7 +55,8 @@ const Stage = styled.div({
   position: "relative",
   lineHeight: 0,
   userSelect: "none",
-  touchAction: "none"
+  touchAction: "none",
+  cursor: "crosshair"
 });
 
 const DimBand = styled.div({
@@ -82,8 +77,7 @@ const GuideLine = styled.div({
 
 // outline はボックスサイズに影響しないため、四隅のハンドルを
 // border の分だけずらさずに正確に角へ重ねられる。
-// このエリア自体はドラッグ操作を持たない（コーナーのみが操作対象）ため
-// pointer-events は無効にし、ハンドル側で明示的に有効化する
+// ドラッグ操作は Stage 側でまとめて処理するため pointer-events は無効にする
 const CropArea = styled.div({
   position: "absolute",
   boxSizing: "border-box",
@@ -91,6 +85,9 @@ const CropArea = styled.div({
   pointerEvents: "none"
 });
 
+// 見た目のサイズはこのまま小さく保ち、代わりに Stage 側で
+// タップ位置から一番近い角を割り出して操作対象にする（当たり判定は
+// 見た目に縛られない）ため、ハンドル自体は装飾のみで pointer-events を持たない
 const CropHandle = styled.div<{ corner: CropCorner }>(({ corner }) => ({
   position: "absolute",
   ...CORNER_STYLE[corner],
@@ -98,8 +95,7 @@ const CropHandle = styled.div<{ corner: CropCorner }>(({ corner }) => ({
   height: px(HANDLE_SIZE),
   boxSizing: "border-box",
   background: PRIMITIVE_COLOR.WHITE,
-  border: `${px(1)} solid ${PRIMITIVE_COLOR.BLACK}`,
-  pointerEvents: "auto"
+  border: `${px(1)} solid ${PRIMITIVE_COLOR.BLACK}`
 }));
 
 const Toolbar = styled.div({
@@ -251,7 +247,7 @@ const ImageSplitterScene = () => {
     <Wrapper>
       <TitleLine>画像3分割ツール</TitleLine>
       <p>
-        画像を選んで四隅のハンドルをドラッグし、切り抜き範囲を調整してください。「3分割する」を押すと縦に3等分した画像をそれぞれダウンロードできます。
+        画像を選んで四隅付近をドラッグすると、一番近い角から切り抜き範囲を調整できます。「3分割する」を押すと縦に3等分した画像をそれぞれダウンロードできます。
       </p>
       <div>
         <MockActionButton
@@ -261,7 +257,23 @@ const ImageSplitterScene = () => {
         </MockActionButton>
       </div>
       {imageUrl ? (
-        <Stage>
+        <Stage
+          onPointerDown={e => {
+            const img = imgRef.current;
+            if (!img || !cropRect || !naturalSize) {
+              return;
+            }
+            const imgRect = img.getBoundingClientRect();
+            const scale = naturalSize.width / imgRect.width;
+            const point = {
+              x: (e.clientX - imgRect.left) * scale,
+              y: (e.clientY - imgRect.top) * scale
+            };
+            e.preventDefault();
+            lastPointerRef.current = { x: e.clientX, y: e.clientY };
+            setActiveCorner(nearestCorner(cropRect, point));
+          }}
+        >
           <img
             ref={imgRef}
             src={imageUrl}
@@ -332,16 +344,7 @@ const ImageSplitterScene = () => {
                         )
                       )}
                       {(["nw", "ne", "sw", "se"] as const).map(corner => (
-                        <CropHandle
-                          key={corner}
-                          corner={corner}
-                          onPointerDown={e => {
-                            e.stopPropagation();
-                            e.preventDefault();
-                            lastPointerRef.current = { x: e.clientX, y: e.clientY };
-                            setActiveCorner(corner);
-                          }}
-                        />
+                        <CropHandle key={corner} corner={corner} />
                       ))}
                     </CropArea>
                   </>

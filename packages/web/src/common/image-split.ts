@@ -101,6 +101,26 @@ export const fitRectToAspect = (
   );
 };
 
+// 矩形の四隅のうち、指定した点にもっとも近いものを返す。
+// ハンドルの見た目のサイズに関わらず、タップした位置から一番近い角が
+// 必ず操作対象になるようにするために使う
+export const nearestCorner = (
+  rect: Rect,
+  point: { x: number; y: number }
+): CropCorner => {
+  const corners: { corner: CropCorner; x: number; y: number }[] = [
+    { corner: "nw", x: rect.x, y: rect.y },
+    { corner: "ne", x: rect.x + rect.width, y: rect.y },
+    { corner: "sw", x: rect.x, y: rect.y + rect.height },
+    { corner: "se", x: rect.x + rect.width, y: rect.y + rect.height }
+  ];
+  return corners.reduce((nearest, candidate) => {
+    const distanceTo = (c: { x: number; y: number }) =>
+      (c.x - point.x) ** 2 + (c.y - point.y) ** 2;
+    return distanceTo(candidate) < distanceTo(nearest) ? candidate : nearest;
+  }).corner;
+};
+
 export const splitRectIntoColumns = (rect: Rect, columns: number): Rect[] => {
   const baseWidth = Math.floor(rect.width / columns);
   return Array.from({ length: columns }, (_, i) => ({
