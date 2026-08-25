@@ -1,6 +1,6 @@
 import styled from "@emotion/styled";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { percent, px } from "~/common/css-util";
+import { alphaColor, percent, px } from "~/common/css-util";
 import { type Point, drawArrowLine } from "~/feature/arrow-line-canvas";
 import MockActionButton from "~/component/MockActionButton";
 import { MockRangeFormRow } from "~/component/mock-form-ui";
@@ -9,6 +9,8 @@ const CANVAS_WIDTH = 960;
 const CANVAS_HEIGHT = 540;
 const ARROW_WIDTH = 56;
 const ARROW_THICKNESS = 28;
+const ARROW_COLOR = "#d1373b";
+const BASE_FILL_COLOR = alphaColor(ARROW_COLOR, 0.5);
 const SPACING_MIN = 1;
 const SPACING_MAX = 5;
 const SPACING_DEFAULT = 2;
@@ -66,6 +68,7 @@ const ArrowLineCanvas = ({ arrowImageSrc }: { arrowImageSrc: string }) => {
       arrowWidth: ARROW_WIDTH,
       arrowStep: ARROW_WIDTH * spacingLevel,
       tileThickness: ARROW_THICKNESS,
+      baseFillColor: BASE_FILL_COLOR,
       pointRadius: POINT_RADIUS,
       pointColor: POINT_COLOR
     }),

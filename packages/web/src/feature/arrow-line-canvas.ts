@@ -4,6 +4,7 @@ export type ArrowLineOptions = {
   arrowWidth: number;
   arrowStep: number;
   tileThickness: number;
+  baseFillColor: string;
   pointRadius: number;
   pointColor: string;
 };
@@ -13,7 +14,7 @@ const drawArrowSegment = (
   image: HTMLImageElement,
   from: Point,
   to: Point,
-  { arrowWidth, arrowStep, tileThickness }: ArrowLineOptions
+  { arrowWidth, arrowStep, tileThickness, baseFillColor }: ArrowLineOptions
 ) => {
   const dx = to.x - from.x;
   const dy = to.y - from.y;
@@ -30,6 +31,8 @@ const drawArrowSegment = (
   ctx.beginPath();
   ctx.rect(0, -tileThickness / 2, length, tileThickness);
   ctx.clip();
+  ctx.fillStyle = baseFillColor;
+  ctx.fillRect(0, -tileThickness / 2, length, tileThickness);
   for (let i = 0; i < tileCount; i += 1) {
     ctx.drawImage(
       image,
