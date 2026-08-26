@@ -17,7 +17,7 @@ import {
 import MockActionButton from "~/component/MockActionButton";
 import {
   MockCheckboxFormInput,
-  MockNumberFormRow
+  MockRangeFormRow
 } from "~/component/mock-form-ui";
 
 const HANDLE_SIZE = 16;
@@ -207,7 +207,7 @@ const ImageTrimScene = ({
       </MockCheckboxFormInput>
     ) : null}
     {imageUrl ? (
-      <MockNumberFormRow
+      <MockRangeFormRow
         label="分割数"
         error={null}
         value={splitCount}
@@ -215,7 +215,7 @@ const ImageTrimScene = ({
         min={MIN_SPLIT_COUNT}
         max={MAX_SPLIT_COUNT}
         step={1}
-        unit="分割"
+        postfix="分割"
       />
     ) : null}
     {imageUrl ? (

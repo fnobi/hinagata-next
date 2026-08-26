@@ -17,6 +17,7 @@ import {
   splitRectIntoColumns
 } from "~/common/image-split";
 import { em, px } from "~/common/css-util";
+import { formatTimestampForFilename } from "~/common/format-timestamp";
 import ImageSplitResultScene from "~/component/ImageSplitResultScene";
 import ImageTrimScene from "~/component/ImageTrimScene";
 
@@ -55,6 +56,7 @@ const ImageSplitterScene = () => {
   const [aspectLocked, setAspectLocked] = useState(false);
   const [isSplitting, setIsSplitting] = useState(false);
   const [splitCount, setSplitCount] = useState(DEFAULT_SPLIT_COUNT);
+  const [splitTimestamp, setSplitTimestamp] = useState("");
 
   const imgRef = useRef<HTMLImageElement>(null);
   const lastPointerRef = useRef<{ x: number; y: number } | null>(null);
@@ -212,6 +214,7 @@ const ImageSplitterScene = () => {
           return canvasToObjectUrl(canvas);
         })
       );
+      setSplitTimestamp(formatTimestampForFilename(new Date()));
       setColumnImages(urls);
     } finally {
       setIsSplitting(false);
@@ -226,7 +229,11 @@ const ImageSplitterScene = () => {
     <Wrapper>
       <TitleLine>画像分割ツール</TitleLine>
       {columnImages ? (
-        <ImageSplitResultScene columnImages={columnImages} onBack={handleBack} />
+        <ImageSplitResultScene
+          columnImages={columnImages}
+          timestamp={splitTimestamp}
+          onBack={handleBack}
+        />
       ) : (
         <ImageTrimScene
           imageUrl={imageUrl}

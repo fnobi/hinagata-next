@@ -23,9 +23,11 @@ const BackRow = styled.div({
 
 const ImageSplitResultScene = ({
   columnImages,
+  timestamp,
   onBack
 }: {
   columnImages: string[];
+  timestamp: string;
   onBack: () => void;
 }) => (
   <>
@@ -41,7 +43,7 @@ const ImageSplitResultScene = ({
             action={{
               type: "download",
               href: url,
-              download: `split-${i + 1}.png`
+              download: [`split-${i + 1}`, timestamp].filter(Boolean).join("-") + ".png"
             }}
           >
             画像{i + 1}を保存
