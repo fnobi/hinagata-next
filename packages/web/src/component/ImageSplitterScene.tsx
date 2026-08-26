@@ -18,18 +18,24 @@ import {
 } from "~/common/image-split";
 import { em, px } from "~/common/css-util";
 import { formatTimestampForFilename } from "~/common/format-timestamp";
-import ImageSplitResultScene from "~/component/ImageSplitResultScene";
+import ImageSplitResultScene, {
+  type SplitImage
+} from "~/component/ImageSplitResultScene";
 import ImageTrimScene from "~/component/ImageTrimScene";
 
 const DEFAULT_SPLIT_COUNT = 3;
 
 // toDataURL は PNG バイト列を base64 文字列化して React state / DOM に
 // そのまま保持することになり、写真サイズだと数MB〜のメモリを圧迫する。
-// toBlob + object URL ならバイナリのまま保持でき、参照する URL 文字列も短い
-const canvasToObjectUrl = (canvas: HTMLCanvasElement): Promise<string> =>
+// toBlob + object URL ならバイナリのまま保持でき、参照する URL 文字列も短い。
+// Blob 自体も保持しておくことで、まとめて共有（Web Share API）の際に
+// File を作り直せるようにする
+const canvasToSplitImage = (
+  canvas: HTMLCanvasElement
+): Promise<SplitImage | null> =>
   new Promise(resolve => {
     canvas.toBlob(blob => {
-      resolve(blob ? URL.createObjectURL(blob) : "");
+      resolve(blob ? { url: URL.createObjectURL(blob), blob } : null);
     }, "image/png");
   });
 
@@ -51,7 +57,7 @@ const ImageSplitterScene = () => {
   const [imageUrl, setImageUrl] = useState("");
   const [naturalSize, setNaturalSize] = useState<Size | null>(null);
   const [cropRect, setCropRect] = useState<Rect | null>(null);
-  const [columnImages, setColumnImages] = useState<string[] | null>(null);
+  const [columnImages, setColumnImages] = useState<SplitImage[] | null>(null);
   const [activeCorner, setActiveCorner] = useState<CropCorner | null>(null);
   const [aspectLocked, setAspectLocked] = useState(false);
   const [isSplitting, setIsSplitting] = useState(false);
@@ -72,11 +78,7 @@ const ImageSplitterScene = () => {
 
   useEffect(
     () => () => {
-      columnImages?.forEach(url => {
-        if (url) {
-          URL.revokeObjectURL(url);
-        }
-      });
+      columnImages?.forEach(image => URL.revokeObjectURL(image.url));
     },
     [columnImages]
   );
@@ -191,14 +193,14 @@ const ImageSplitterScene = () => {
     }
     setIsSplitting(true);
     try {
-      const urls = await Promise.all(
+      const images = await Promise.all(
         splitRectIntoColumns(cropRect, splitCount).map(col => {
           const canvas = document.createElement("canvas");
           canvas.width = col.width;
           canvas.height = col.height;
           const ctx = canvas.getContext("2d");
           if (!ctx) {
-            return "";
+            return Promise.resolve(null);
           }
           ctx.drawImage(
             img,
@@ -211,11 +213,11 @@ const ImageSplitterScene = () => {
             col.width,
             col.height
           );
-          return canvasToObjectUrl(canvas);
+          return canvasToSplitImage(canvas);
         })
       );
       setSplitTimestamp(formatTimestampForFilename(new Date()));
-      setColumnImages(urls);
+      setColumnImages(images.filter((image): image is SplitImage => !!image));
     } finally {
       setIsSplitting(false);
     }
