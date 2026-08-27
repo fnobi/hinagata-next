@@ -5,6 +5,10 @@ import MockActionButton from "~/component/MockActionButton";
 
 export type SplitImage = { url: string; blob: Blob };
 
+export const OUTPUT_MIME_TYPE = "image/jpeg";
+export const OUTPUT_EXTENSION = "jpg";
+export const OUTPUT_QUALITY = 0.92;
+
 const ResultGrid = styled.div({
   display: "flex",
   gap: px(4)
@@ -30,7 +34,8 @@ const BackRow = styled.div({
 });
 
 const buildFileName = (index: number, timestamp: string) =>
-  [`split-${index + 1}`, timestamp].filter(Boolean).join("-") + ".png";
+  [`split-${index + 1}`, timestamp].filter(Boolean).join("-") +
+  `.${OUTPUT_EXTENSION}`;
 
 const ImageSplitResultScene = ({
   columnImages,
@@ -46,7 +51,7 @@ const ImageSplitResultScene = ({
       columnImages.map(
         (image, i) =>
           new File([image.blob], buildFileName(i, timestamp), {
-            type: "image/png"
+            type: OUTPUT_MIME_TYPE
           })
       ),
     [columnImages, timestamp]

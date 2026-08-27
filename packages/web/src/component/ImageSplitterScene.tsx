@@ -19,13 +19,15 @@ import {
 import { em, px } from "~/common/css-util";
 import { formatTimestampForFilename } from "~/common/format-timestamp";
 import ImageSplitResultScene, {
-  type SplitImage
+  type SplitImage,
+  OUTPUT_MIME_TYPE,
+  OUTPUT_QUALITY
 } from "~/component/ImageSplitResultScene";
 import ImageTrimScene from "~/component/ImageTrimScene";
 
 const DEFAULT_SPLIT_COUNT = 3;
 
-// toDataURL は PNG バイト列を base64 文字列化して React state / DOM に
+// toDataURL は画像バイト列を base64 文字列化して React state / DOM に
 // そのまま保持することになり、写真サイズだと数MB〜のメモリを圧迫する。
 // toBlob + object URL ならバイナリのまま保持でき、参照する URL 文字列も短い。
 // Blob 自体も保持しておくことで、まとめて共有（Web Share API）の際に
@@ -34,9 +36,13 @@ const canvasToSplitImage = (
   canvas: HTMLCanvasElement
 ): Promise<SplitImage | null> =>
   new Promise(resolve => {
-    canvas.toBlob(blob => {
-      resolve(blob ? { url: URL.createObjectURL(blob), blob } : null);
-    }, "image/png");
+    canvas.toBlob(
+      blob => {
+        resolve(blob ? { url: URL.createObjectURL(blob), blob } : null);
+      },
+      OUTPUT_MIME_TYPE,
+      OUTPUT_QUALITY
+    );
   });
 
 const Wrapper = styled.div({
