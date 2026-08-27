@@ -5,3 +5,4 @@ const PAGE_ROOT = new PageEntry(BASE_URL);
 
 export const PAGE_TOP = PAGE_ROOT;
 export const PAGE_ABOUT = PAGE_ROOT.child("about");
+export const PAGE_IMAGE_SPLITTER = PAGE_ROOT.child("image-splitter");
