@@ -14,9 +14,8 @@ import {
 } from "@hinagata-next/core/common/DataStoreAgent";
 import { parseString } from "@hinagata-next/core/common/parser-helper";
 
-// eslint-disable-next-line import/prefer-default-export
 export class ServerDataStoreAgent<
-  T extends {},
+  T extends object,
   D extends string,
   C extends string
 > extends DataStoreAgent<
@@ -64,55 +63,48 @@ export class ServerDataStoreAgent<
     return documentRef.id;
   }
 
-  // eslint-disable-next-line class-methods-use-this
   protected async setDoc({
     ref,
     data,
     merge
   }: {
     ref: DocumentReference;
-    data: Object;
+    data: object;
     merge?: boolean;
   }) {
     await ref.set(data, { merge });
     return ref.id;
   }
 
-  // eslint-disable-next-line class-methods-use-this
   protected getDoc(r: DocumentReference) {
     return r.get();
   }
 
-  // eslint-disable-next-line class-methods-use-this
   protected async deleteDoc(r: DocumentReference) {
     await r.delete();
   }
 
-  // eslint-disable-next-line class-methods-use-this
   protected getQueryDocs(r: Query) {
     return r.get().then(snapshot => snapshot.docs);
   }
 
-  // eslint-disable-next-line class-methods-use-this
   protected async getQueryCount(r: Query) {
     const snapshot = await r.count().get();
     return snapshot.data().count;
   }
 
-  // eslint-disable-next-line class-methods-use-this
   protected subscribeDoc({
     ref,
     handler,
     onError
   }: {
     ref: DocumentReference;
-    handler: (d: Object | null) => void;
+    handler: (d: object | null) => void;
     onError: (e: unknown) => void;
   }) {
     return ref.onSnapshot(handler, onError);
   }
 
-  // eslint-disable-next-line class-methods-use-this
   protected subscribeQueryDocs({
     ref,
     handler,
@@ -125,7 +117,6 @@ export class ServerDataStoreAgent<
     return ref.onSnapshot(snapshot => handler(snapshot.docs), onError);
   }
 
-  // eslint-disable-next-line class-methods-use-this
   protected applyQueryFormula(
     ref: Query<DocumentData, DocumentData>,
     query: QueryFormula<T>[] = []

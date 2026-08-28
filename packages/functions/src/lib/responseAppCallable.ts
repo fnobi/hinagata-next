@@ -13,9 +13,7 @@ const responseAppCallable = async <T extends keyof AppCallableSchema>(
   functionRangeLogger("callable", "begin");
   const res = await handler(req).catch((e): CommonNGResponse => {
     const error = extractAppError(e);
-    // eslint-disable-next-line no-console
     console.log("[app error]", JSON.stringify(error));
-    // eslint-disable-next-line no-console
     console.error(e);
     return { case: "ng", error };
   });

@@ -8,15 +8,23 @@
   "scripts": {
     "typecheck": "tsc --noEmit",
     "build": "pnpm typecheck && node scripts/esbuild.mjs",
-    "serve": "pnpm build && pnpm exec firebase emulators:start --only functions"
+    "serve": "pnpm build && pnpm exec firebase emulators:start --only functions",
+    "lint": "eslint src/"
   },
   "dependencies": {
     "firebase-admin": "^14.2.0",
     "firebase-functions": "^7.3.2"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@types/node": "^22.10.0",
+    "@typescript-eslint/eslint-plugin": "^8.59.3",
+    "@typescript-eslint/parser": "^8.59.3",
     "esbuild": "^0.24.0",
+    "eslint": "^9.39.4",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-import": "^2.32.0",
+    "globals": "^16.0.0",
     "typescript": "^5.7.0"
   }
 }
