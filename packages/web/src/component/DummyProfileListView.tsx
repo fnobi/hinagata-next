@@ -7,8 +7,8 @@ const DummyProfileListView = <Id extends string | number>({
   onDelete
 }: {
   list: { id: Id; data: DummyProfile; editable?: boolean }[];
-  onEdit?: (id: Id) => void;
-  onDelete?: (id: Id) => void;
+  onEdit: (id: Id) => void;
+  onDelete: (id: Id) => void;
 }) => (
   <MockListView
     dataList={list.map(({ id, data, editable = true }) => ({
@@ -16,25 +16,18 @@ const DummyProfileListView = <Id extends string | number>({
       title: data.name,
       subTitle: data.email,
       actions: [
-        ...(onEdit && editable
-          ? [
-              {
-                children: "編集",
-                action: { type: "button" as const, onClick: () => onEdit(id) }
-              }
-            ]
-          : []),
-        ...(onDelete && editable
-          ? [
-              {
-                children: "削除",
-                action: {
-                  type: "button" as const,
-                  onClick: () => onDelete(id)
-                }
-              }
-            ]
-          : [])
+        {
+          children: "編集",
+          action: editable
+            ? { type: "button", onClick: () => onEdit(id) }
+            : null
+        },
+        {
+          children: "削除",
+          action: editable
+            ? { type: "button", onClick: () => onDelete(id) }
+            : null
+        }
       ]
     }))}
   />
