@@ -1,39 +1,64 @@
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import type DummyProfile from "@hinagata-next/core/feature/DummyProfile";
 import DummyProfileForm from "~/component/DummyProfileForm";
 import DummyProfileListView from "~/component/DummyProfileListView";
 import MockActionButton from "~/component/MockActionButton";
 import MockStaticLayout from "~/component/MockStaticLayout";
 
+const EMPTY_PROFILE: DummyProfile = {
+  name: "",
+  email: "",
+  profileLinks: []
+};
+
 const TopScene = () => {
   const [list, setList] = useState<{ id: number; data: DummyProfile }[]>([]);
-  const [formId, setFormId] = useState(0);
+  const [formTarget, setFormTarget] = useState<{
+    postId: number | null;
+  } | null>(null);
 
   const currentFormData = useMemo((): DummyProfile | null => {
-    if (!formId) {
+    if (!formTarget) {
       return null;
     }
-    const m = list.find(d => d.id === formId);
-    if (m) {
-      return m.data;
-    }
-    return { name: "", email: "", profileLinks: [] };
-  }, [list, formId]);
+    const m = list.find(d => d.id === formTarget.postId);
+    return m ? m.data : EMPTY_PROFILE;
+  }, [list, formTarget]);
+
+  const closeForm = useCallback(() => setFormTarget(null), []);
+
+  const handleCreate = useCallback(
+    (v: DummyProfile) => {
+      setList(l => [{ id: Date.now(), data: v }, ...l]);
+      closeForm();
+    },
+    [closeForm]
+  );
+
+  const handleUpdate = useCallback(
+    (postId: number) => (profile: DummyProfile) => {
+      setList(l =>
+        l.map(d => (d.id === postId ? { id: d.id, data: profile } : d))
+      );
+      closeForm();
+    },
+    [closeForm]
+  );
+
+  const handleDelete = useCallback(
+    (postId: number) => setList(l => l.filter(d => d.id !== postId)),
+    []
+  );
 
   return (
     <MockStaticLayout title="Welcome to Next.js!">
-      {formId && currentFormData ? (
+      {formTarget && currentFormData ? (
         <DummyProfileForm
           defaultValue={currentFormData}
-          onSubmit={v => {
-            setList(l =>
-              l.find(d => d.id === formId)
-                ? l.map(d => (d.id === formId ? { id: d.id, data: v } : d))
-                : [{ id: formId, data: v }, ...l]
-            );
-            setFormId(0);
-          }}
-          onCancel={() => setFormId(0)}
+          onSubmit={
+            formTarget.postId ? handleUpdate(formTarget.postId) : handleCreate
+          }
+          onCancel={closeForm}
         />
       ) : (
         <>
@@ -41,7 +66,7 @@ const TopScene = () => {
             <MockActionButton
               action={{
                 type: "button",
-                onClick: () => setFormId(Date.now())
+                onClick: () => setFormTarget({ postId: null })
               }}
             >
               新規作成
@@ -49,8 +74,8 @@ const TopScene = () => {
           </p>
           <DummyProfileListView
             list={list}
-            onEdit={id => setFormId(id)}
-            onDelete={id => setList(l => l.filter(d => d.id !== id))}
+            onEdit={id => setFormTarget({ postId: id })}
+            onDelete={handleDelete}
           />
         </>
       )}

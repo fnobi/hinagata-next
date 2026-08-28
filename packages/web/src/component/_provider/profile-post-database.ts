@@ -14,7 +14,7 @@ export const updateProfilePost = (postId: string, profile: DummyProfile) =>
 export const deleteProfilePost = (postId: string) =>
   profilePostDataStore.deleteItem({ postId });
 
-export const useProfileList = () => {
+export const useProfilePostList = () => {
   const [list, setList] = useState<{ id: string; data: ProfilePost }[] | null>(
     null
   );
@@ -30,5 +30,5 @@ export const useProfileList = () => {
     []
   );
 
-  return { list, error };
+  return { profilePostList: list, error };
 };
