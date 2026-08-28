@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import callAppCallable from "~/common/callAppCallable";
 import {
   signInWithGoogle,
@@ -6,7 +6,11 @@ import {
 } from "~/common/firebase-auth-tools";
 import type DummyProfile from "@hinagata-next/core/feature/DummyProfile";
 import { extractAppError } from "@hinagata-next/core/feature/AppError";
-import { useProfileList } from "~/component/_provider/profileDataStoreProvider";
+import {
+  deleteProfilePost,
+  updateProfilePost,
+  useProfileList
+} from "~/component/_provider/profileDataStoreProvider";
 import DummyProfileForm from "~/component/DummyProfileForm";
 import DummyProfileListView from "~/component/DummyProfileListView";
 import MockActionButton from "~/component/MockActionButton";
@@ -21,14 +25,38 @@ const EMPTY_PROFILE: DummyProfile = {
 const ProfileScene = () => {
   const { isAuthLoading, myId } = useAuthorizedUser();
   const { list } = useProfileList();
-  const [showForm, setShowForm] = useState(false);
+  const [formTarget, setFormTarget] = useState<"new" | string | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
-  const handleSubmit = (profile: DummyProfile) => {
+  const currentFormData = useMemo((): DummyProfile | null => {
+    if (formTarget === null) {
+      return null;
+    }
+    if (formTarget === "new") {
+      return EMPTY_PROFILE;
+    }
+    const m = list?.find(d => d.id === formTarget);
+    return m ? m.data.profile : null;
+  }, [list, formTarget]);
+
+  const closeForm = () => setFormTarget(null);
+  const showError = (e: unknown) => setSubmitError(extractAppError(e).message);
+
+  const handleCreate = (profile: DummyProfile) => {
     setSubmitError(null);
-    callAppCallable("createProfile", { profile })
-      .then(() => setShowForm(false))
-      .catch(e => setSubmitError(extractAppError(e).message));
+    callAppCallable("createProfilePost", { profile })
+      .then(closeForm)
+      .catch(showError);
+  };
+
+  const handleUpdate = (charaId: string) => (profile: DummyProfile) => {
+    setSubmitError(null);
+    updateProfilePost(charaId, profile).then(closeForm).catch(showError);
+  };
+
+  const handleDelete = (charaId: string) => {
+    setSubmitError(null);
+    deleteProfilePost(charaId).catch(showError);
   };
 
   return (
@@ -46,18 +74,20 @@ const ProfileScene = () => {
         >
           Googleでログイン
         </MockActionButton>
-      ) : showForm ? (
+      ) : formTarget !== null && currentFormData ? (
         <DummyProfileForm
-          defaultValue={EMPTY_PROFILE}
-          onSubmit={handleSubmit}
-          onCancel={() => setShowForm(false)}
+          defaultValue={currentFormData}
+          onSubmit={
+            formTarget === "new" ? handleCreate : handleUpdate(formTarget)
+          }
+          onCancel={closeForm}
         />
       ) : (
         <>
           {submitError ? <p>{submitError}</p> : null}
           <p>
             <MockActionButton
-              action={{ type: "button", onClick: () => setShowForm(true) }}
+              action={{ type: "button", onClick: () => setFormTarget("new") }}
             >
               新規作成
             </MockActionButton>
@@ -65,8 +95,11 @@ const ProfileScene = () => {
           <DummyProfileListView
             list={(list ?? []).map(({ id, data }) => ({
               id,
-              data: data.profile
+              data: data.profile,
+              editable: data.userId === myId
             }))}
+            onEdit={id => setFormTarget(id)}
+            onDelete={handleDelete}
           />
         </>
       )}

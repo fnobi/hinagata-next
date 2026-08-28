@@ -4,6 +4,12 @@ service cloud.firestore {
   match /databases/{database}/documents {
     match /profiles/{charaId} {
       allow read: if request.auth != null;
+      // create不可。作成はcreateProfilePost callable(Admin SDK)経由のみ許可する。
+      allow update: if request.auth != null
+        && request.auth.uid == resource.data.userId
+        && request.resource.data.userId == resource.data.userId;
+      allow delete: if request.auth != null
+        && request.auth.uid == resource.data.userId;
     }
   }
 }

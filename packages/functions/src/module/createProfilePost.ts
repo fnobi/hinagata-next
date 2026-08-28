@@ -14,7 +14,7 @@ const profileDataStore = new ServerDataStoreAgent(
 );
 
 export default onCall({ region: COMMON_CALLABLE_REGION }, r =>
-  responseAppCallable<"createProfile">(r, async ({ auth, data }) => {
+  responseAppCallable<"createProfilePost">(r, async ({ auth, data }) => {
     if (!auth) {
       throw new AppError({ type: "unauthorized" });
     }

@@ -6,17 +6,17 @@ const DummyProfileListView = <Id extends string | number>({
   onEdit,
   onDelete
 }: {
-  list: { id: Id; data: DummyProfile }[];
+  list: { id: Id; data: DummyProfile; editable?: boolean }[];
   onEdit?: (id: Id) => void;
   onDelete?: (id: Id) => void;
 }) => (
   <MockListView
-    dataList={list.map(({ id, data }) => ({
+    dataList={list.map(({ id, data, editable = true }) => ({
       key: id,
       title: data.name,
       subTitle: data.email,
       actions: [
-        ...(onEdit
+        ...(onEdit && editable
           ? [
               {
                 children: "編集",
@@ -24,7 +24,7 @@ const DummyProfileListView = <Id extends string | number>({
               }
             ]
           : []),
-        ...(onDelete
+        ...(onDelete && editable
           ? [
               {
                 children: "削除",

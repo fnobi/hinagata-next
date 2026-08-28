@@ -20,7 +20,7 @@ type AppCallableFunctionSchema<Req, Res> = {
 };
 
 type AppCallableSchema = {
-  createProfile: AppCallableFunctionSchema<
+  createProfilePost: AppCallableFunctionSchema<
     { profile: DummyProfile },
     | OKResponse<{
         charaId: string;
