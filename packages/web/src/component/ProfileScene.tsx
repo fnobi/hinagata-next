@@ -49,14 +49,14 @@ const ProfileScene = () => {
       .catch(showError);
   };
 
-  const handleUpdate = (charaId: string) => (profile: DummyProfile) => {
+  const handleUpdate = (postId: string) => (profile: DummyProfile) => {
     setSubmitError(null);
-    updateProfilePost(charaId, profile).then(closeForm).catch(showError);
+    updateProfilePost(postId, profile).then(closeForm).catch(showError);
   };
 
-  const handleDelete = (charaId: string) => {
+  const handleDelete = (postId: string) => {
     setSubmitError(null);
-    deleteProfilePost(charaId).catch(showError);
+    deleteProfilePost(postId).catch(showError);
   };
 
   return (

@@ -1,6 +1,6 @@
 import { onCall } from "firebase-functions/v2/https";
 import responseAppCallable from "~/lib/responseAppCallable";
-import { profileDataStoreSchema } from "@hinagata-next/core/feature/app-data-store-schema";
+import { profilePostDataStoreSchema } from "@hinagata-next/core/feature/app-data-store-schema";
 import { ServerDataStoreAgent } from "~/lib/ServerDataStoreAgent";
 import { firebaseFirestore } from "~/lib/firebase-app";
 import { COMMON_CALLABLE_REGION } from "@hinagata-next/core/feature/AppCallableSchema";
@@ -8,9 +8,9 @@ import AppError from "@hinagata-next/core/feature/AppError";
 import { Timestamp } from "firebase-admin/firestore";
 import type ProfilePost from "@hinagata-next/core/feature/ProfilePost";
 
-const profileDataStore = new ServerDataStoreAgent(
+const profilePostDataStore = new ServerDataStoreAgent(
   firebaseFirestore,
-  profileDataStoreSchema
+  profilePostDataStoreSchema
 );
 
 export default onCall({ region: COMMON_CALLABLE_REGION }, r =>
@@ -24,13 +24,13 @@ export default onCall({ region: COMMON_CALLABLE_REGION }, r =>
       profile,
       createdAt: Timestamp.fromDate(new Date())
     };
-    const charaId = await profileDataStore.addItem({
+    const postId = await profilePostDataStore.addItem({
       data: profilePost
     });
     return {
       case: "ok",
       data: {
-        charaId,
+        postId,
         profile: profilePost
       }
     };

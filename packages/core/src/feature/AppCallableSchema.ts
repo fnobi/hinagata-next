@@ -23,7 +23,7 @@ type AppCallableSchema = {
   createProfilePost: AppCallableFunctionSchema<
     { profile: DummyProfile },
     | OKResponse<{
-        charaId: string;
+        postId: string;
         profile: ProfilePost;
       }>
     | CommonNGResponse
