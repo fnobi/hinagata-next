@@ -17,7 +17,7 @@ const TopScene = () => {
     if (m) {
       return m.data;
     }
-    return { name: "", email: "", profileLinks: [], createdAt: null };
+    return { name: "", email: "", profileLinks: [] };
   }, [list, formId]);
 
   return (

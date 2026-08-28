@@ -1,10 +1,10 @@
 import { type DataStoreSchema } from "@hinagata-next/core/common/DataStoreAgent";
-import type DummyProfile from "@hinagata-next/core/feature/DummyProfile";
-import { parseDummyProfile } from "@hinagata-next/core/feature/DummyProfile";
+import type ProfilePost from "@hinagata-next/core/feature/ProfilePost";
+import { parseProfilePost } from "@hinagata-next/core/feature/ProfilePost";
 
-export const profileDataStoreSchema: DataStoreSchema<DummyProfile, "charaId"> =
+export const profileDataStoreSchema: DataStoreSchema<ProfilePost, "charaId"> =
   {
     name: "profiles",
     documentKey: "charaId",
-    parse: parseDummyProfile
+    parse: parseProfilePost
   };

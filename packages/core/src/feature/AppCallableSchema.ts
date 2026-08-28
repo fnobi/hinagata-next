@@ -1,5 +1,6 @@
 import { type AppErrorMessageParameter } from "@hinagata-next/core/feature/AppError";
 import type DummyProfile from "@hinagata-next/core/feature/DummyProfile";
+import type ProfilePost from "@hinagata-next/core/feature/ProfilePost";
 
 export const COMMON_CALLABLE_REGION = "asia-northeast1";
 
@@ -20,10 +21,10 @@ type AppCallableFunctionSchema<Req, Res> = {
 
 type AppCallableSchema = {
   createProfile: AppCallableFunctionSchema<
-    { profile: Omit<DummyProfile, "createdAt"> },
+    { profile: DummyProfile },
     | OKResponse<{
         charaId: string;
-        profile: DummyProfile;
+        profile: ProfilePost;
       }>
     | CommonNGResponse
   >;

@@ -15,8 +15,7 @@ import MockStaticLayout from "~/component/MockStaticLayout";
 const EMPTY_PROFILE: DummyProfile = {
   name: "",
   email: "",
-  profileLinks: [],
-  createdAt: null
+  profileLinks: []
 };
 
 const ProfileScene = () => {
@@ -27,13 +26,7 @@ const ProfileScene = () => {
 
   const handleSubmit = (profile: DummyProfile) => {
     setSubmitError(null);
-    callAppCallable("createProfile", {
-      profile: {
-        name: profile.name,
-        email: profile.email,
-        profileLinks: profile.profileLinks
-      }
-    })
+    callAppCallable("createProfile", { profile })
       .then(() => setShowForm(false))
       .catch(e => setSubmitError(extractAppError(e).message));
   };
@@ -69,7 +62,12 @@ const ProfileScene = () => {
               新規作成
             </MockActionButton>
           </p>
-          <DummyProfileListView list={list ?? []} />
+          <DummyProfileListView
+            list={(list ?? []).map(({ id, data }) => ({
+              id,
+              data: data.profile
+            }))}
+          />
         </>
       )}
     </MockStaticLayout>
