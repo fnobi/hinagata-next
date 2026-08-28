@@ -22,7 +22,7 @@ const EMPTY_PROFILE: DummyProfile = {
   profileLinks: []
 };
 
-const ProfileScene = () => {
+const RemoteProfileScene = () => {
   const { isAuthLoading, myId } = useAuthorizedUser();
   const [submitError, setSubmitError] = useState<string | null>(null);
   const showError = useCallback(
@@ -127,4 +127,4 @@ const ProfileScene = () => {
   );
 };
 
-export default ProfileScene;
+export default RemoteProfileScene;

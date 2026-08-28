@@ -12,10 +12,11 @@ const Wrapper = styled.div({
   backgroundColor: THEME_COLOR.WHITE,
   display: "flex",
   justifyContent: "center",
-  alignItems: "center"
+  alignItems: "center",
+  textAlign: "center"
 });
 
-const MockCenteringLayout = ({ children }: { children: ReactNode }) => (
+const MockCenteringLayout = ({ children }: { children?: ReactNode }) => (
   <Wrapper>{children}</Wrapper>
 );
 
