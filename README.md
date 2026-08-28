@@ -2,7 +2,7 @@
 
 ## 使用言語 / フレームワーク / ライブラリ
 
-- Framework: [Next.js](https://nextjs.org/) (App Router)
+- Framework: [Next.js](https://nextjs.org/) (Pages Router)
 - View: [React](https://react.dev/) 19
 - State Management: [Zustand](https://zustand-demo.pmnd.rs/)
 - AltJS: [TypeScript](https://www.typescriptlang.org/) 6

@@ -1,0 +1,33 @@
+{
+  "hosting": {
+    "public": "packages/web/dist",
+    "ignore": [
+      "firebase.json",
+      "**/.*"
+    ],
+    "predeploy": [
+      "pnpm --filter @hinagata-next/web build",
+      "node scripts/prepare-firebase-deploy.js"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "function": {
+          "functionId": "webApp",
+          "region": "asia-northeast1"
+        }
+      }
+    ]
+  },
+  "functions": {
+    "source": "packages/functions",
+    "runtime": "nodejs22",
+    "predeploy": [
+      "pnpm --filter @hinagata-next/functions build"
+    ]
+  },
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  }
+}

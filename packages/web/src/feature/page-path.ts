@@ -4,4 +4,4 @@ import { BASE_URL } from "~/common/constants";
 const PAGE_ROOT = new PageEntry(BASE_URL);
 
 export const PAGE_TOP = PAGE_ROOT;
-export const PAGE_ABOUT = PAGE_ROOT.child("about");
+export const PAGE_MOCK_PROFILE = PAGE_ROOT.child("mock").child("profile");

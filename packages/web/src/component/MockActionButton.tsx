@@ -10,6 +10,9 @@ const actionItemCommonStyle = css({
   textDecoration: "underline"
 });
 const ActionItemLink = styled.a(actionItemCommonStyle);
+// next/link は自前で <a> を描画するため、styled で直接ラップして装飾する
+// （旧 legacyBehavior + 子の <a> に passHref する書き方は非推奨のため）。
+const ActionItemPageLink = styled(Link)(actionItemCommonStyle);
 const ActionItemButton = styled.button(buttonReset, actionItemCommonStyle, {
   "&:disabled": {
     opacity: 0.5,
@@ -68,9 +71,9 @@ const MockActionButton = <T extends ReactNode>({
   }
   if (action.type === "page-link") {
     return (
-      <Link href={action.page.href} passHref legacyBehavior>
-        <ActionItemLink href="passHref">{children}</ActionItemLink>
-      </Link>
+      <ActionItemPageLink href={action.page.href}>
+        {children}
+      </ActionItemPageLink>
     );
   }
   return (

@@ -1,4 +1,5 @@
 import {
+  parseArray,
   parseObject,
   parseString
 } from "@hinagata-next/core/common/parser-helper";
@@ -15,6 +16,13 @@ export const parseDummyProfileLink = (src: unknown) =>
   parseObject<DummyProfileLink>(src, ({ label, url }) => ({
     label: parseString(label),
     url: parseString(url)
+  }));
+
+export const parseDummyProfile = (src: unknown) =>
+  parseObject<DummyProfile>(src, ({ name, email, profileLinks }) => ({
+    name: parseString(name),
+    email: parseString(email),
+    profileLinks: parseArray(profileLinks, parseDummyProfileLink)
   }));
 
 export default DummyProfile;

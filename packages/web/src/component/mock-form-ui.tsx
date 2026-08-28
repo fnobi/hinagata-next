@@ -625,20 +625,23 @@ export const MockArrayFormRow = <T, R>({
     [makeNew, onChange, value]
   );
   const rows = useMemo(
-    (): CommonFormFieldProps<T>[] =>
+    (): (CommonFormFieldProps<T> & R)[] =>
       value.map((v, i) => ({
         value: v,
         onChange: (nv: T) =>
-          onChange(value.map((vv, ii) => (ii === i ? nv : vv)))
+          onChange(value.map((vv, ii) => (ii === i ? nv : vv))),
+        ...props
       })),
-    [onChange, value]
+    [onChange, props, value]
   );
   return (
     <FormCommonRowWrapper label={label} error={error}>
       <div>
         {rows.map((r, i) => (
           <NestSection key={i}>
-            <FormLayoutGrid>{Item({ ...r, ...props })}</FormLayoutGrid>
+            <FormLayoutGrid>
+              <Item {...r} />
+            </FormLayoutGrid>
           </NestSection>
         ))}
       </div>

@@ -1,6 +1,9 @@
 packages:
   - 'packages/*'
 allowBuilds:
+  '@firebase/util': false
+  canvas: false
+  core-js: false
   esbuild: false
   protobufjs: false
   re2: false

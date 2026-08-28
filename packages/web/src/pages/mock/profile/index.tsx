@@ -1,19 +1,19 @@
 import { makeSubPageMetadata } from "~/feature/defaultMetadata";
-import { PAGE_ABOUT } from "~/feature/page-path";
-import MockCenteringLayout from "~/component/MockCenteringLayout";
+import { PAGE_MOCK_PROFILE } from "~/feature/page-path";
 import PageMeta from "~/component/PageMeta";
+import MockProfileScene from "~/component/MockProfileScene";
 import ASSETS_OGP_ABOUT from "~/asset/meta/ogp-about.png";
 
 const metadata = makeSubPageMetadata({
-  page: PAGE_ABOUT,
-  subPageTitle: "About",
+  page: PAGE_MOCK_PROFILE,
+  subPageTitle: "リストサンプル",
   shareImageAsset: ASSETS_OGP_ABOUT
 });
 
-const PageAbout = () => (
+const PageMockProfile = () => (
   <PageMeta metadata={metadata}>
-    <MockCenteringLayout>About Page</MockCenteringLayout>
+    <MockProfileScene />
   </PageMeta>
 );
 
-export default PageAbout;
+export default PageMockProfile;
