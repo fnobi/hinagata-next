@@ -1,11 +1,11 @@
 import { makeSubPageMetadata } from "~/feature/defaultMetadata";
-import { PAGE_REMOTE_PROFILE } from "~/feature/page-path";
+import { PAGE_LOCAL_PROFILE } from "~/feature/page-path";
 import PageMeta from "~/component/PageMeta";
 import LocalProfileScene from "~/component/LocalProfileScene";
 import ASSETS_OGP_ABOUT from "~/asset/meta/ogp-about.png";
 
 const metadata = makeSubPageMetadata({
-  page: PAGE_REMOTE_PROFILE,
+  page: PAGE_LOCAL_PROFILE,
   subPageTitle: "リストサンプル（メモリ保存）",
   shareImageAsset: ASSETS_OGP_ABOUT
 });
