@@ -8,6 +8,7 @@ import {
 } from "firebase/auth";
 import { create } from "zustand";
 import { firebaseAuth } from "~/common/firebase-app";
+import { FIREBASE_ENABLED } from "~/common/firebaseConfig";
 
 export type MeState = {
   isAuthLoading: boolean;
@@ -32,6 +33,10 @@ export const useAuthRoot = () => {
   const meState = useMeStore();
 
   useEffect(() => {
+    if (!FIREBASE_ENABLED) {
+      useMeStore.setState(s => ({ ...s, isAuthLoading: false }));
+      return undefined;
+    }
     const setMe = (payload: Partial<MeState>) =>
       useMeStore.setState(s => ({
         ...s,
