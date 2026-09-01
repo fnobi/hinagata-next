@@ -21,7 +21,7 @@ export class AdminDataStoreAgent<
   C extends string,
   Ds extends DocumentSnapshotMock,
   Dr extends DocumentReferenceMock<Ds>,
-  Cr extends QueryReferenceMock<Ds, Dr>
+  Cr extends QueryReferenceMock<Ds>
 > extends DataStoreAgent<T, D, C, Dr, Cr> {
   private adapter: () => AbstructAdminFirestore<Dr, Cr>;
 
@@ -115,21 +115,20 @@ export class AdminDataStoreAgent<
     return ref.onSnapshot(snapshot => handler(snapshot.docs), onError);
   }
 
-  protected applyQueryFormula<R extends QueryReferenceMock<Ds, Dr>>(
+  protected applyQueryFormula<R extends QueryReferenceMock<Ds>>(
     ref: R,
     query: QueryFormula<T>[] = []
   ) {
     return query.reduce((prev, l) => {
-      // TODO: できればasやめたい
       switch (l[0]) {
         case "limit":
-          return prev.limit(l[1]) as R;
+          return prev.limit(l[1]);
         case "orderBy":
-          return prev.orderBy(parseString(l[1]), l[2]) as R;
+          return prev.orderBy(parseString(l[1]), l[2]);
         case "equal":
-          return prev.where(parseString(l[1]), "==", l[2]) as R;
+          return prev.where(parseString(l[1]), "==", l[2]);
         default:
-          return prev.where(parseString(l[1]), l[2], l[3]) as R;
+          return prev.where(parseString(l[1]), l[2], l[3]);
       }
     }, ref);
   }

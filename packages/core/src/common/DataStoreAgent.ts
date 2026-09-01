@@ -17,20 +17,17 @@ export type DocumentReferenceMock<Ds extends DocumentSnapshotMock> = {
   ) => () => void;
 };
 
-export type QueryReferenceMock<
-  Ds extends DocumentSnapshotMock,
-  Dr extends DocumentReferenceMock<Ds>
-> = {
+export interface QueryReferenceMock<Ds extends DocumentSnapshotMock> {
   get: () => Promise<{ docs: Ds[] }>;
   count: () => { get: () => Promise<{ data: () => { count: number } }> };
   onSnapshot: (
     h: (d: { docs: Ds[] }) => void,
     e: (ee: unknown) => void
   ) => () => void;
-  limit: (n: number) => QueryReferenceMock<Ds, Dr>;
-  orderBy: (f: string, d: "asc" | "desc") => QueryReferenceMock<Ds, Dr>;
-  where: (f: string, d: string, c: unknown) => QueryReferenceMock<Ds, Dr>;
-};
+  limit(n: number): this;
+  orderBy(f: string, d: "asc" | "desc"): this;
+  where(f: string, d: string, c: unknown): this;
+}
 
 export type CollectionReferenceMock<Cr, Dr> = Cr & { doc: (id?: string) => Dr };
 
