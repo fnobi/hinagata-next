@@ -1,22 +1,18 @@
 import {
   DataStoreAgent,
   type DocumentSnapshotMock,
-  type TransactionGetStepParams,
-  type TransactionSetStepParams,
   type DataStoreSchema,
   type QueryFormula,
   type CollectionReferenceMock,
   type DocumentReferenceMock,
-  type QueryReferenceMock,
-  type TransactionMock
+  type QueryReferenceMock
 } from "@hinagata-next/core/common/DataStoreAgent";
 import { parseString } from "@hinagata-next/core/common/parser-helper";
 
-type AbstructAdminFirestore<Dr, Cr, Tr> = {
+type AbstructAdminFirestore<Dr, Cr> = {
   collection: (p: string) => CollectionReferenceMock<Cr, Dr>;
   collectionGroup: (p: string) => Cr;
   doc: (p: string) => Dr;
-  runTransaction: (fn: (t: Tr) => Promise<unknown>) => void;
 };
 
 export class AdminDataStoreAgent<
@@ -25,13 +21,12 @@ export class AdminDataStoreAgent<
   C extends string,
   Ds extends DocumentSnapshotMock,
   Dr extends DocumentReferenceMock<Ds>,
-  Cr extends QueryReferenceMock<Ds, Dr>,
-  Tr extends TransactionMock<Ds, Dr>
+  Cr extends QueryReferenceMock<Ds, Dr>
 > extends DataStoreAgent<T, D, C, Dr, Cr> {
-  private adapter: () => AbstructAdminFirestore<Dr, Cr, Tr>;
+  private adapter: () => AbstructAdminFirestore<Dr, Cr>;
 
   public constructor(
-    adapter: () => AbstructAdminFirestore<Dr, Cr, Tr>,
+    adapter: () => AbstructAdminFirestore<Dr, Cr>,
     schema: DataStoreSchema<T, D, C>
   ) {
     super(schema);
@@ -137,30 +132,5 @@ export class AdminDataStoreAgent<
           return prev.where(parseString(l[1]), l[2], l[3]) as R;
       }
     }, ref);
-  }
-
-  public static runTransaction<
-    M,
-    R,
-    Ds extends DocumentSnapshotMock,
-    Dr extends DocumentReferenceMock<Ds>,
-    Cr extends QueryReferenceMock<Ds, Dr>,
-    Tr extends TransactionMock<Ds, Dr>
-  >(
-    adapter: () => AbstructAdminFirestore<Dr, Cr, Tr>,
-    getStep: (o: TransactionGetStepParams<Dr, Cr>) => Promise<M>,
-    setStep: (p: M, m: TransactionSetStepParams<Dr, Cr>) => R
-  ) {
-    return adapter().runTransaction(async t => {
-      const r = await getStep({
-        get: async (s, o) =>
-          s.parseDocumentSnapshot(await t.get(s.singleItemReference(o)))
-      });
-      return setStep(r, {
-        set: (s, args) =>
-          t.set(s.singleItemReference(args), args.data, { merge: args.merge }),
-        delete: (s, args) => t.delete(s.singleItemReference(args))
-      });
-    });
   }
 }

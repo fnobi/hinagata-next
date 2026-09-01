@@ -10,10 +10,16 @@
 
 ```bash
 gcloud auth application-default login
-gcloud config set project <対象のプロジェクトID>
 ```
 
 もしくは、サービスアカウントキーを使う場合は `GOOGLE_APPLICATION_CREDENTIALS` にキーファイルのパスを設定する。
+
+接続先の Firebase プロジェクトは `packages/cli/.env.local`（gitignore 済み）の `GOOGLE_CLOUD_PROJECT` で指定する。
+
+```bash
+# packages/cli/.env.local
+GOOGLE_CLOUD_PROJECT=<対象のプロジェクトID>
+```
 
 ## スクリプト
 
@@ -29,4 +35,4 @@ pnpm --filter @hinagata-next/cli export:profile-posts [出力先パス]
 
 ## スクリプトの追加
 
-`src/scripts/` 以下に実行用スクリプトを追加し、`package.json` の `scripts` に `tsx src/scripts/xxx.ts` を実行するエントリを足す。Firestore アクセスは `src/lib/firebase-app.ts` の `firebaseFirestore` と `src/lib/ServerDataStoreAgent.ts` を経由する。
+`src/scripts/` 以下に実行用スクリプトを追加し、`package.json` の `scripts` に `tsx src/scripts/xxx.ts` を実行するエントリを足す。Firestore アクセスは `src/lib/firebase-app.ts` の `firebaseFirestore` と `src/lib/CliDataStoreAgent.ts` を経由する。

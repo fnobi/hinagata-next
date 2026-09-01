@@ -34,12 +34,6 @@ export type QueryReferenceMock<
 
 export type CollectionReferenceMock<Cr, Dr> = Cr & { doc: (id?: string) => Dr };
 
-export type TransactionMock<Ds, Dr> = {
-  get: (r: Dr) => Promise<Ds>;
-  set: (r: Dr, d: object, p?: { merge?: boolean }) => void;
-  delete: (r: Dr) => void;
-};
-
 export type TypedCollectionList<T> = { id: string; data: T }[];
 
 type TypedCollectionGroupList<T> = {
