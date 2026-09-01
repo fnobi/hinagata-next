@@ -1,34 +1,37 @@
 import {
-  type DocumentData,
-  type DocumentReference,
-  type Query,
-  type Firestore
-} from "firebase-admin/firestore";
-import {
   DataStoreAgent,
   type DocumentSnapshotMock,
   type TransactionGetStepParams,
   type TransactionSetStepParams,
   type DataStoreSchema,
-  type QueryFormula
+  type QueryFormula,
+  type CollectionReferenceMock,
+  type DocumentReferenceMock,
+  type QueryReferenceMock,
+  type TransactionMock
 } from "@hinagata-next/core/common/DataStoreAgent";
 import { parseString } from "@hinagata-next/core/common/parser-helper";
 
-export class ServerDataStoreAgent<
+type AbstructAdminFirestore<Dr, Cr, Tr> = {
+  collection: (p: string) => CollectionReferenceMock<Cr, Dr>;
+  collectionGroup: (p: string) => Cr;
+  doc: (p: string) => Dr;
+  runTransaction: (fn: (t: Tr) => Promise<unknown>) => void;
+};
+
+export class AdminDataStoreAgent<
   T extends object,
   D extends string,
-  C extends string
-> extends DataStoreAgent<
-  T,
-  D,
-  C,
-  DocumentReference<DocumentData, DocumentData>,
-  Query<DocumentData, DocumentData>
-> {
-  private adapter: () => Firestore;
+  C extends string,
+  Ds extends DocumentSnapshotMock,
+  Dr extends DocumentReferenceMock<Ds>,
+  Cr extends QueryReferenceMock<Ds, Dr>,
+  Tr extends TransactionMock<Ds, Dr>
+> extends DataStoreAgent<T, D, C, Dr, Cr> {
+  private adapter: () => AbstructAdminFirestore<Dr, Cr, Tr>;
 
   public constructor(
-    adapter: () => Firestore,
+    adapter: () => AbstructAdminFirestore<Dr, Cr, Tr>,
     schema: DataStoreSchema<T, D, C>
   ) {
     super(schema);
@@ -68,7 +71,7 @@ export class ServerDataStoreAgent<
     data,
     merge
   }: {
-    ref: DocumentReference;
+    ref: Dr;
     data: object;
     merge?: boolean;
   }) {
@@ -76,19 +79,19 @@ export class ServerDataStoreAgent<
     return ref.id;
   }
 
-  protected getDoc(r: DocumentReference) {
+  protected getDoc(r: Dr) {
     return r.get();
   }
 
-  protected async deleteDoc(r: DocumentReference) {
+  protected async deleteDoc(r: Dr) {
     await r.delete();
   }
 
-  protected getQueryDocs(r: Query) {
+  protected getQueryDocs(r: Cr) {
     return r.get().then(snapshot => snapshot.docs);
   }
 
-  protected async getQueryCount(r: Query) {
+  protected async getQueryCount(r: Cr) {
     const snapshot = await r.count().get();
     return snapshot.data().count;
   }
@@ -98,7 +101,7 @@ export class ServerDataStoreAgent<
     handler,
     onError
   }: {
-    ref: DocumentReference;
+    ref: Dr;
     handler: (d: object | null) => void;
     onError: (e: unknown) => void;
   }) {
@@ -110,37 +113,43 @@ export class ServerDataStoreAgent<
     handler,
     onError
   }: {
-    ref: Query;
-    handler: (l: DocumentSnapshotMock[]) => void;
+    ref: Cr;
+    handler: (l: Ds[]) => void;
     onError: (e: unknown) => void;
   }) {
     return ref.onSnapshot(snapshot => handler(snapshot.docs), onError);
   }
 
-  protected applyQueryFormula(
-    ref: Query<DocumentData, DocumentData>,
+  protected applyQueryFormula<R extends QueryReferenceMock<Ds, Dr>>(
+    ref: R,
     query: QueryFormula<T>[] = []
   ) {
     return query.reduce((prev, l) => {
+      // TODO: できればasやめたい
       switch (l[0]) {
         case "limit":
-          return prev.limit(l[1]);
+          return prev.limit(l[1]) as R;
         case "orderBy":
-          return prev.orderBy(parseString(l[1]), l[2]);
+          return prev.orderBy(parseString(l[1]), l[2]) as R;
         case "equal":
-          return prev.where(parseString(l[1]), "==", l[2]);
+          return prev.where(parseString(l[1]), "==", l[2]) as R;
         default:
-          return prev.where(parseString(l[1]), l[2], l[3]);
+          return prev.where(parseString(l[1]), l[2], l[3]) as R;
       }
     }, ref);
   }
 
-  public static runTransaction<M, R>(
-    adapter: () => Firestore,
-    getStep: (
-      o: TransactionGetStepParams<DocumentReference, Query>
-    ) => Promise<M>,
-    setStep: (p: M, m: TransactionSetStepParams<DocumentReference, Query>) => R
+  public static runTransaction<
+    M,
+    R,
+    Ds extends DocumentSnapshotMock,
+    Dr extends DocumentReferenceMock<Ds>,
+    Cr extends QueryReferenceMock<Ds, Dr>,
+    Tr extends TransactionMock<Ds, Dr>
+  >(
+    adapter: () => AbstructAdminFirestore<Dr, Cr, Tr>,
+    getStep: (o: TransactionGetStepParams<Dr, Cr>) => Promise<M>,
+    setStep: (p: M, m: TransactionSetStepParams<Dr, Cr>) => R
   ) {
     return adapter().runTransaction(async t => {
       const r = await getStep({

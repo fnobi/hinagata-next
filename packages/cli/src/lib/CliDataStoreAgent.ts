@@ -7,7 +7,7 @@ import {
 } from "firebase-admin/firestore";
 import { AdminDataStoreAgent } from "@hinagata-next/core/common/AdminDataStoreAgent";
 
-export class ServerDataStoreAgent<
+export class CliDataStoreAgent<
   T extends object,
   D extends string,
   C extends string

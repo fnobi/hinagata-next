@@ -1,6 +1,6 @@
 import { writeFileSync } from "fs";
 import { profilePostDataStoreSchema } from "@hinagata-next/core/feature/app-data-store-schema";
-import { ServerDataStoreAgent } from "~/lib/ServerDataStoreAgent";
+import { CliDataStoreAgent } from "~/lib/CliDataStoreAgent";
 import { firebaseFirestore } from "~/lib/firebase-app";
 import { toCsv } from "~/lib/csv-util";
 
@@ -8,7 +8,7 @@ const OUTPUT_PATH = process.argv[2] || "profilePosts.csv";
 
 const CSV_HEADER = ["postId", "userId", "name", "email", "createdAt"];
 
-const profilePostDataStore = new ServerDataStoreAgent(
+const profilePostDataStore = new CliDataStoreAgent(
   firebaseFirestore,
   profilePostDataStoreSchema
 );
