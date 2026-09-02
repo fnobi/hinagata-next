@@ -1,0 +1,29 @@
+{
+  "name": "@hinagata-next/cli",
+  "private": true,
+  "engines": {
+    "node": "22"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src/",
+    "export:profile-posts": "tsx src/scripts/export-profile-posts.ts"
+  },
+  "dependencies": {
+    "@hinagata-next/core": "workspace:*",
+    "dotenv": "^17.4.2",
+    "firebase-admin": "^14.2.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^22.10.0",
+    "@typescript-eslint/eslint-plugin": "^8.59.3",
+    "@typescript-eslint/parser": "^8.59.3",
+    "eslint": "^9.39.4",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-import": "^2.32.0",
+    "globals": "^16.0.0",
+    "tsx": "^4.21.0",
+    "typescript": "^5.7.0"
+  }
+}

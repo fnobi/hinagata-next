@@ -11,7 +11,7 @@ import {
   type TransactionSetStepParams
 } from "@hinagata-next/core/common/DataStoreAgent";
 
-export class ServerDataStoreAgent<
+export class CliDataStoreAgent<
   T extends object,
   D extends string,
   C extends string
