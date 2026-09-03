@@ -97,13 +97,13 @@ describe("image-split", () => {
     expect(nearestCorner(rect, { x: 35, y: 25 })).toBe("se");
   });
 
-  it("clampSplitCount keeps the value within [2, 6] and rounds to an integer", () => {
+  it("clampSplitCount keeps the value within [2, 8] and rounds to an integer", () => {
     expect(clampSplitCount(3)).toBe(3);
     expect(clampSplitCount(1)).toBe(2);
     expect(clampSplitCount(0)).toBe(2);
     expect(clampSplitCount(-5)).toBe(2);
-    expect(clampSplitCount(7)).toBe(6);
-    expect(clampSplitCount(100)).toBe(6);
+    expect(clampSplitCount(9)).toBe(8);
+    expect(clampSplitCount(100)).toBe(8);
     expect(clampSplitCount(3.6)).toBe(4);
   });
 

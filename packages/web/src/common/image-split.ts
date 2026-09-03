@@ -8,7 +8,7 @@ const clampNum = (n: number, min: number, max: number) =>
   Math.min(Math.max(n, min), max);
 
 export const MIN_SPLIT_COUNT = 2;
-export const MAX_SPLIT_COUNT = 6;
+export const MAX_SPLIT_COUNT = 8;
 
 export const clampSplitCount = (value: number): number =>
   clampNum(Math.round(value), MIN_SPLIT_COUNT, MAX_SPLIT_COUNT);
