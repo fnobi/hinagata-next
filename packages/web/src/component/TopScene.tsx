@@ -1,4 +1,4 @@
-import { PAGE_MOCK_PROFILE } from "~/feature/page-path";
+import { PAGE_MOCK_PHOTO_PRINT, PAGE_MOCK_PROFILE } from "~/feature/page-path";
 import MockActionButton from "~/component/MockActionButton";
 import MockCenteringLayout from "~/component/MockCenteringLayout";
 
@@ -11,6 +11,13 @@ const TopScene = () => (
           action={{ type: "page-link", page: PAGE_MOCK_PROFILE }}
         >
           リストサンプル
+        </MockActionButton>
+      </p>
+      <p>
+        <MockActionButton
+          action={{ type: "page-link", page: PAGE_MOCK_PHOTO_PRINT }}
+        >
+          写真プリントサンプル
         </MockActionButton>
       </p>
     </div>

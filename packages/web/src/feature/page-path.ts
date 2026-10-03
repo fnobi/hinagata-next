@@ -5,3 +5,5 @@ const PAGE_ROOT = new PageEntry(BASE_URL);
 
 export const PAGE_TOP = PAGE_ROOT;
 export const PAGE_MOCK_PROFILE = PAGE_ROOT.child("mock").child("profile");
+export const PAGE_MOCK_PHOTO_PRINT =
+  PAGE_ROOT.child("mock").child("photo-print");
