@@ -1,5 +1,12 @@
 export type PixelRect = { x: number; y: number; w: number; h: number };
 
+export type PrintParams = {
+  /** 色褪せ具合 0〜1 */
+  fade: number;
+  /** 白枠の太さ(短辺に対する比率) */
+  borderRatio: number;
+};
+
 export type PrintTexture = {
   map: HTMLCanvasElement;
   bump: HTMLCanvasElement;
@@ -14,8 +21,8 @@ const MAX_TEXTURE_SIZE = 1024;
 const MAX_SCALE = 2;
 const PAPER_COLOR: [number, number, number] = [244, 238, 224];
 
-export const getBorderWidth = (rect: PixelRect) =>
-  Math.max(6, Math.round(Math.min(rect.w, rect.h) * 0.06));
+export const getBorderWidth = (rect: PixelRect, borderRatio: number) =>
+  Math.round(Math.min(rect.w, rect.h) * borderRatio);
 
 const makeCanvas = (w: number, h: number) => {
   const canvas = document.createElement("canvas");
@@ -28,26 +35,39 @@ const makeCanvas = (w: number, h: number) => {
   return { canvas, ctx };
 };
 
-const rand = (min: number, max: number) => min + Math.random() * (max - min);
+// 見た目を再現可能にするため、プリントごとのシードで乱数を回す
+let random: () => number = Math.random;
+const seededRandom = (seed: number) => {
+  let a = seed >>> 0;
+  return () => {
+    a = (a + 0x6d2b79f5) >>> 0;
+    let t = a;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+};
+
+const rand = (min: number, max: number) => min + random() * (max - min);
 
 /** 古い印画紙っぽい色調(褪色・暖色寄り・粒子)にする */
-const agePhotoPixels = (data: ImageData) => {
+const agePhotoPixels = (data: ImageData, fade: number) => {
   const { data: px } = data;
   for (let i = 0; i < px.length; i += 4) {
     const lum = 0.299 * px[i] + 0.587 * px[i + 1] + 0.114 * px[i + 2];
     // 彩度を少し落とす
-    let r = lum + (px[i] - lum) * 0.78;
-    let g = lum + (px[i + 1] - lum) * 0.78;
-    let b = lum + (px[i + 2] - lum) * 0.78;
+    let r = lum + (px[i] - lum) * (1 - 0.44 * fade);
+    let g = lum + (px[i + 1] - lum) * (1 - 0.44 * fade);
+    let b = lum + (px[i + 2] - lum) * (1 - 0.44 * fade);
     // 黒を持ち上げ、白を落とす(褪色)
-    r = 20 + r * 0.86;
-    g = 20 + g * 0.86;
-    b = 20 + b * 0.86;
+    r = 40 * fade + r * (1 - 0.28 * fade);
+    g = 40 * fade + g * (1 - 0.28 * fade);
+    b = 40 * fade + b * (1 - 0.28 * fade);
     // 暖色寄り
-    r *= 1.04;
-    b *= 0.9;
+    r *= 1 + 0.08 * fade;
+    b *= 1 - 0.2 * fade;
     // 粒子
-    const n = (Math.random() - 0.5) * 20;
+    const n = (random() - 0.5) * (8 + 24 * fade);
     px[i] = r + n;
     px[i + 1] = g + n;
     px[i + 2] = b + n;
@@ -57,7 +77,7 @@ const agePhotoPixels = (data: ImageData) => {
 const fillPaper = (ctx: CanvasRenderingContext2D, w: number, h: number) => {
   const img = ctx.createImageData(w, h);
   for (let i = 0; i < img.data.length; i += 4) {
-    const n = (Math.random() - 0.5) * 12;
+    const n = (random() - 0.5) * 12;
     img.data[i] = PAPER_COLOR[0] + n;
     img.data[i + 1] = PAPER_COLOR[1] + n;
     img.data[i + 2] = PAPER_COLOR[2] + n;
@@ -72,7 +92,7 @@ const fillPaper = (ctx: CanvasRenderingContext2D, w: number, h: number) => {
     const a = rand(0, Math.PI * 2);
     const l = rand(3, 12);
     ctx.strokeStyle =
-      Math.random() < 0.5
+      random() < 0.5
         ? `rgba(255,255,255,${rand(0.05, 0.2)})`
         : `rgba(120,95,60,${rand(0.03, 0.1)})`;
     ctx.lineWidth = 1;
@@ -104,7 +124,7 @@ const drawDust = (ctx: CanvasRenderingContext2D, w: number, h: number) => {
   const specks = Math.floor((w * h) / 9000);
   for (let i = 0; i < specks; i += 1) {
     ctx.fillStyle =
-      Math.random() < 0.5
+      random() < 0.5
         ? `rgba(255,255,255,${rand(0.2, 0.6)})`
         : `rgba(60,40,20,${rand(0.1, 0.3)})`;
     const r = rand(0.5, 1.6);
@@ -136,7 +156,7 @@ const makeBumpCanvas = (w: number, h: number) => {
   const { canvas, ctx } = makeCanvas(bw, bh);
   const img = ctx.createImageData(bw, bh);
   for (let i = 0; i < img.data.length; i += 4) {
-    const v = 128 + (Math.random() - 0.5) * 70;
+    const v = 128 + (random() - 0.5) * 70;
     img.data[i] = v;
     img.data[i + 1] = v;
     img.data[i + 2] = v;
@@ -149,7 +169,7 @@ const makeBumpCanvas = (w: number, h: number) => {
     const y = rand(0, bh);
     const a = rand(0, Math.PI * 2);
     const l = rand(4, 16);
-    ctx.strokeStyle = `rgba(${Math.random() < 0.5 ? "255,255,255" : "0,0,0"},0.18)`;
+    ctx.strokeStyle = `rgba(${random() < 0.5 ? "255,255,255" : "0,0,0"},0.18)`;
     ctx.beginPath();
     ctx.moveTo(x, y);
     ctx.lineTo(x + Math.cos(a) * l, y + Math.sin(a) * l);
@@ -164,9 +184,12 @@ const makeBumpCanvas = (w: number, h: number) => {
  */
 export const makePrintTexture = (
   source: CanvasImageSource,
-  rect: PixelRect
+  rect: PixelRect,
+  { fade, borderRatio }: PrintParams,
+  seed: number
 ): PrintTexture => {
-  const border = getBorderWidth(rect);
+  random = seededRandom(seed);
+  const border = getBorderWidth(rect, borderRatio);
   const width = rect.w + border * 2;
   const height = rect.h + border * 2;
   const scale = Math.min(MAX_SCALE, MAX_TEXTURE_SIZE / Math.max(width, height));
@@ -183,13 +206,15 @@ export const makePrintTexture = (
   const photo = makeCanvas(pw, ph);
   photo.ctx.drawImage(source, rect.x, rect.y, rect.w, rect.h, 0, 0, pw, ph);
   const photoData = photo.ctx.getImageData(0, 0, pw, ph);
-  agePhotoPixels(photoData);
+  agePhotoPixels(photoData, fade);
   ctx.putImageData(photoData, bx, bx);
 
   // 写真と白枠の境目のにじみ
-  ctx.strokeStyle = "rgba(80,60,30,0.25)";
-  ctx.lineWidth = 1.5;
-  ctx.strokeRect(bx - 0.5, bx - 0.5, pw + 1, ph + 1);
+  if (bx > 0) {
+    ctx.strokeStyle = "rgba(80,60,30,0.25)";
+    ctx.lineWidth = 1.5;
+    ctx.strokeRect(bx - 0.5, bx - 0.5, pw + 1, ph + 1);
+  }
 
   // 周辺減光
   const vignette = ctx.createRadialGradient(
@@ -201,7 +226,7 @@ export const makePrintTexture = (
     Math.hypot(pw, ph) * 0.55
   );
   vignette.addColorStop(0, "rgba(60,35,10,0)");
-  vignette.addColorStop(1, "rgba(60,35,10,0.3)");
+  vignette.addColorStop(1, `rgba(60,35,10,${0.6 * fade})`);
   ctx.fillStyle = vignette;
   ctx.fillRect(bx, bx, pw, ph);
 

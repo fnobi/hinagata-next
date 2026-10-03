@@ -16,7 +16,8 @@ import {
 import {
   makePrintTexture,
   makeShadowTexture,
-  type PixelRect
+  type PixelRect,
+  type PrintParams
 } from "~/feature/print-texture";
 
 const MAX_IMAGE_SIZE = 2048;
@@ -24,6 +25,11 @@ const DROP_DURATION = 320;
 const SHADOW_PAD = 24;
 
 type Print = {
+  rect: PixelRect;
+  seed: number;
+  rotation: number;
+  curlSign: number;
+  twist: number;
   group: Group;
   paper: MeshStandardMaterial;
   shadow: MeshBasicMaterial;
@@ -36,9 +42,15 @@ type Print = {
 const easeOut = (t: number) => 1 - (1 - t) ** 3;
 
 /** 紙が少したわんでいるように見せる */
-const bendPlane = (geo: PlaneGeometry, w: number, h: number) => {
-  const curl = Math.min(w, h) * 0.012 * (Math.random() < 0.5 ? 1 : -1);
-  const twist = Math.min(w, h) * 0.008 * (Math.random() - 0.5) * 2;
+const bendPlane = (
+  geo: PlaneGeometry,
+  w: number,
+  h: number,
+  curlSign: number,
+  twistRatio: number
+) => {
+  const curl = Math.min(w, h) * 0.012 * curlSign;
+  const twist = Math.min(w, h) * 0.008 * twistRatio;
   const pos = geo.attributes.position;
   for (let i = 0; i < pos.count; i += 1) {
     const nx = pos.getX(i) / (w / 2);
@@ -68,6 +80,12 @@ export default class PhotoPrintStage {
   private source: HTMLCanvasElement | null = null;
 
   private rafId: number | null = null;
+
+  private params: PrintParams = { fade: 0.5, borderRatio: 0.06 };
+
+  private rebuildQueued = false;
+
+  private backgroundVisible = true;
 
   public constructor(private container: HTMLElement) {
     this.renderer = new WebGLRenderer({ antialias: true, alpha: true });
@@ -120,6 +138,7 @@ export default class PhotoPrintStage {
       new PlaneGeometry(canvas.width, canvas.height),
       new MeshBasicMaterial({ map: tex })
     );
+    this.background.visible = this.backgroundVisible;
     this.scene.add(this.background);
 
     this.camera.left = -canvas.width / 2;
@@ -146,7 +165,30 @@ export default class PhotoPrintStage {
       return;
     }
 
-    const tex = makePrintTexture(this.source, rect);
+    const print: Print = {
+      rect,
+      seed: Math.floor(Math.random() * 2 ** 31),
+      rotation: ((Math.random() - 0.5) * 3 * Math.PI) / 180,
+      curlSign: Math.random() < 0.5 ? 1 : -1,
+      twist: (Math.random() - 0.5) * 2,
+      startedAt: performance.now()
+    } as Print;
+    this.buildPrint(print, this.prints.length);
+    this.prints.push(print);
+    this.startAnimation();
+  }
+
+  /** 現在のパラメータでプリントのメッシュ・テクスチャを(再)生成する */
+  private buildPrint(print: Print, order: number) {
+    const { source } = this;
+    if (!source) {
+      return;
+    }
+    const { rect } = print;
+    if (print.group) {
+      this.disposePrint(print);
+    }
+    const tex = makePrintTexture(source, rect, this.params, print.seed);
     const mapTex = new CanvasTexture(tex.map);
     mapTex.colorSpace = SRGBColorSpace;
     mapTex.anisotropy = 4;
@@ -157,7 +199,7 @@ export default class PhotoPrintStage {
     shadowTex.colorSpace = SRGBColorSpace;
 
     const paperGeo = new PlaneGeometry(tex.width, tex.height, 16, 16);
-    bendPlane(paperGeo, tex.width, tex.height);
+    bendPlane(paperGeo, tex.width, tex.height, print.curlSign, print.twist);
     const paper = new MeshStandardMaterial({
       map: mapTex,
       bumpMap: bumpTex,
@@ -179,7 +221,6 @@ export default class PhotoPrintStage {
       tex.height + SHADOW_PAD * 2
     );
 
-    const order = this.prints.length;
     const paperMesh = new Mesh(paperGeo, paper);
     paperMesh.renderOrder = order * 2 + 2;
     const shadowMesh = new Mesh(shadowGeo, shadow);
@@ -189,23 +230,61 @@ export default class PhotoPrintStage {
     group.add(shadowMesh, paperMesh);
     // 選択範囲の中心に置く(白枠は左右対称にはみ出す)
     group.position.set(
-      rect.x + rect.w / 2 - this.source.width / 2,
-      this.source.height / 2 - (rect.y + rect.h / 2),
+      rect.x + rect.w / 2 - source.width / 2,
+      source.height / 2 - (rect.y + rect.h / 2),
       1
     );
-    group.rotation.z = ((Math.random() - 0.5) * 3 * Math.PI) / 180;
+    group.rotation.z = print.rotation;
     this.scene.add(group);
 
-    this.prints.push({
+    Object.assign(print, {
       group,
       paper,
       shadow,
       shadowMesh,
       geometries: [paperGeo, shadowGeo],
-      textures: [mapTex, bumpTex, shadowTex],
-      startedAt: performance.now()
+      textures: [mapTex, bumpTex, shadowTex]
     });
-    this.startAnimation();
+  }
+
+  public setParams(params: PrintParams) {
+    this.params = params;
+    if (this.rebuildQueued) {
+      return;
+    }
+    this.rebuildQueued = true;
+    requestAnimationFrame(() => {
+      this.rebuildQueued = false;
+      this.prints.forEach((p, i) => this.buildPrint(p, i));
+      this.render();
+    });
+  }
+
+  public setBackgroundVisible(visible: boolean) {
+    this.backgroundVisible = visible;
+    if (this.background) {
+      this.background.visible = visible;
+    }
+    this.render();
+  }
+
+  /** 元画像サイズで書き出す。下絵を隠している場合はプリントだけの透過PNGになる */
+  public async toBlob(): Promise<Blob | null> {
+    const { source } = this;
+    if (!source) {
+      return null;
+    }
+    const { domElement } = this.renderer;
+    const pixelRatio = this.renderer.getPixelRatio();
+    this.renderer.setPixelRatio(1);
+    this.renderer.setSize(source.width, source.height, false);
+    this.render();
+    const blob = await new Promise<Blob | null>(resolve => {
+      domElement.toBlob(resolve, "image/png");
+    });
+    this.renderer.setPixelRatio(pixelRatio);
+    this.resize();
+    return blob;
   }
 
   public undo() {

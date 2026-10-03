@@ -22,6 +22,25 @@ const Stage = styled.div({
   userSelect: "none"
 });
 
+const Controls = styled.div({
+  display: "flex",
+  flexDirection: "column",
+  gap: em(0.5)
+});
+
+const ControlRow = styled.label({
+  display: "flex",
+  alignItems: "center",
+  gap: em(1)
+});
+
+const ControlLabel = styled.span({
+  width: em(8)
+});
+
+const CHECKER_BG =
+  "repeating-conic-gradient(#ccc 0% 25%, #fff 0% 50%) 50% / 20px 20px";
+
 const SelectionBox = styled.div({
   position: "absolute",
   border: `${px(1)} dashed #fff`,
@@ -58,6 +77,9 @@ const PhotoPrintMockScene = () => {
   const stage = useRef<PhotoPrintStage | null>(null);
   const [aspect, setAspect] = useState<number | null>(null);
   const [printCount, setPrintCount] = useState(0);
+  const [fade, setFade] = useState(0.5);
+  const [borderRatio, setBorderRatio] = useState(0.06);
+  const [showBackground, setShowBackground] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [drag, setDrag] = useState<{ start: Point; current: Point } | null>(
     null
@@ -82,6 +104,27 @@ const PhotoPrintMockScene = () => {
     },
     []
   );
+
+  useEffect(() => {
+    stage.current?.setParams({ fade, borderRatio });
+  }, [fade, borderRatio, aspect]);
+
+  useEffect(() => {
+    stage.current?.setBackgroundVisible(showBackground);
+  }, [showBackground, aspect]);
+
+  const onDownload = async () => {
+    const blob = await stage.current?.toBlob();
+    if (!blob) {
+      return;
+    }
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "photo-print.png";
+    a.click();
+    URL.revokeObjectURL(url);
+  };
 
   const onFiles = async (files: File[]) => {
     const [file] = files;
@@ -182,6 +225,13 @@ const PhotoPrintMockScene = () => {
         >
           全部消す
         </MockActionButton>
+        <MockActionButton
+          action={
+            aspect !== null ? { type: "button", onClick: onDownload } : null
+          }
+        >
+          ダウンロード
+        </MockActionButton>
       </Toolbar>
       {error ? <div>{error}</div> : null}
       {aspect === null ? (
@@ -191,7 +241,10 @@ const PhotoPrintMockScene = () => {
       ) : (
         <Stage
           ref={stageRef}
-          style={{ aspectRatio: aspect }}
+          style={{
+            aspectRatio: aspect,
+            background: showBackground ? undefined : CHECKER_BG
+          }}
           onPointerDown={onPointerDown}
           onPointerMove={onPointerMove}
           onPointerUp={onPointerUp}
@@ -202,6 +255,38 @@ const PhotoPrintMockScene = () => {
           ) : null}
         </Stage>
       )}
+      <Controls>
+        <ControlRow>
+          <ControlLabel>色褪せ具合</ControlLabel>
+          <input
+            type="range"
+            min={0}
+            max={1}
+            step={0.01}
+            value={fade}
+            onChange={e => setFade(Number(e.target.value))}
+          />
+        </ControlRow>
+        <ControlRow>
+          <ControlLabel>白枠の幅</ControlLabel>
+          <input
+            type="range"
+            min={0}
+            max={0.15}
+            step={0.005}
+            value={borderRatio}
+            onChange={e => setBorderRatio(Number(e.target.value))}
+          />
+        </ControlRow>
+        <ControlRow>
+          <ControlLabel>下絵を表示</ControlLabel>
+          <input
+            type="checkbox"
+            checked={showBackground}
+            onChange={e => setShowBackground(e.target.checked)}
+          />
+        </ControlRow>
+      </Controls>
     </MockStaticLayout>
   );
 };
