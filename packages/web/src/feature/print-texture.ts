@@ -19,7 +19,12 @@ export type PrintTexture = {
 
 const MAX_TEXTURE_SIZE = 1024;
 const MAX_SCALE = 2;
-const PAPER_COLOR: [number, number, number] = [244, 238, 224];
+const PAPER_FRESH: [number, number, number] = [252, 250, 246];
+const PAPER_AGED: [number, number, number] = [226, 206, 168];
+
+/** 色褪せ具合に応じて、白枠の紙の色を白→黄ばみへ寄せる */
+const getPaperColor = (fade: number) =>
+  PAPER_FRESH.map((c, i) => c + (PAPER_AGED[i] - c) * fade);
 
 export const getBorderWidth = (rect: PixelRect, borderRatio: number) =>
   Math.round(Math.min(rect.w, rect.h) * borderRatio);
@@ -74,13 +79,19 @@ const agePhotoPixels = (data: ImageData, fade: number) => {
   }
 };
 
-const fillPaper = (ctx: CanvasRenderingContext2D, w: number, h: number) => {
+const fillPaper = (
+  ctx: CanvasRenderingContext2D,
+  w: number,
+  h: number,
+  fade: number
+) => {
+  const paper = getPaperColor(fade);
   const img = ctx.createImageData(w, h);
   for (let i = 0; i < img.data.length; i += 4) {
     const n = (random() - 0.5) * 12;
-    img.data[i] = PAPER_COLOR[0] + n;
-    img.data[i + 1] = PAPER_COLOR[1] + n;
-    img.data[i + 2] = PAPER_COLOR[2] + n;
+    img.data[i] = paper[0] + n;
+    img.data[i + 1] = paper[1] + n;
+    img.data[i + 2] = paper[2] + n;
     img.data[i + 3] = 255;
   }
   ctx.putImageData(img, 0, 0);
@@ -103,7 +114,12 @@ const fillPaper = (ctx: CanvasRenderingContext2D, w: number, h: number) => {
   }
 };
 
-const drawEdgeWear = (ctx: CanvasRenderingContext2D, w: number, h: number) => {
+const drawEdgeWear = (
+  ctx: CanvasRenderingContext2D,
+  w: number,
+  h: number,
+  fade: number
+) => {
   const size = Math.min(w, h) * 0.07;
   const edges: [number, number, number, number][] = [
     [0, 0, size, 0],
@@ -113,7 +129,7 @@ const drawEdgeWear = (ctx: CanvasRenderingContext2D, w: number, h: number) => {
   ];
   edges.forEach(([x0, y0, x1, y1]) => {
     const g = ctx.createLinearGradient(x0, y0, x1, y1);
-    g.addColorStop(0, "rgba(150,115,60,0.22)");
+    g.addColorStop(0, `rgba(150,115,60,${0.44 * fade})`);
     g.addColorStop(1, "rgba(150,115,60,0)");
     ctx.fillStyle = g;
     ctx.fillRect(0, 0, w, h);
@@ -197,7 +213,7 @@ export const makePrintTexture = (
   const { canvas, ctx } = makeCanvas(width * scale, height * scale);
   const cw = canvas.width;
   const ch = canvas.height;
-  fillPaper(ctx, cw, ch);
+  fillPaper(ctx, cw, ch, fade);
 
   const bx = Math.round(border * scale);
   const pw = cw - bx * 2;
@@ -239,7 +255,7 @@ export const makePrintTexture = (
   ctx.fillStyle = gloss;
   ctx.fillRect(bx, bx, pw, ph);
 
-  drawEdgeWear(ctx, cw, ch);
+  drawEdgeWear(ctx, cw, ch, fade);
   drawDust(ctx, cw, ch);
 
   return { map: canvas, bump: makeBumpCanvas(cw, ch), width, height, border };
