@@ -21,9 +21,9 @@ terraform apply
 
 ## apply 後に GitHub 側へ設定するもの
 
-`terraform apply` 完了後に出力される値を、対象リポジトリの Secrets に設定します。
+`terraform apply` 完了後に出力される値を、対象リポジトリの Variables（Settings → Secrets and variables → Actions → Variables）に設定します。いずれも秘匿情報ではないため Secrets は使いません。
 
-| GitHub Secret        | 値                                  |
+| GitHub Variable      | 値                                  |
 | --------------------- | ------------------------------------ |
 | `WIF_PROVIDER`        | output `workload_identity_provider` |
 | `WIF_SERVICE_ACCOUNT` | output `service_account_email`      |
@@ -33,7 +33,7 @@ terraform output -raw workload_identity_provider
 terraform output -raw service_account_email
 ```
 
-Firebase プロジェクト ID（`NEXT_PUBLIC_FIREBASE_PROJECT_ID` ほか `firebaseConfig.ts` が参照する値）は Secret ではなく、`.github/workflows/sample_firebase.yml` の `env` に直接書かれたダミー値です。実際にデプロイする対象のプロジェクトに合わせて、このファイルの値を書き換えてください。
+Firebase プロジェクト ID（`NEXT_PUBLIC_FIREBASE_PROJECT_ID` ほか `firebaseConfig.ts` が参照する値）は Variables ではなく、`.github/workflows/sample_firebase.yml` の `env` に直接書かれたダミー値です。実際にデプロイする対象のプロジェクトに合わせて、このファイルの値を書き換えてください。
 
 ## 作成されるリソース
 

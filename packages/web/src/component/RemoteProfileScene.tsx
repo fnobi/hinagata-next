@@ -56,6 +56,8 @@ const RemoteProfileScene = () => {
 
   const closeForm = useCallback(() => setFormTarget(null), []);
 
+  // TODO: asyncHandlerの導入
+
   const handleCreate = useCallback(
     async (profile: DummyProfile) => {
       setSubmitError(null);
