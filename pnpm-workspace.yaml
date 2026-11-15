@@ -2,6 +2,7 @@ packages:
   - 'packages/*'
 allowBuilds:
   '@firebase/util': false
+  '@parcel/watcher': false
   canvas: false
   core-js: false
   esbuild: false
@@ -9,7 +10,3 @@ allowBuilds:
   re2: false
   sharp: false
   unrs-resolver: false
-overrides:
-  lodash: ">=4.17.24"
-  fast-uri: ">=3.1.2"
-  postcss: ">=8.5.10"

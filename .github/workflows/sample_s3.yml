@@ -17,15 +17,15 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version-file: .node-version
 
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v6
 
-      - uses: actions/cache@v4
+      - uses: actions/cache@v6
         with:
           path: node_modules
           key: ${{ runner.os }}-node-${{ hashFiles(format('**/{0}',env.ACTIONS_LOCK_FILE)) }}
@@ -38,7 +38,7 @@ jobs:
         run: ${{ env.ACTIONS_BUILD_COMMAND }}
 
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v1
+        uses: aws-actions/configure-aws-credentials@v6
         with:
           aws-access-key-id: ${{ secrets.ACCESS_KEY }}
           aws-secret-access-key: ${{ secrets.SECRET_ACCESS_KEY }}
