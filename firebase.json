@@ -21,7 +21,7 @@
   },
   "functions": {
     "source": "packages/functions",
-    "runtime": "nodejs22",
+    "runtime": "nodejs24",
     "predeploy": [
       "pnpm --filter @hinagata-next/functions build"
     ]

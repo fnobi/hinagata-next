@@ -2,7 +2,7 @@
   "name": "@hinagata-next/cli",
   "private": true,
   "engines": {
-    "node": "22"
+    "node": "24"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
@@ -11,12 +11,12 @@
   },
   "dependencies": {
     "@hinagata-next/core": "workspace:*",
-    "dotenv": "^17.4.2",
+    "dotenv": "^18.0.10",
     "firebase-admin": "^14.5.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.5",
-    "@types/node": "^22.20.5",
+    "@types/node": "^24.19.2",
     "@typescript-eslint/eslint-plugin": "^8.72.2",
     "@typescript-eslint/parser": "^8.72.2",
     "eslint": "^9.39.5",
