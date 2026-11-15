@@ -33,6 +33,16 @@ terraform output -raw workload_identity_provider
 terraform output -raw service_account_email
 ```
 
+[GitHub CLI](https://cli.github.com/)（`gh`）を使う場合は、`terraform` ディレクトリで以下を実行すると output の値をそのまま Variables に設定できます（`gh auth login` 済みで、対象リポジトリへの admin 権限が必要です）。
+
+```bash
+gh variable set WIF_PROVIDER --body "$(terraform output -raw workload_identity_provider)"
+gh variable set WIF_SERVICE_ACCOUNT --body "$(terraform output -raw service_account_email)"
+
+# 設定内容の確認
+gh variable list
+```
+
 Firebase プロジェクト ID（`NEXT_PUBLIC_FIREBASE_PROJECT_ID` ほか `firebaseConfig.ts` が参照する値）は Variables ではなく、`.github/workflows/sample_firebase.yml` の `env` に直接書かれたダミー値です。実際にデプロイする対象のプロジェクトに合わせて、このファイルの値を書き換えてください。
 
 ## 作成されるリソース
