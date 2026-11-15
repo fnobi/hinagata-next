@@ -2,7 +2,7 @@
   "name": "@hinagata-next/functions",
   "private": true,
   "engines": {
-    "node": "22"
+    "node": "24"
   },
   "main": "lib/index.js",
   "scripts": {
@@ -17,10 +17,10 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.39.5",
-    "@types/node": "^22.20.5",
+    "@types/node": "^24.19.2",
     "@typescript-eslint/eslint-plugin": "^8.72.2",
     "@typescript-eslint/parser": "^8.72.2",
-    "esbuild": "^0.24.2",
+    "esbuild": "^0.28.2",
     "eslint": "^9.39.5",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-import": "^2.32.0",
