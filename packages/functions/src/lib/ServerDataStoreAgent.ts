@@ -1,140 +1,28 @@
 import {
+  type Firestore,
   type DocumentData,
   type DocumentReference,
   type Query,
-  type Firestore
+  type DocumentSnapshot
 } from "firebase-admin/firestore";
+import { AdminDataStoreAgent } from "@hinagata-next/core/common/AdminDataStoreAgent";
 import {
-  DataStoreAgent,
-  type DocumentSnapshotMock,
   type TransactionGetStepParams,
-  type TransactionSetStepParams,
-  type DataStoreSchema,
-  type QueryFormula
+  type TransactionSetStepParams
 } from "@hinagata-next/core/common/DataStoreAgent";
-import { parseString } from "@hinagata-next/core/common/parser-helper";
 
 export class ServerDataStoreAgent<
   T extends object,
   D extends string,
   C extends string
-> extends DataStoreAgent<
+> extends AdminDataStoreAgent<
   T,
   D,
   C,
+  DocumentSnapshot,
   DocumentReference<DocumentData, DocumentData>,
   Query<DocumentData, DocumentData>
 > {
-  private adapter: () => Firestore;
-
-  public constructor(
-    adapter: () => Firestore,
-    schema: DataStoreSchema<T, D, C>
-  ) {
-    super(schema);
-    this.adapter = adapter;
-  }
-
-  protected collectionReference({
-    collectionPath
-  }: {
-    collectionPath: string;
-  }) {
-    return this.adapter().collection(collectionPath);
-  }
-
-  protected collectionGroupReference() {
-    return this.adapter().collectionGroup(this.schema.name);
-  }
-
-  protected documentReference({
-    collectionPath,
-    id
-  }: {
-    collectionPath: string;
-    id?: string;
-  }) {
-    const collectionRef = this.collectionReference({ collectionPath });
-    return id ? collectionRef.doc(id) : collectionRef.doc();
-  }
-
-  protected override newDocId(opts: { collectionPath: string }) {
-    const documentRef = this.documentReference(opts);
-    return documentRef.id;
-  }
-
-  protected async setDoc({
-    ref,
-    data,
-    merge
-  }: {
-    ref: DocumentReference;
-    data: object;
-    merge?: boolean;
-  }) {
-    await ref.set(data, { merge });
-    return ref.id;
-  }
-
-  protected getDoc(r: DocumentReference) {
-    return r.get();
-  }
-
-  protected async deleteDoc(r: DocumentReference) {
-    await r.delete();
-  }
-
-  protected getQueryDocs(r: Query) {
-    return r.get().then(snapshot => snapshot.docs);
-  }
-
-  protected async getQueryCount(r: Query) {
-    const snapshot = await r.count().get();
-    return snapshot.data().count;
-  }
-
-  protected subscribeDoc({
-    ref,
-    handler,
-    onError
-  }: {
-    ref: DocumentReference;
-    handler: (d: object | null) => void;
-    onError: (e: unknown) => void;
-  }) {
-    return ref.onSnapshot(handler, onError);
-  }
-
-  protected subscribeQueryDocs({
-    ref,
-    handler,
-    onError
-  }: {
-    ref: Query;
-    handler: (l: DocumentSnapshotMock[]) => void;
-    onError: (e: unknown) => void;
-  }) {
-    return ref.onSnapshot(snapshot => handler(snapshot.docs), onError);
-  }
-
-  protected applyQueryFormula(
-    ref: Query<DocumentData, DocumentData>,
-    query: QueryFormula<T>[] = []
-  ) {
-    return query.reduce((prev, l) => {
-      switch (l[0]) {
-        case "limit":
-          return prev.limit(l[1]);
-        case "orderBy":
-          return prev.orderBy(parseString(l[1]), l[2]);
-        case "equal":
-          return prev.where(parseString(l[1]), "==", l[2]);
-        default:
-          return prev.where(parseString(l[1]), l[2], l[3]);
-      }
-    }, ref);
-  }
-
   public static runTransaction<M, R>(
     adapter: () => Firestore,
     getStep: (

@@ -6,6 +6,31 @@ export type DocumentSnapshotMock = {
   data: () => object | undefined;
 };
 
+export type DocumentReferenceMock<Ds extends DocumentSnapshotMock> = {
+  id: string;
+  get: () => Promise<Ds>;
+  set: (o: object, p: { merge?: boolean }) => void;
+  delete: () => Promise<unknown>;
+  onSnapshot: (
+    h: (d: object | null) => void,
+    e: (ee: unknown) => void
+  ) => () => void;
+};
+
+export interface QueryReferenceMock<Ds extends DocumentSnapshotMock> {
+  get: () => Promise<{ docs: Ds[] }>;
+  count: () => { get: () => Promise<{ data: () => { count: number } }> };
+  onSnapshot: (
+    h: (d: { docs: Ds[] }) => void,
+    e: (ee: unknown) => void
+  ) => () => void;
+  limit(n: number): this;
+  orderBy(f: string, d: "asc" | "desc"): this;
+  where(f: string, d: string, c: unknown): this;
+}
+
+export type CollectionReferenceMock<Cr, Dr> = Cr & { doc: (id?: string) => Dr };
+
 export type TypedCollectionList<T> = { id: string; data: T }[];
 
 type TypedCollectionGroupList<T> = {
@@ -14,11 +39,7 @@ type TypedCollectionGroupList<T> = {
   data: T;
 }[];
 
-export type DataStoreSchema<
-  T,
-  D extends string,
-  C extends string = never
-> = {
+export type DataStoreSchema<T, D extends string, C extends string = never> = {
   name: string;
   documentKey: D;
   parse: (src: unknown) => T;
